@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "tsc && npm run copy-files",
+    "copy-files": "cp -r src/views dist/views && cp -r src/public dist/public",
     "start": "tsc-watch --onsuccess \"node dist/server.js\""
   },
   "keywords": [],
