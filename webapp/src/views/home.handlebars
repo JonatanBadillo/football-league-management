@@ -1,4 +1,73 @@
-<h2>Welcome to the Football League Management App</h2>
-<p>This app allows administrators, referees, and team captains to manage
-  football leagues effectively.</p>
-<button class="btn btn-primary">Get Started</button>
+<div class="container mt-4">
+  <h1 class="text-center fw-bold">Liga de Futbol "Tiki Taka"</h1>
+  
+  <!-- Selector de Liga -->
+  <div class="d-flex justify-content-left mb-3">
+    <select id="ligaSelect" class="form-select w-auto" onchange="fetchLigaData()">
+      <option value="ligaA">Liga Sabatina</option>
+      <option value="ligaB">Liga Dominical</option>
+      <!-- Agregar más ligas si es necesario -->
+    </select>
+  </div>
+
+  <!-- Sección de tablas -->
+  <div class="row">
+    <!-- Tabla de Posiciones -->
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title"><i class="bi bi-trophy"></i> Tabla de Posiciones</h5>
+            <button id="toggleTable" class="btn btn-outline-secondary btn-sm">Ver Top 5</button>
+          </div>
+          
+          <!-- Tabla Completa -->
+          <table id="fullTable" class="table table-striped d-none">
+            <thead>
+              <tr>
+                <th scope="col">Pos</th>
+                <th scope="col">Equipo</th>
+                <th scope="col">PJ</th>
+                <th scope="col">Pts</th>
+                <th scope="col">GF</th>
+                <th scope="col">GC</th>
+              </tr>
+            </thead>
+            <tbody id="fullTableBody">
+              <!-- Datos de ejemplo, se llenarán dinámicamente -->
+            </tbody>
+          </table>
+
+          <!-- Tabla Top 5 -->
+          <table id="top5Table" class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Pos</th>
+                <th scope="col">Equipo</th>
+                <th scope="col">PJ</th>
+                <th scope="col">Pts</th>
+                <th scope="col">GF</th>
+                <th scope="col">GC</th>
+              </tr>
+            </thead>
+            <tbody id="top5TableBody">
+              <!-- Datos de ejemplo, se llenarán dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Próximos Partidos -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-calendar-event"></i> Próximos Partidos</h5>
+          <ul id="proximosPartidosList" class="list-unstyled">
+            <!-- Datos de ejemplo, se llenarán dinámicamente -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
