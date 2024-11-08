@@ -11,6 +11,7 @@ const PORT = 3000;
 app.engine('handlebars', engine({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, '../src/views'));
+app.set('view engine', 'handlebars');
 app.use(express.static(path.join(__dirname, '../src/public')));
 
 
