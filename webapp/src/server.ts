@@ -2,17 +2,22 @@ import express from 'express';
 import fs from 'fs';
 import https from 'https';
 import path from 'path';
+import { engine } from 'express-handlebars';
 
 const app = express();
 const PORT = 3000;
 
-// Middleware y configuración de vistas
-app.use(express.json());
+// Configuración de Handlebars
+app.engine('handlebars', engine({ defaultLayout: 'main' }));
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
+
+// Middleware para archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rutas
 app.get('/', (req, res) => {
-  res.send('Welcome to Football League Management');
+  res.render('home', { title: 'Football League Management' });
 });
 
 // Opciones SSL
