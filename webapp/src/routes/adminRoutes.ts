@@ -79,6 +79,39 @@ router.post("/user", async (req, res) => {
   }
 });
 
+// Crear un jugador
+router.post('/player', async (req, res) => {
+  const {
+    name,
+    position,
+    goals,
+    yellowCards,
+    redCards,
+    image,
+    matchesPlayed,
+    teamId,
+    leagueId,
+  } = req.body;
+
+  try {
+    const player = await Player.create({
+      name,
+      position,
+      goals,
+      yellowCards,
+      redCards,
+      image,
+      matchesPlayed,
+      teamId,
+      leagueId,
+    });
+    res.status(201).json(player);
+  } catch (error) {
+    console.error('Error al crear el jugador:', error);
+    res.status(500).json({ error: 'Error al crear el jugador' });
+  }
+});
+
 
 
 ///////////////////////////  DELETE  ///////////////////////////
@@ -132,6 +165,23 @@ router.delete("/league/:id", async (req, res) => {
   }
 });
 
+// Eliminar un jugador
+router.delete('/player/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const player = await Player.findByPk(id);
+    if (!player) {
+      return res.status(404).json({ error: 'Jugador no encontrado' });
+    }
+
+    await player.destroy();
+    res.status(200).json({ message: 'Jugador eliminado con éxito' });
+  } catch (error) {
+    console.error('Error al eliminar el jugador:', error);
+    res.status(500).json({ error: 'Error al eliminar el jugador' });
+  }
+});
 
 ///////////////////////////  PUT  ///////////////////////////
 // Actualizar un equipo
@@ -221,6 +271,45 @@ router.put("/league/:id", async (req, res) => {
   }
 });
 
+// Actualizar un jugador
+router.put('/player/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    name,
+    position,
+    goals,
+    yellowCards,
+    redCards,
+    image,
+    matchesPlayed,
+    teamId,
+    leagueId,
+  } = req.body;
+
+  try {
+    const player = await Player.findByPk(id);
+    if (!player) {
+      return res.status(404).json({ error: 'Jugador no encontrado' });
+    }
+
+    await player.update({
+      name,
+      position,
+      goals,
+      yellowCards,
+      redCards,
+      image,
+      matchesPlayed,
+      teamId,
+      leagueId,
+    });
+
+    res.status(200).json(player);
+  } catch (error) {
+    console.error('Error al actualizar el jugador:', error);
+    res.status(500).json({ error: 'Error al actualizar el jugador' });
+  }
+});
 
 
 ///////////////////////////  GET  ///////////////////////////
@@ -304,5 +393,34 @@ router.get("/league/:id", async (req, res) => {
     res.status(500).json({ error: "Error al obtener la liga" });
   }
 });
+
+// Obtener todos los jugadores
+router.get('/players', async (req, res) => {
+  try {
+    const players = await Player.findAll();
+    res.status(200).json(players);
+  } catch (error) {
+    console.error('Error al obtener los jugadores:', error);
+    res.status(500).json({ error: 'Error al obtener los jugadores' });
+  }
+});
+
+// Obtener un jugador por ID
+router.get('/player/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const player = await Player.findByPk(id);
+    if (!player) {
+      return res.status(404).json({ error: 'Jugador no encontrado' });
+    }
+    res.status(200).json(player);
+  } catch (error) {
+    console.error('Error al obtener el jugador:', error);
+    res.status(500).json({ error: 'Error al obtener el jugador' });
+  }
+});
+
+
 
 export default router;
