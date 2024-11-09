@@ -4,6 +4,7 @@ import League from "../model/League";
 import Team from "../model/Team";
 import Player from "../model/Player";
 import User from "../model/User";
+import Match from "../model/Match";
 
 const router = express.Router();
 
@@ -112,6 +113,36 @@ router.post('/player', async (req, res) => {
   }
 });
 
+// Crear un partido
+router.post('/match', async (req, res) => {
+  const {
+    date,
+    time,
+    scoreHome = 0,
+    scoreAway = 0,
+    homeTeamId,
+    awayTeamId,
+    refereeId,
+    leagueId,
+  } = req.body;
+
+  try {
+    const match = await Match.create({
+      date,
+      time,
+      scoreHome,
+      scoreAway,
+      homeTeamId,
+      awayTeamId,
+      refereeId,
+      leagueId,
+    });
+    res.status(201).json(match);
+  } catch (error) {
+    console.error('Error al crear el partido:', error);
+    res.status(500).json({ error: 'Error al crear el partido' });
+  }
+});
 
 
 ///////////////////////////  DELETE  ///////////////////////////
@@ -182,6 +213,25 @@ router.delete('/player/:id', async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar el jugador' });
   }
 });
+
+// Eliminar un partido
+router.delete('/match/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const match = await Match.findByPk(id);
+    if (!match) {
+      return res.status(404).json({ error: 'Partido no encontrado' });
+    }
+
+    await match.destroy();
+    res.status(200).json({ message: 'Partido eliminado con éxito' });
+  } catch (error) {
+    console.error('Error al eliminar el partido:', error);
+    res.status(500).json({ error: 'Error al eliminar el partido' });
+  }
+});
+
 
 ///////////////////////////  PUT  ///////////////////////////
 // Actualizar un equipo
@@ -311,6 +361,43 @@ router.put('/player/:id', async (req, res) => {
   }
 });
 
+// Actualizar un partido
+router.put('/match/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    date,
+    time,
+    scoreHome,
+    scoreAway,
+    homeTeamId,
+    awayTeamId,
+    refereeId,
+    leagueId,
+  } = req.body;
+
+  try {
+    const match = await Match.findByPk(id);
+    if (!match) {
+      return res.status(404).json({ error: 'Partido no encontrado' });
+    }
+
+    await match.update({
+      date,
+      time,
+      scoreHome,
+      scoreAway,
+      homeTeamId,
+      awayTeamId,
+      refereeId,
+      leagueId,
+    });
+
+    res.status(200).json(match);
+  } catch (error) {
+    console.error('Error al actualizar el partido:', error);
+    res.status(500).json({ error: 'Error al actualizar el partido' });
+  }
+});
 
 ///////////////////////////  GET  ///////////////////////////
 // Obtener todos los equipos
@@ -421,6 +508,46 @@ router.get('/player/:id', async (req, res) => {
   }
 });
 
+// Obtener todos los partidos
+router.get('/matches', async (req, res) => {
+  try {
+    const matches = await Match.findAll({
+      include: [
+        { model: Team, as: 'homeTeam' },
+        { model: Team, as: 'awayTeam' },
+        { model: User, as: 'referee' },
+        { model: League },
+      ],
+    });
+    res.status(200).json(matches);
+  } catch (error) {
+    console.error('Error al obtener los partidos:', error);
+    res.status(500).json({ error: 'Error al obtener los partidos' });
+  }
+});
+
+// Obtener un partido por ID
+router.get('/match/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const match = await Match.findByPk(id, {
+      include: [
+        { model: Team, as: 'homeTeam' },
+        { model: Team, as: 'awayTeam' },
+        { model: User, as: 'referee' },
+        { model: League },
+      ],
+    });
+    if (!match) {
+      return res.status(404).json({ error: 'Partido no encontrado' });
+    }
+    res.status(200).json(match);
+  } catch (error) {
+    console.error('Error al obtener el partido:', error);
+    res.status(500).json({ error: 'Error al obtener el partido' });
+  }
+});
 
 
 export default router;
