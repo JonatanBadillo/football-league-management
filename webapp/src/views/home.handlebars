@@ -1,7 +1,7 @@
 <div class="container mt-4 mb-5">
   <h1 class="text-center fw-bold mb-4">Liga de Futbol "Tiki Taka"</h1>
   
-  <!-- Selector de Liga -->
+ <!-- Selector de Liga -->
   <div class="d-flex justify-content-start mb-4">
     <select id="ligaSelect" class="form-select w-auto" onchange="fetchLigaData()">
       <option value="ligaA">Liga Sabatina</option>
@@ -59,9 +59,21 @@
         </div>
       </div>
     </div>
-{{> next_matches}}
-{{> scorers}}
-{{> goalkeepers}}
+    <!-- Incluir Parcial de Próximos Partidos -->
+    <div class="col-md-4">
+      {{> next_matches}}
+    </div>
+
+  <!-- Incluir Parcial de Goleadores y Porteros -->
+    <div class="col-md-6">
+      {{> scorers}}
+    </div>
+    <div class="col-md-6">
+      {{> goalkeepers}}
+    </div>
+
+
+{{> teams}}
     
   </div>
 
