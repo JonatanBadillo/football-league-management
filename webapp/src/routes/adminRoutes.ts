@@ -32,14 +32,15 @@ router.post("/team", async (req, res) => {
     name,
     leagueId,
     captainId,
-    balance,
-    logo,
-    goalsFor,
-    goalsAgainst,
-    victories,
-    defeats,
-    points,
-    matchesPlayed,
+    balance = 0.0,
+    logo = null,
+    goalsFor = 0,
+    goalsAgainst = 0,
+    victories = 0,
+    defeats = 0,
+    draws = 0,
+    points = 0,
+    matchesPlayed = 0,
   } = req.body;
 
   try {
@@ -53,6 +54,7 @@ router.post("/team", async (req, res) => {
       goalsAgainst,
       victories,
       defeats,
+      draws,
       points,
       matchesPlayed,
     });
@@ -62,6 +64,7 @@ router.post("/team", async (req, res) => {
     res.status(500).json({ error: "Error al crear el equipo" });
   }
 });
+
 
 // Crear un usuario (capitán o cualquier otro rol)
 router.post("/user", async (req, res) => {
@@ -234,6 +237,7 @@ router.delete('/match/:id', async (req, res) => {
 
 
 ///////////////////////////  PUT  ///////////////////////////
+
 // Actualizar un equipo
 router.put("/team/:id", async (req, res) => {
   const { id } = req.params;
@@ -247,6 +251,7 @@ router.put("/team/:id", async (req, res) => {
     goalsAgainst,
     victories,
     defeats,
+    draws,
     points,
     matchesPlayed,
   } = req.body;
@@ -268,6 +273,7 @@ router.put("/team/:id", async (req, res) => {
       goalsAgainst,
       victories,
       defeats,
+      draws,
       points,
       matchesPlayed,
     });
@@ -278,6 +284,8 @@ router.put("/team/:id", async (req, res) => {
     res.status(500).json({ error: "Error al actualizar el equipo" });
   }
 });
+
+
 
 // Editar un capitán (usuario) por ID
 router.put("/user/:id", async (req, res) => {
@@ -399,11 +407,19 @@ router.put('/match/:id', async (req, res) => {
   }
 });
 
+
+
+
 ///////////////////////////  GET  ///////////////////////////
 // Obtener todos los equipos
 router.get("/teams", async (req, res) => {
   try {
-    const teams = await Team.findAll();
+    const teams = await Team.findAll({
+      include: [
+        { model: League, attributes: ["id", "name"] },
+        { model: User, as: "captain", attributes: ["id", "username"] },
+      ],
+    });
     res.status(200).json(teams);
   } catch (error) {
     console.error("Error al obtener los equipos:", error);
@@ -411,21 +427,30 @@ router.get("/teams", async (req, res) => {
   }
 });
 
-// Obtener un equipo por ID
+
+// Obtener un equipo específico por ID
 router.get("/team/:id", async (req, res) => {
   const { id } = req.params;
+
   try {
-    const team = await Team.findByPk(id);
-    if (team) {
-      res.status(200).json(team);
-    } else {
-      res.status(404).json({ error: "Equipo no encontrado" });
+    const team = await Team.findByPk(id, {
+      include: [
+        { model: League, attributes: ["id", "name"] },
+        { model: User, as: "captain", attributes: ["id", "username"] },
+      ],
+    });
+
+    if (!team) {
+      return res.status(404).json({ error: "Equipo no encontrado" });
     }
+
+    res.status(200).json(team);
   } catch (error) {
     console.error("Error al obtener el equipo:", error);
     res.status(500).json({ error: "Error al obtener el equipo" });
   }
 });
+
 
 // Obtener todos los capitanes (usuarios)
 router.get("/users", async (req, res) => {
@@ -546,6 +571,26 @@ router.get('/match/:id', async (req, res) => {
   } catch (error) {
     console.error('Error al obtener el partido:', error);
     res.status(500).json({ error: 'Error al obtener el partido' });
+  }
+});
+
+
+
+
+
+// Obtener equipos por leagueId
+router.get('/api/teams', async (req, res) => {
+  const { leagueId } = req.query;
+
+  try {
+    const teams = await Team.findAll({
+      where: { leagueId },
+      order: [['points', 'DESC'], ['goalsFor', 'DESC']], // Ordena primero por puntos y luego por diferencia de goles
+    });
+    res.json({ teams });
+  } catch (error) {
+    console.error('Error al obtener equipos:', error);
+    res.status(500).json({ error: 'Error al obtener equipos' });
   }
 });
 
