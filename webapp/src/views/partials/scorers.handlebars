@@ -1,47 +1,22 @@
-
-  <div class="card h-100">
-    <div class="card-body">
-      <h5 class="card-title fw-bold">
-        <img src="/images/scorers.svg" alt="Trofeo" width="24" height="24" class="me-2"> Máximos Goleadores
-      </h5>
-      <ul class="list-group list-group-flush">
-
+<div class="card h-100">
+  <div class="card-body">
+    <h5 class="card-title fw-bold">
+      <img src="/images/scorers.svg" alt="Trofeo" width="24" height="24" class="me-2"> Máximos Goleadores
+    </h5>
+    <ul class="list-group list-group-flush">
+      {{#each topScorers}}
         <li class="list-group-item d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center">
-            <span class="me-3 fw-bold">1</span>
-            <img src="https://es.e-noticies.cat/filesedc/uploads/image/post/messi-primer-plano-psg_1600_1067.jpg" alt="Foto de nombre" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+            <span class="me-3 fw-bold">{{increment @index}}</span>
+            <img src="{{this.image}}" alt="Foto de {{this.name}}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
             <div>
-              <div class="fw-semibold">Juanito</div>
-              <small class="text-muted">Capibaras</small>
+              <div class="fw-semibold">{{this.name}}</div>
+              <small class="text-muted">{{this.team.name}}</small> <!-- Acceso directo al nombre del equipo -->
             </div>
           </div>
-          <span class="fw-bold">19</span>
+          <span class="fw-bold">{{this.goals}}</span>
         </li>
-         <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center">
-            <span class="me-3 fw-bold">2</span>
-            <img src="https://es.e-noticies.cat/filesedc/uploads/image/post/messi-primer-plano-psg_1600_1067.jpg" alt="Foto de nombre" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
-            <div>
-              <div class="fw-semibold">Juanito</div>
-              <small class="text-muted">Capibaras</small>
-            </div>
-          </div>
-          <span class="fw-bold">19</span>
-        </li>
-
-
-         <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center">
-            <span class="me-3 fw-bold">3</span>
-            <img src="https://es.e-noticies.cat/filesedc/uploads/image/post/messi-primer-plano-psg_1600_1067.jpg" alt="Foto de nombre" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
-            <div>
-              <div class="fw-semibold">Juanito</div>
-              <small class="text-muted">Capibaras</small>
-            </div>
-          </div>
-          <span class="fw-bold">19</span>
-        </li>
-      </ul>
-    </div>
+      {{/each}}
+    </ul>
   </div>
-
+</div>
