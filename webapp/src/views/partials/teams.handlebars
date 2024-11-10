@@ -4,55 +4,18 @@
       <h5 class="card-title fw-bold"><img src="/images/team.svg" alt="Trofeo" width="24" height="24" class="me-2"> Equipos del Torneo</h5>
       <div class="row">
         <!-- Equipo 1 -->
+        {{#each teams}}
         <div class="col-md-3 col-sm-6 mb-4">
           <div class="card">
-            <img src="https://1000marcas.net/wp-content/uploads/2020/03/Logo-Barcelona-500x313.png" alt="Barcelona" style="height: 150px; object-fit: contain; padding: 15px;">
+            <img src="{{this.logo}}" alt="{{this.name}}" style="height: 150px; object-fit: contain; padding: 15px;">
             <div class="card-body">
-              <h5 class="card-title text-center">Barcelona</h5>
+              <h5 class="card-title text-center">{{this.name}}</h5>
             </div>
           </div>
         </div>
+        {{/each}}
         
-        <!-- Equipo 2 -->
-        <div class="col-md-3 col-sm-6 mb-4">
-          <div class="card">
-            <img src="https://1000marcas.net/wp-content/uploads/2020/01/logo-Real-Madrid.png" alt="Real Madrid" style="height: 150px; object-fit: contain; padding: 15px;">
-            <div class="card-body">
-              <h5 class="card-title text-center">Real Madrid</h5>
-            </div>
-          </div>
-        </div>
-
-        <!-- Equipo 3 -->
-        <div class="col-md-3 col-sm-6 mb-4">
-          <div class="card">
-            <img src="https://1000marcas.net/wp-content/uploads/2020/03/Logo-Atletico-Madrid-500x313.png" alt="Atletico Madrid" style="height: 150px; object-fit: contain; padding: 15px;">
-            <div class="card-body">
-              <h5 class="card-title text-center">Atletico Madrid</h5>
-            </div>
-          </div>
-        </div>
-
-        <!-- Equipo 4 -->
-        <div class="col-md-3 col-sm-6 mb-4">
-          <div class="card">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Juventus_FC_2017_logo.png" alt="Juventus" style="height: 150px; object-fit: contain; padding: 15px;">
-            <div class="card-body">
-              <h5 class="card-title text-center">Juventus</h5>
-            </div>
-          </div>
-        </div>
-
-
-        <!-- Equipo 5 -->
-        <div class="col-md-3 col-sm-6 mb-4">
-          <div class="card">
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjkaRvlgFBmFT1pw7oh_04fTm8heqUK0TF9-ZUjMnNbCD534wBPII38hIgpo5fEOdqHnGf5C5mRtMTrJS5c0uMoXXvAyTmwQO2DTsuwZVxwY-DNWxPiQIvzMZiJAdJzVpUXeT-22i9gzesMepQrb3aG6cmGBTrLJ7yPqpvye8jKL9AP1KRzT31Q2jRt6Eg/s512/CA.png" alt="America" style="height: 150px; object-fit: contain; padding: 15px;">
-            <div class="card-body">
-              <h5 class="card-title text-center">America</h5>
-            </div>
-          </div>
-        </div>
+        
 
       </div>
     </div>
