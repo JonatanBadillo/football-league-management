@@ -29,6 +29,7 @@ app.engine(
       increment: (index: number) => index + 1,
       formatDate: (date: moment.MomentInput) =>
         moment(date).format("MMM DD, h:mm A"), // Helper para formatear fechas
+      toFixed: (number: number, decimals: any) => number.toFixed(decimals), // Helper para redondear decimales
     },
   })
 );
@@ -105,6 +106,13 @@ app.get("/", async (req, res) => {
       ],
     });
 
+
+     // Calcular las estadísticas dinámicas
+     const totalGoals = await Player.sum('goals'); // Sumar todos los goles de los jugadores
+     const totalTeams = teams.length; // Número de equipos
+     const totalMatches = matches.length; // Número de partidos jugados
+     const averageGoalsPerMatch = totalMatches > 0 ? totalGoals / totalMatches : 0; // Promedio de goles por partido
+
     res.render("home", {
       title: "Football League Management",
       leagues,
@@ -112,6 +120,10 @@ app.get("/", async (req, res) => {
       matches,
       topScorers,
       bestKeepers,
+      totalGoals,
+      totalTeams,
+      totalMatches,
+      averageGoalsPerMatch,
     });
   } catch (error) {
     console.error("Error al obtener datos para la página principal:", error);

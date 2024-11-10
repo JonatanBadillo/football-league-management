@@ -1,28 +1,27 @@
 <!-- Estadísticas del Torneo -->
 
-  <div class="card h-100">
-    <div class="card-body text-center">
-      <h5 class="card-title"><i class="bi bi-bar-chart-line"></i> Estadísticas del Torneo</h5>
-      <div class="row mt-4">
-        <div class="col">
-          <h3>480</h3>
-          <p class="text-muted">Goles Marcados</p>
-        </div>
-        <div class="col">
-          <h3>20</h3>
-          <p class="text-muted">Equipos</p>
-        </div>
+<div class="card h-100">
+  <div class="card-body text-center">
+    <h5 class="card-title"><i class="bi bi-bar-chart-line"></i> Estadísticas del Torneo</h5>
+    <div class="row mt-4">
+      <div class="col">
+        <h3>{{totalGoals}}</h3> <!-- Goles Marcados -->
+        <p class="text-muted">Goles Marcados</p>
       </div>
-      <div class="row">
-        <div class="col">
-          <h3>190</h3>
-          <p class="text-muted">Partidos Jugados</p>
-        </div>
-        <div class="col">
-          <h3>3.0</h3>
-          <p class="text-muted">Promedio Goles/Partido</p>
-        </div>
+      <div class="col">
+        <h3>{{totalTeams}}</h3> <!-- Equipos -->
+        <p class="text-muted">Equipos</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <h3>{{totalMatches}}</h3> <!-- Partidos Jugados -->
+        <p class="text-muted">Partidos Jugados</p>
+      </div>
+      <div class="col">
+        <h3>{{toFixed averageGoalsPerMatch 1}}</h3> <!-- Promedio Goles/Partido -->
+        <p class="text-muted">Promedio Goles/Partido</p>
       </div>
     </div>
   </div>
-
+</div>
