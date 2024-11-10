@@ -68,11 +68,17 @@ app.get("/", async (req, res) => {
   try {
     const leagues = await League.findAll();
     const teams = await Team.findAll({
-      order: [["points", "DESC"]],
+      order: [
+        ["points", "DESC"],
+        [sequelize.literal('goalsFor - goalsAgainst'), 'DESC']
+      ]
     });
 
     const topScorers = await Player.findAll({
-      order: [["goals", "DESC"]],
+      order: [
+        ["goals", "DESC"],
+        [sequelize.literal('player.matchesPlayed'), 'ASC']
+      ],
       limit: 5, // Limitar a los 5 primeros jugadores
       include: [
         {
@@ -81,6 +87,14 @@ app.get("/", async (req, res) => {
           required: true,
         },
       ],
+    });
+
+    const bestKeepers = await Team.findAll({
+      order: [
+        ["goalsAgainst", "ASC"],
+        [sequelize.literal('matchesPlayed'), 'DESC']
+      ],
+      limit: 5, // Limitar a los 5 primeros equipos
     });
 
     const matches = await Match.findAll({
@@ -97,6 +111,7 @@ app.get("/", async (req, res) => {
       teams,
       matches,
       topScorers,
+      bestKeepers,
     });
   } catch (error) {
     console.error("Error al obtener datos para la página principal:", error);
