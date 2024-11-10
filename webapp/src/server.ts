@@ -1,5 +1,5 @@
-// src/server.ts
 
+import moment from 'moment';
 import express from 'express';
 import fs from 'fs';
 import https from 'https';
@@ -10,6 +10,7 @@ import multer from 'multer';
 import sequelize from './config/database';
 import League from './model/League';
 import Team from './model/Team';
+import Match from './model/Match';
 
 const app = express();
 const PORT = 3000;
@@ -23,7 +24,8 @@ app.engine('handlebars', engine({
   },
   helpers: {
     subtract: (a: number, b: number) => a - b,
-    increment: (index: number) => index + 1,  // Agrega este helper
+    increment: (index: number) => index + 1,  
+    formatDate: (date: moment.MomentInput) => moment(date).format('MMM DD, h:mm A'), // Helper para formatear fechas
   },
 }));
 
@@ -57,20 +59,30 @@ app.post('/upload-player-image', upload.single('image'), (req, res) => {
   }
 });
 
-// Ruta para obtener equipos ordenados por puntos y diferencia de goles
+// Ruta de la página principal para cargar ligas, equipos y próximos partidos
 app.get('/', async (req, res) => {
   try {
     const leagues = await League.findAll();
     const teams = await Team.findAll({
-      order: [
-        ['points', 'DESC'],
-        [sequelize.literal('goalsFor - goalsAgainst'), 'DESC']
-      ]
+      order: [['points', 'DESC']],
     });
-    res.render('home', { title: 'Football League Management', leagues, teams });
+    const matches = await Match.findAll({
+      order: [['date', 'ASC']],
+      include: [
+        { model: Team, as: 'homeTeam' },
+        { model: Team, as: 'awayTeam' },
+      ],
+    });
+
+    res.render('home', {
+      title: 'Football League Management',
+      leagues,
+      teams,
+      matches,
+    });
   } catch (error) {
-    console.error("Error al obtener equipos para la tabla de posiciones:", error);
-    res.status(500).json({ error: "Error al obtener equipos" });
+    console.error("Error al obtener datos para la página principal:", error);
+    res.status(500).json({ error: "Error al cargar datos" });
   }
 });
 

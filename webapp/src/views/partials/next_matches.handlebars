@@ -1,10 +1,28 @@
-<!-- Próximos Partidos -->
 <div class="card h-100">
   <div class="card-body">
-    <h5 class="card-title"><i class="bi bi-calendar-event"></i>
-      Próximos Partidos</h5>
+    <h5 class="card-title"><i class="bi bi-calendar-event"></i> Próximos Partidos</h5>
     <ul id="proximosPartidosList" class="list-unstyled">
-      <!-- Datos de ejemplo, se llenarán dinámicamente -->
+      {{#each matches}}
+        <li class="mb-4">
+          <!-- Fecha y Hora -->
+          <div class="text-center text-muted" style="font-size: 0.90em;">
+            {{formatDate this.date}}
+          </div>
+          
+          <!-- Equipos y logos -->
+          <div class="d-flex align-items-center justify-content-center mt-2">
+            <div class="d-flex align-items-center">
+              <img src="{{this.homeTeam.logo}}" alt="{{this.homeTeam.name}}" style="width: 30px; height: 30px; margin-right: 10px;">
+              <span class="fw-bold">{{this.homeTeam.name}}</span>
+            </div>
+            <span class="mx-2">vs</span>
+            <div class="d-flex align-items-center">
+              <img src="{{this.awayTeam.logo}}" alt="{{this.awayTeam.name}}" style="width: 30px; height: 30px; margin-right: 10px;">
+              <span class="fw-bold">{{this.awayTeam.name}}</span>
+            </div>
+          </div>
+        </li>
+      {{/each}}
     </ul>
   </div>
 </div>
