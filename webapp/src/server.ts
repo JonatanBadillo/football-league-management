@@ -144,7 +144,22 @@ app.get("/", async (req, res) => {
 });
 
 
+app.get('/login', (req, res) => {
+  res.render('login', { layout: false, title: 'Iniciar Sesión' });
+});
 
+
+
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Lógica de autenticación: validar el usuario y la contraseña
+  if (username === 'admin' && password === '12345') { // Ejemplo básico
+    res.redirect('/dashboard'); // Redirigir a una página después de iniciar sesión
+  } else {
+    res.status(401).send('Credenciales incorrectas');
+  }
+});
 
 
 
