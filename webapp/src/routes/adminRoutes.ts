@@ -68,9 +68,9 @@ router.post("/team", async (req, res) => {
 
 // Crear un usuario (capitán o cualquier otro rol)
 router.post("/user", async (req, res) => {
-  const { username, role } = req.body;
+  const { username, role, password } = req.body;
   try {
-    const user = await User.create({ username, role });
+    const user = await User.create({ username, role, password });
     res.status(201).json(user);
   } catch (error) {
     console.error("Error al crear el usuario:", error);
@@ -290,12 +290,12 @@ router.put("/team/:id", async (req, res) => {
 // Editar un capitán (usuario) por ID
 router.put("/user/:id", async (req, res) => {
   const { id } = req.params;
-  const { username, role } = req.body;
+  const { username, role , password} = req.body;
 
   try {
     const user = await User.findByPk(id);
     if (user) {
-      await user.update({ username, role });
+      await user.update({ username, role, password });
       res
         .status(200)
         .json({ message: "Capitán actualizado correctamente", user });
@@ -452,7 +452,7 @@ router.get("/team/:id", async (req, res) => {
 });
 
 
-// Obtener todos los capitanes (usuarios)
+// Obtener todos los (usuarios)
 router.get("/users", async (req, res) => {
   try {
     const users = await User.findAll();

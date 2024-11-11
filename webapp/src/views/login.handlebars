@@ -18,7 +18,10 @@
     <div class="card shadow-sm p-4" style="width: 100%; max-width: 500px; border-radius: 10px;">
       <h2 class="text-center mb-3">Iniciar Sesión</h2>
       <p class="text-center text-muted">Ingresa tus credenciales para acceder al sistema</p>
-      
+      <!-- Mensaje de error en letras rojas -->
+      {{#if errorMessage}}
+        <p class="text-center text-danger">{{errorMessage}}</p>
+      {{/if}}
       <form action="/login" method="POST">
         <div class="mb-3">
           <label for="username" class="form-label">Usuario</label>

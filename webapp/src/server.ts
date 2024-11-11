@@ -11,6 +11,7 @@ import League from "./model/League";
 import Team from "./model/Team";
 import Match from "./model/Match";
 import Player from "./model/Player";
+import  User from "./model/User";
 
 const app = express();
 const PORT = 3000;
@@ -41,6 +42,8 @@ app.set("views", path.join(__dirname, "../src/views"));
 // Middleware para manejar JSON y archivos estáticos
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../src/public")));
+// 
+app.use(express.urlencoded({ extended: true }));
 
 // Cargar las rutas de administración sin autorización
 app.use("/admin", adminRoutes);
@@ -150,16 +153,42 @@ app.get('/login', (req, res) => {
 
 
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  // Lógica de autenticación: validar el usuario y la contraseña
-  if (username === 'admin' && password === '12345') { // Ejemplo básico
-    res.redirect('/dashboard'); // Redirigir a una página después de iniciar sesión
-  } else {
-    res.status(401).send('Credenciales incorrectas');
+  // Imprime req.body para verificar el contenido
+  console.log("Datos recibidos en el login:", req.body);
+
+  try {
+    const user = await User.findOne({ where: { username } });
+
+    if (!user || user.password !== password) {
+      // Si el usuario no existe o la contraseña es incorrecta
+      return res.status(401).render('login', { 
+        layout: false, 
+        title: 'Iniciar Sesión', 
+        errorMessage: 'Usuario y/o contraseña incorrecta' 
+      });
+    }
+
+    if (user.role === 'admin') {
+      return res.redirect('/dashboard/admin');
+    } else if (user.role === 'captain') {
+      return res.redirect('/dashboard/captain');
+    } else if (user.role === 'referee') {
+      return res.redirect('/dashboard/referee');
+    } else {
+      return res.status(403).send('Rol no autorizado');
+    }
+  } catch (error) {
+    console.error('Error en el inicio de sesión:', error);
+    res.status(500).send('Error en el servidor');
   }
 });
+
+
+
+
 
 
 
