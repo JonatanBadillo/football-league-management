@@ -30,7 +30,7 @@ app.engine(
       formatDate: (date: moment.MomentInput) =>
         moment(date).format("MMM DD, h:mm A"), // Helper para formatear fechas
       toFixed: (number: number, decimals: any) => number.toFixed(decimals), // Helper para redondear decimales,
-      eq: (a: any, b: any) => a === b,
+      eq: (a: any, b: any) => a === b, 
     },
   })
 );
