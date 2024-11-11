@@ -29,7 +29,8 @@ app.engine(
       increment: (index: number) => index + 1,
       formatDate: (date: moment.MomentInput) =>
         moment(date).format("MMM DD, h:mm A"), // Helper para formatear fechas
-      toFixed: (number: number, decimals: any) => number.toFixed(decimals), // Helper para redondear decimales
+      toFixed: (number: number, decimals: any) => number.toFixed(decimals), // Helper para redondear decimales,
+      eq: (a: any, b: any) => a === b,
     },
   })
 );
@@ -67,8 +68,23 @@ app.post("/upload-player-image", upload.single("image"), (req, res) => {
 // Ruta de la página principal para cargar ligas, equipos y próximos partidos
 app.get("/", async (req, res) => {
   try {
-    const leagues = await League.findAll();
+    // Especifica el tipo explícitamente
+    const leagues: League[] = await League.findAll();
+    let leagueId = req.query.leagueId as string | undefined;
+
+    // Verificar que existan ligas en la base de datos
+    if (!leagueId && leagues.length > 0) {
+      leagueId = leagues[0].id ? leagues[0].id.toString() : undefined; // Verificar que `id` esté definido
+    }
+
+    if (!leagueId) {
+      return res.status(404).json({ error: "No se encontraron ligas en la base de datos." });
+    }
+
+    const leagueIdNum = parseInt(leagueId, 10);
+
     const teams = await Team.findAll({
+      where: { leagueId: leagueIdNum },
       order: [
         ["points", "DESC"],
         [sequelize.literal('goalsFor - goalsAgainst'), 'DESC']
@@ -76,29 +92,26 @@ app.get("/", async (req, res) => {
     });
 
     const topScorers = await Player.findAll({
+      where: { leagueId: leagueIdNum },
       order: [
         ["goals", "DESC"],
         [sequelize.literal('player.matchesPlayed'), 'ASC']
       ],
-      limit: 5, // Limitar a los 5 primeros jugadores
-      include: [
-        {
-          model: Team,
-          as: "team",
-          required: true,
-        },
-      ],
+      limit: 5,
+      include: [{ model: Team, as: "team", required: true }],
     });
 
     const bestKeepers = await Team.findAll({
+      where: { leagueId: leagueIdNum },
       order: [
         ["goalsAgainst", "ASC"],
         [sequelize.literal('matchesPlayed'), 'DESC']
       ],
-      limit: 5, // Limitar a los 5 primeros equipos
+      limit: 5,
     });
 
     const matches = await Match.findAll({
+      where: { leagueId: leagueIdNum },
       order: [["date", "ASC"]],
       include: [
         { model: Team, as: "homeTeam" },
@@ -106,12 +119,10 @@ app.get("/", async (req, res) => {
       ],
     });
 
-
-     // Calcular las estadísticas dinámicas
-     const totalGoals = await Player.sum('goals'); // Sumar todos los goles de los jugadores
-     const totalTeams = teams.length; // Número de equipos
-     const totalMatches = matches.length; // Número de partidos jugados
-     const averageGoalsPerMatch = totalMatches > 0 ? totalGoals / totalMatches : 0; // Promedio de goles por partido
+    const totalGoals = await Player.sum('goals', { where: { leagueId: leagueIdNum } });
+    const totalTeams = teams.length;
+    const totalMatches = matches.length;
+    const averageGoalsPerMatch = totalMatches > 0 ? totalGoals / totalMatches : 0;
 
     res.render("home", {
       title: "Football League Management",
@@ -124,12 +135,20 @@ app.get("/", async (req, res) => {
       totalTeams,
       totalMatches,
       averageGoalsPerMatch,
+      selectedLeagueId: leagueIdNum,
     });
   } catch (error) {
     console.error("Error al obtener datos para la página principal:", error);
     res.status(500).json({ error: "Error al cargar datos" });
   }
 });
+
+
+
+
+
+
+
 
 // Opciones SSL para HTTPS
 const sslOptions = {
