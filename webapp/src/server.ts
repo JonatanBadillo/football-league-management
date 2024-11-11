@@ -188,7 +188,9 @@ app.post('/login', async (req, res) => {
 
 
 
-
+app.get('/dashboard/admin', (req, res) => {
+  res.render('admin', { layout: false, title: 'Administrador' });
+});
 
 
 
