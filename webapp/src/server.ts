@@ -153,17 +153,37 @@ app.get('/login', (req, res) => {
 
 
 
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+import validator from 'validator';
 
-  // Imprime req.body para verificar el contenido
-  console.log("Datos recibidos en el login:", req.body);
+app.post('/login', async (req, res) => {
+  let { username, password } = req.body;
+
+  // Sanitizar el input para evitar caracteres extraños
+  username = validator.escape(username);
+  password = validator.escape(password);
+
+  // Validar el formato del nombre de usuario (solo letras, números y guiones bajos)
+  if (!validator.isAlphanumeric(username, 'en-US', { ignore: '_' })) {
+    return res.status(400).render('login', { 
+      layout: false, 
+      title: 'Iniciar Sesión', 
+      errorMessage: 'Formato de usuario no permitido.' 
+    });
+  }
+
+  // Validar que la contraseña no contenga caracteres peligrosos (solo letras, números y ciertos caracteres especiales)
+  if (!validator.isWhitelisted(password, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@!#$%^&*-')) {
+    return res.status(400).render('login', { 
+      layout: false, 
+      title: 'Iniciar Sesión', 
+      errorMessage: 'Formato de contraseña no permitido.' 
+    });
+  }
 
   try {
     const user = await User.findOne({ where: { username } });
 
     if (!user || user.password !== password) {
-      // Si el usuario no existe o la contraseña es incorrecta
       return res.status(401).render('login', { 
         layout: false, 
         title: 'Iniciar Sesión', 
@@ -185,6 +205,7 @@ app.post('/login', async (req, res) => {
     res.status(500).send('Error en el servidor');
   }
 });
+
 
 
 
