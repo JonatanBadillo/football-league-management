@@ -1,0 +1,7 @@
+<div class="d-flex justify-content-start mb-4">
+      <select id="ligaSelect" class="form-select w-auto" onchange="fetchLigaData()">
+        {{#each leagues}}
+        <option value="{{this.id}}" {{#if (eq ../selectedLeagueId this.id)}}selected{{/if}}>{{this.name}}</option>
+        {{/each}}
+      </select>
+    </div>
