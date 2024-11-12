@@ -40,6 +40,7 @@
   <div class="container mt-4">
     <h1 class="fw-bold">Panel de Administración</h1>
 
+    {{#if (eq section 'equipos')}}
     <div class="d-flex justify-content-start mb-4">
       <select id="ligaSelect" class="form-select w-auto" onchange="fetchLigaData()">
         {{#each leagues}}
@@ -47,7 +48,7 @@
         {{/each}}
       </select>
     </div>
-
+    
     <div class="card p-4 mb-4">
       <h2 class="fw-bold">Equipos</h2>
       <p class="text-muted">Gestión de equipos de la liga</p>
@@ -104,6 +105,7 @@
         </tbody>
       </table>
     </div>
+    {{/if}}
   </div>
 </body>
 

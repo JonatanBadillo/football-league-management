@@ -188,7 +188,13 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/dashboard/admin", async (req, res) => {
+
+app.get('/dashboard/admin', (req, res) => {
+  res.redirect('/dashboard/admin/equipos');
+});
+
+
+app.get("/dashboard/admin/equipos", async (req, res) => {
   try {
     const leagues: League[] = await League.findAll();
     let leagueId = req.query.leagueId as string | undefined;
@@ -213,6 +219,7 @@ app.get("/dashboard/admin", async (req, res) => {
     res.render("admin", {
       title: "Administrador",
       leagues,teams,
+      section: 'equipos',
       selectedLeagueId: leagueIdNum,
       layout: false,
     });
