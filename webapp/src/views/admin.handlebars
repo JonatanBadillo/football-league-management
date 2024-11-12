@@ -13,9 +13,11 @@
 
   <script>
     function fetchLigaData() {
-      const leagueId = document.getElementById("ligaSelect").value;
-      window.location.href = `/dashboard/admin?leagueId=${leagueId}`;
-    }
+  const leagueId = document.getElementById("ligaSelect").value;
+  const section = "{{section}}"; // Obtiene la sección activa ('equipos' o 'jugadores')
+  window.location.href = `/dashboard/admin/${section}?leagueId=${leagueId}`;
+}
+
 
     function filterTeams() {
       const input = document.getElementById("searchInput");
@@ -106,7 +108,49 @@
       </table>
     </div>
     {{/if}}
+    {{#if (eq section 'jugadores')}}
+<div class="d-flex justify-content-start mb-4">
+    <select id="ligaSelect" class="form-select w-auto" onchange="fetchLigaData()">
+        {{#each leagues}}
+        <option value="{{this.id}}" {{#if (eq ../selectedLeagueId this.id)}}selected{{/if}}>{{this.name}}</option>
+        {{/each}}
+    </select>
+</div>
+
+<div class="card p-4 mb-4">
+    <h2 class="fw-bold">Jugadores</h2>
+    <p class="text-muted">Gestión de jugadores de la liga</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Posición</th>
+                <th scope="col">Goles</th>
+                <th scope="col">Tarjetas Amarillas</th>
+                <th scope="col">Tarjetas Rojas</th>
+                <th scope="col">Equipo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each players}}
+            <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.position}}</td>
+                <td>{{this.goals}}</td>
+                <td>{{this.yellowCards}}</td>
+                <td>{{this.redCards}}</td>
+                <td>{{this.team.name}}</td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="6" class="text-center text-muted">No hay jugadores disponibles</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+{{/if}}
   </div>
 </body>
-
+  {{> footer}}
 </html>

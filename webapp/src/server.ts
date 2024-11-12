@@ -230,6 +230,45 @@ app.get("/dashboard/admin/equipos", async (req, res) => {
 });
 
 
+app.get("/dashboard/admin/jugadores", async (req, res) => {
+  try {
+      const leagues: League[] = await League.findAll();
+      let leagueId = req.query.leagueId as string | undefined;
+
+      if (!leagueId && leagues.length > 0) {
+          leagueId = leagues[0].id ? leagues[0].id.toString() : undefined;
+      }
+
+      if (!leagueId) {
+          return res
+              .status(404)
+              .json({ error: "No se encontraron ligas en la base de datos." });
+      }
+
+      const leagueIdNum = parseInt(leagueId, 10);
+
+      // Obtener jugadores de la liga seleccionada
+      const players = await Player.findAll({
+          where: { leagueId: leagueIdNum },
+          order: [["name", "ASC"]],
+          include: [{ model: Team, attributes: ["name"] }],
+      });
+
+      res.render("admin", {
+          title: "Administrador",
+          leagues,
+          players,
+          section: 'jugadores', 
+          selectedLeagueId: leagueIdNum,
+          layout: false,
+      });
+  } catch (error) {
+      console.error("Error al obtener datos de jugadores:", error);
+      res.status(500).json({ error: "Error al cargar datos de jugadores" });
+  }
+});
+
+
 // Opciones SSL para HTTPS
 const sslOptions = {
   key: fs.readFileSync("key.pem"),
