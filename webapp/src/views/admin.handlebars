@@ -43,51 +43,53 @@
 
       <!-- Gestión de Equipos -->
       <div class="card p-4 mb-4">
-        <h2 class="fw-bold">Equipos</h2>
-        <p class="text-muted">Gestión de equipos de la liga</p>
+  <h2 class="fw-bold">Equipos</h2>
+  <p class="text-muted">Gestión de equipos de la liga</p>
 
-        <!-- Buscar equipo -->
-        <div class="input-group mb-3">
-          <input type="text" class="form-control" placeholder="Buscar equipo..." aria-label="Buscar equipo">
-          <button class="btn btn-dark" type="button" onclick="addTeam()">
-            <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
-          </button>
-        </div>
+  <!-- Buscar equipo y botón añadir -->
+  <div class="d-flex justify-content-between mb-3">
+    <input type="text" class="form-control" placeholder="Buscar equipo..." aria-label="Buscar equipo" style="max-width: 500px;">
+    <button class="btn btn-dark ms-3" type="button" onclick="addTeam()">
+      <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
+    </button>
+  </div>
 
-        <!-- Tabla de Equipos -->
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Nombre</th>
-              <th scope="col">PJ</th>
-              <th scope="col">G</th>
-              <th scope="col">E</th>
-              <th scope="col">P</th>
-              <th scope="col">Pts</th>
-              <th scope="col">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each teams}}
-            <tr>
-              <td>{{this.name}}</td>
-              <td>{{this.playedGames}}</td>
-              <td>{{this.wins}}</td>
-              <td>{{this.draws}}</td>
-              <td>{{this.losses}}</td>
-              <td>{{this.points}}</td>
-              <td>
-                <a href="#" class="text-dark"><i class="bi bi-pencil"></i></a>
-              </td>
-            </tr>
-            {{else}}
-            <tr>
-              <td colspan="7" class="text-center text-muted">No hay equipos disponibles</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
+  <!-- Tabla de Equipos -->
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Nombre</th>
+        <th scope="col">PJ</th>
+        <th scope="col">G</th>
+        <th scope="col">E</th>
+        <th scope="col">P</th>
+        <th scope="col">Pts</th>
+        <th scope="col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each teams}}
+      <tr>
+        <td><img src="{{this.logo}}" alt="{{this.id}}" style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px">{{this.name}}</td>
+        <td>{{this.matchesPlayed}}</td>
+        <td>{{this.victories}}</td>
+        <td>{{this.draws}}</td>
+        <td>{{this.defeats}}</td>
+        <td>{{this.points}}</td>
+        <td>
+          <a href="#" class="text-dark" style="margin-right: 20px;"><i class="bi bi-pencil"></i></a>
+          <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
+        </td>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="7" class="text-center text-muted">No hay equipos disponibles</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+
     </div>
 
     </div>
