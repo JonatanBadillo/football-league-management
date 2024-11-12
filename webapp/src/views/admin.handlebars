@@ -1,99 +1,111 @@
 <!-- src/views/login.handlebars -->
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
-    <link rel="icon" href="/images/logo.png" type="image/png">
-    <link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+  <link rel="icon" href="/images/logo.png" type="image/png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
 
-    <script>
-  function fetchLigaData() {
-    const leagueId = document.getElementById("ligaSelect").value;
-    // redirección al servidor para mostrar la liga seleccionada
-    window.location.href = `/dashboard/admin?leagueId=${leagueId}`;
-  }
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  </head>
-  <body>
-    {{> navbaradmin}}
+  <script>
+    function fetchLigaData() {
+      const leagueId = document.getElementById("ligaSelect").value;
+      // redirección al servidor para mostrar la liga seleccionada
+      window.location.href = `/dashboard/admin?leagueId=${leagueId}`;
+    }
+  </script>
 
-    <!-- Panel de Administración -->
-    <div class="container mt-4">
-      <h1 class="fw-bold">Panel de Administración</h1>
+</head>
 
-      <!-- Selector de Liga -->
-      <div class="d-flex justify-content-start mb-4">
-        <select id="ligaSelect" class="form-select w-auto"
-          onchange="fetchLigaData()">
-          {{#each leagues}}
-          <option value="{{this.id}}" {{#if (eq ../selectedLeagueId
-            this.id)}}selected{{/if}}>{{this.name}}</option>
-          {{/each}}
-        </select>
+<body>
+  {{> navbaradmin}}
+
+  <!-- Panel de Administración -->
+  <div class="container mt-4">
+    <h1 class="fw-bold">Panel de Administración</h1>
+
+    <!-- Selector de Liga -->
+    <div class="d-flex justify-content-start mb-4">
+      <select id="ligaSelect" class="form-select w-auto" onchange="fetchLigaData()">
+        {{#each leagues}}
+        <option value="{{this.id}}" {{#if (eq ../selectedLeagueId this.id)}}selected{{/if}}>{{this.name}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    <!-- Gestión de Equipos -->
+    <div class="card p-4 mb-4">
+      <h2 class="fw-bold">Equipos</h2>
+      <p class="text-muted">Gestión de equipos de la liga</p>
+
+      <!-- Buscar equipo y botón añadir -->
+      <div class="d-flex justify-content-between mb-3">
+        <input type="text" class="form-control" placeholder="Buscar equipo..." aria-label="Buscar equipo"
+          style="max-width: 500px;">
+        <button class="btn btn-dark ms-3" type="button" onclick="addTeam()">
+          <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
+        </button>
       </div>
 
-      <!-- Gestión de Equipos -->
-      <div class="card p-4 mb-4">
-  <h2 class="fw-bold">Equipos</h2>
-  <p class="text-muted">Gestión de equipos de la liga</p>
+      <!-- Tabla de Equipos -->
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Logo</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">PJ</th>
+            <th scope="col">G</th>
+            <th scope="col">E</th>
+            <th scope="col">P</th>
+            <th scope="col">GF</th>
+            <th scope="col">GC</th>
+            <th scope="col">Pts</th>
+            <th scope="col">Balance</th>
+            <th scope="col">Capitán</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each teams}}
+          <tr>
+            <td><img src="{{this.logo}}" alt="{{this.name}}"
+                style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px"></td>
+            <td>{{this.name}}</td>
+            <td>{{this.matchesPlayed}}</td>
+            <td>{{this.victories}}</td>
+            <td>{{this.draws}}</td>
+            <td>{{this.defeats}}</td>
+            <td>{{this.goalsFor}}</td>
+            <td>{{this.goalsAgainst}}</td>
+            <td>{{this.points}}</td>
+            <td>{{this.balance}}</td>
+            <td>{{this.captainId}}</td>
+            <td>
+              <a href="#" class="text-dark" style="margin-right: 20px;"><i class="bi bi-pencil"></i></a>
+              <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+          {{else}}
+          <tr>
+            <td colspan="12" class="text-center text-muted">No hay equipos disponibles</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
 
-  <!-- Buscar equipo y botón añadir -->
-  <div class="d-flex justify-content-between mb-3">
-    <input type="text" class="form-control" placeholder="Buscar equipo..." aria-label="Buscar equipo" style="max-width: 500px;">
-    <button class="btn btn-dark ms-3" type="button" onclick="addTeam()">
-      <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
-    </button>
+
   </div>
 
-  <!-- Tabla de Equipos -->
-  <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">Nombre</th>
-        <th scope="col">PJ</th>
-        <th scope="col">G</th>
-        <th scope="col">E</th>
-        <th scope="col">P</th>
-        <th scope="col">Pts</th>
-        <th scope="col">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#each teams}}
-      <tr>
-        <td><img src="{{this.logo}}" alt="{{this.id}}" style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px">{{this.name}}</td>
-        <td>{{this.matchesPlayed}}</td>
-        <td>{{this.victories}}</td>
-        <td>{{this.draws}}</td>
-        <td>{{this.defeats}}</td>
-        <td>{{this.points}}</td>
-        <td>
-          <a href="#" class="text-dark" style="margin-right: 20px;"><i class="bi bi-pencil"></i></a>
-          <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
-        </td>
-      </tr>
-      {{else}}
-      <tr>
-        <td colspan="7" class="text-center text-muted">No hay equipos disponibles</td>
-      </tr>
-      {{/each}}
-    </tbody>
-  </table>
-</div>
+  </div>
+</body>
 
-    </div>
+{{!-- {{> footer}} --}}
 
-    </div>
-  </body>
-
-  {{!-- {{> footer}} --}}
 </html>
