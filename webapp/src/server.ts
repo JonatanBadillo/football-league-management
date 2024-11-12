@@ -11,7 +11,7 @@ import League from "./model/League";
 import Team from "./model/Team";
 import Match from "./model/Match";
 import Player from "./model/Player";
-import  User from "./model/User";
+import User from "./model/User";
 
 const app = express();
 const PORT = 3000;
@@ -31,7 +31,7 @@ app.engine(
       formatDate: (date: moment.MomentInput) =>
         moment(date).format("MMM DD, h:mm A"), // Helper para formatear fechas
       toFixed: (number: number, decimals: any) => number.toFixed(decimals), // Helper para redondear decimales,
-      eq: (a: any, b: any) => a === b, 
+      eq: (a: any, b: any) => a === b,
     },
   })
 );
@@ -42,7 +42,7 @@ app.set("views", path.join(__dirname, "../src/views"));
 // Middleware para manejar JSON y archivos estáticos
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../src/public")));
-// 
+//
 app.use(express.urlencoded({ extended: true }));
 
 // Cargar las rutas de administración sin autorización
@@ -81,7 +81,9 @@ app.get("/", async (req, res) => {
     }
 
     if (!leagueId) {
-      return res.status(404).json({ error: "No se encontraron ligas en la base de datos." });
+      return res
+        .status(404)
+        .json({ error: "No se encontraron ligas en la base de datos." });
     }
 
     const leagueIdNum = parseInt(leagueId, 10);
@@ -90,15 +92,15 @@ app.get("/", async (req, res) => {
       where: { leagueId: leagueIdNum },
       order: [
         ["points", "DESC"],
-        [sequelize.literal('goalsFor - goalsAgainst'), 'DESC']
-      ]
+        [sequelize.literal("goalsFor - goalsAgainst"), "DESC"],
+      ],
     });
 
     const topScorers = await Player.findAll({
       where: { leagueId: leagueIdNum },
       order: [
         ["goals", "DESC"],
-        [sequelize.literal('player.matchesPlayed'), 'ASC']
+        [sequelize.literal("player.matchesPlayed"), "ASC"],
       ],
       limit: 5,
       include: [{ model: Team, as: "team", required: true }],
@@ -108,7 +110,7 @@ app.get("/", async (req, res) => {
       where: { leagueId: leagueIdNum },
       order: [
         ["goalsAgainst", "ASC"],
-        [sequelize.literal('matchesPlayed'), 'DESC']
+        [sequelize.literal("matchesPlayed"), "DESC"],
       ],
       limit: 5,
     });
@@ -122,10 +124,13 @@ app.get("/", async (req, res) => {
       ],
     });
 
-    const totalGoals = await Player.sum('goals', { where: { leagueId: leagueIdNum } });
+    const totalGoals = await Player.sum("goals", {
+      where: { leagueId: leagueIdNum },
+    });
     const totalTeams = teams.length;
     const totalMatches = matches.length;
-    const averageGoalsPerMatch = totalMatches > 0 ? totalGoals / totalMatches : 0;
+    const averageGoalsPerMatch =
+      totalMatches > 0 ? totalGoals / totalMatches : 0;
 
     res.render("home", {
       title: "Football League Management",
@@ -146,14 +151,11 @@ app.get("/", async (req, res) => {
   }
 });
 
-
-app.get('/login', (req, res) => {
-  res.render('login', { layout: false, title: 'Iniciar Sesión' });
+app.get("/login", (req, res) => {
+  res.render("login", { layout: false, title: "Iniciar Sesión" });
 });
 
-
-
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   // Imprime req.body para verificar el contenido
@@ -164,36 +166,61 @@ app.post('/login', async (req, res) => {
 
     if (!user || user.password !== password) {
       // Si el usuario no existe o la contraseña es incorrecta
-      return res.status(401).render('login', { 
-        layout: false, 
-        title: 'Iniciar Sesión', 
-        errorMessage: 'Usuario y/o contraseña incorrecta' 
+      return res.status(401).render("login", {
+        layout: false,
+        title: "Iniciar Sesión",
+        errorMessage: "Usuario y/o contraseña incorrecta",
       });
     }
 
-    if (user.role === 'admin') {
-      return res.redirect('/dashboard/admin');
-    } else if (user.role === 'captain') {
-      return res.redirect('/dashboard/captain');
-    } else if (user.role === 'referee') {
-      return res.redirect('/dashboard/referee');
+    if (user.role === "admin") {
+      return res.redirect("/dashboard/admin");
+    } else if (user.role === "captain") {
+      return res.redirect("/dashboard/captain");
+    } else if (user.role === "referee") {
+      return res.redirect("/dashboard/referee");
     } else {
-      return res.status(403).send('Rol no autorizado');
+      return res.status(403).send("Rol no autorizado");
     }
   } catch (error) {
-    console.error('Error en el inicio de sesión:', error);
-    res.status(500).send('Error en el servidor');
+    console.error("Error en el inicio de sesión:", error);
+    res.status(500).send("Error en el servidor");
   }
 });
 
+app.get("/dashboard/admin", async (req, res) => {
+  try {
+    const leagues: League[] = await League.findAll();
+    let leagueId = req.query.leagueId as string | undefined;
 
+    if (!leagueId && leagues.length > 0) {
+      leagueId = leagues[0].id ? leagues[0].id.toString() : undefined;
+    }
 
-app.get('/dashboard/admin', (req, res) => {
-  res.render('admin', { layout: false, title: 'Administrador' });
+    if (!leagueId) {
+      return res
+        .status(404)
+        .json({ error: "No se encontraron ligas en la base de datos." });
+    }
+
+    const leagueIdNum = parseInt(leagueId, 10);
+    // Obtener los equipos de la liga seleccionada
+    const teams = await Team.findAll({
+      where: { leagueId: leagueIdNum },
+      order: [["points", "DESC"]],
+    });
+
+    res.render("admin", {
+      title: "Administrador",
+      leagues,teams,
+      selectedLeagueId: leagueIdNum,
+      layout: false,
+    });
+  } catch (error) {
+    console.error("Error al obtener datos para la página principal:", error);
+    res.status(500).json({ error: "Error al cargar datos" });
+  }
 });
-
-
-
 
 
 // Opciones SSL para HTTPS
