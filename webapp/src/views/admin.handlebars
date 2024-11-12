@@ -14,41 +14,41 @@
 
   <script>
     function fetchLigaData() {
-        const leagueId = document.getElementById("ligaSelect").value;
-        const section = "{{section}}"; // Obtiene la sección activa ('equipos' o 'jugadores')
-        window.location.href = `/dashboard/admin/${section}?leagueId=${leagueId}`;
+      const leagueId = document.getElementById("ligaSelect").value;
+      const section = "{{section}}"; // Obtiene la sección activa ('equipos' o 'jugadores')
+      window.location.href = `/dashboard/admin/${section}?leagueId=${leagueId}`;
     }
 
     function filterTeams() {
-        const input = document.getElementById("searchInput");
-        const filter = input.value.toLowerCase();
-        const rows = document.querySelectorAll("#teamsTable tbody tr");
+      const input = document.getElementById("searchInput");
+      const filter = input.value.toLowerCase();
+      const rows = document.querySelectorAll("#teamsTable tbody tr");
 
-        rows.forEach(row => {
-            const teamName = row.querySelector(".team-name").textContent.toLowerCase();
-            if (teamName.includes(filter)) {
-                row.style.display = ""; // Muestra la fila si coincide con la búsqueda
-            } else {
-                row.style.display = "none"; // Oculta la fila si no coincide
-            }
-        });
+      rows.forEach(row => {
+        const teamName = row.querySelector(".team-name").textContent.toLowerCase();
+        if (teamName.includes(filter)) {
+          row.style.display = ""; // Muestra la fila si coincide con la búsqueda
+        } else {
+          row.style.display = "none"; // Oculta la fila si no coincide
+        }
+      });
     }
 
     function filterPlayers() {
-        const input = document.getElementById("searchPlayerInput");
-        const filter = input.value.toLowerCase();
-        const rows = document.querySelectorAll("#playersTable tbody tr");
+      const input = document.getElementById("searchPlayerInput");
+      const filter = input.value.toLowerCase();
+      const rows = document.querySelectorAll("#playersTable tbody tr");
 
-        rows.forEach(row => {
-            const playerName = row.querySelector(".player-name").textContent.toLowerCase();
-            if (playerName.includes(filter)) {
-                row.style.display = ""; // Muestra la fila si coincide con la búsqueda
-            } else {
-                row.style.display = "none"; // Oculta la fila si no coincide
-            }
-        });
+      rows.forEach(row => {
+        const playerName = row.querySelector(".player-name").textContent.toLowerCase();
+        if (playerName.includes(filter)) {
+          row.style.display = ""; // Muestra la fila si coincide con la búsqueda
+        } else {
+          row.style.display = "none"; // Oculta la fila si no coincide
+        }
+      });
     }
-</script>
+  </script>
 
 </head>
 
@@ -62,128 +62,129 @@
     {{> select_admin}}
 
     <div class="card p-4 mb-4">
-    <h2 class="fw-bold">Equipos</h2>
-    <p class="text-muted">Gestión de equipos de la liga</p>
+      <h2 class="fw-bold">Equipos</h2>
+      <p class="text-muted">Gestión de equipos de la liga</p>
 
-    <div class="d-flex justify-content-between mb-3">
+      <div class="d-flex justify-content-between mb-3">
         <input type="text" id="searchInput" class="form-control" placeholder="Buscar equipo..."
-            aria-label="Buscar equipo" style="max-width: 500px;" oninput="filterTeams()">
+          aria-label="Buscar equipo" style="max-width: 500px;" oninput="filterTeams()">
         <button class="btn btn-dark ms-3" type="button" onclick="addTeam()">
-            <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
+          <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
         </button>
-    </div>
+      </div>
 
-    <!-- Contenedor de la tabla responsiva -->
-    <div class="table-responsive">
+      <!-- Contenedor de la tabla responsiva -->
+      <div class="table-responsive">
         <table class="table table-striped" id="teamsTable">
-            <thead>
-                <tr>
-                    <th scope="col">Logo</th>
-                    <th scope="col">Nombre</th>
-                    <th scope="col" class="d-none d-md-table-cell">PJ</th>
-                    <th scope="col" class="d-none d-md-table-cell">G</th>
-                    <th scope="col" class="d-none d-md-table-cell">E</th>
-                    <th scope="col" class="d-none d-md-table-cell">P</th>
-                    <th scope="col" class="d-none d-md-table-cell">GF</th>
-                    <th scope="col" class="d-none d-md-table-cell">GC</th>
-                    <th scope="col" class="d-none d-md-table-cell">Pts</th>
-                    <th scope="col" class="d-none d-lg-table-cell">Balance</th>
-                    <th scope="col" class="d-none d-lg-table-cell">Capitán</th>
-                    <th scope="col">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each teams}}
-                <tr>
-                    <td>
-                        <img src="{{this.logo}}" alt="{{this.name}}" style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px">
-                    </td>
-                    <td class="team-name">{{this.name}}</td>
-                    <td class="d-none d-md-table-cell">{{this.matchesPlayed}}</td>
-                    <td class="d-none d-md-table-cell">{{this.victories}}</td>
-                    <td class="d-none d-md-table-cell">{{this.draws}}</td>
-                    <td class="d-none d-md-table-cell">{{this.defeats}}</td>
-                    <td class="d-none d-md-table-cell">{{this.goalsFor}}</td>
-                    <td class="d-none d-md-table-cell">{{this.goalsAgainst}}</td>
-                    <td class="d-none d-md-table-cell">{{this.points}}</td>
-                    <td class="d-none d-lg-table-cell">${{this.balance}}</td>
-                    <td class="d-none d-lg-table-cell">{{this.captainId}}</td>
-                    <td>
-                        <a href="#" class="text-dark me-3"><i class="bi bi-pencil"></i></a>
-                        <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
-                    </td>
-                </tr>
-                {{else}}
-                <tr>
-                    <td colspan="12" class="text-center text-muted">No hay equipos disponibles</td>
-                </tr>
-                {{/each}}
-            </tbody>
+          <thead>
+            <tr>
+              <th scope="col">Logo</th>
+              <th scope="col">Nombre</th>
+              <th scope="col" class="d-none d-md-table-cell">PJ</th>
+              <th scope="col" class="d-none d-md-table-cell">G</th>
+              <th scope="col" class="d-none d-md-table-cell">E</th>
+              <th scope="col" class="d-none d-md-table-cell">P</th>
+              <th scope="col" class="d-none d-md-table-cell">GF</th>
+              <th scope="col" class="d-none d-md-table-cell">GC</th>
+              <th scope="col" class="d-none d-md-table-cell">Pts</th>
+              <th scope="col" class="d-none d-lg-table-cell">Balance</th>
+              <th scope="col" class="d-none d-lg-table-cell">Capitán</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each teams}}
+            <tr>
+              <td>
+                <img src="{{this.logo}}" alt="{{this.name}}"
+                  style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px">
+              </td>
+              <td class="team-name">{{this.name}}</td>
+              <td class="d-none d-md-table-cell">{{this.matchesPlayed}}</td>
+              <td class="d-none d-md-table-cell">{{this.victories}}</td>
+              <td class="d-none d-md-table-cell">{{this.draws}}</td>
+              <td class="d-none d-md-table-cell">{{this.defeats}}</td>
+              <td class="d-none d-md-table-cell">{{this.goalsFor}}</td>
+              <td class="d-none d-md-table-cell">{{this.goalsAgainst}}</td>
+              <td class="d-none d-md-table-cell">{{this.points}}</td>
+              <td class="d-none d-lg-table-cell">${{this.balance}}</td>
+              <td class="d-none d-lg-table-cell">{{this.captainId}}</td>
+              <td>
+                <a href="#" class="text-dark me-3"><i class="bi bi-pencil"></i></a>
+                <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
+              </td>
+            </tr>
+            {{else}}
+            <tr>
+              <td colspan="12" class="text-center text-muted">No hay equipos disponibles</td>
+            </tr>
+            {{/each}}
+          </tbody>
         </table>
+      </div>
     </div>
-</div>
 
     {{/if}}
     {{#if (eq section 'jugadores')}}
     {{> select_admin}}
 
     <div class="card p-4 mb-4">
-    <h2 class="fw-bold">Jugadores</h2>
-    <p class="text-muted">Gestión de jugadores de la liga</p>
+      <h2 class="fw-bold">Jugadores</h2>
+      <p class="text-muted">Gestión de jugadores de la liga</p>
 
-    <!-- Campo de búsqueda -->
-    <div class="d-flex justify-content-between mb-3">
+      <!-- Campo de búsqueda -->
+      <div class="d-flex justify-content-between mb-3">
         <input type="text" id="searchPlayerInput" class="form-control" placeholder="Buscar jugador..."
-            aria-label="Buscar jugador" style="max-width: 500px;" oninput="filterPlayers()">
+          aria-label="Buscar jugador" style="max-width: 500px;" oninput="filterPlayers()">
         <button class="btn btn-dark ms-3" type="button" onclick="addPlayer()">
-            <i class="bi bi-plus-lg me-1"></i>Añadir Jugador
+          <i class="bi bi-plus-lg me-1"></i>Añadir Jugador
         </button>
-    </div>
+      </div>
 
-    <!-- Contenedor de la tabla responsiva -->
-    <div class="table-responsive">
+      <!-- Contenedor de la tabla responsiva -->
+      <div class="table-responsive">
         <table class="table table-striped" id="playersTable">
-            <thead>
-                <tr>
-                    <th scope="col"></th>
-                    <th scope="col">Nombre</th>
-                    <th scope="col" class="d-none d-md-table-cell">Posición</th>
-                    <th scope="col" class="d-none d-md-table-cell">PJ</th>
-                    <th scope="col">Goles</th>
-                    <th scope="col" class="d-none d-md-table-cell">TA</th>
-                    <th scope="col" class="d-none d-md-table-cell">TR</th>
-                    <th scope="col" class="d-none d-lg-table-cell">Equipo</th>
-                    <th scope="col">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each players}}
-                <tr>
-                    <td>
-                        <img src="{{this.image}}" alt="Foto de {{this.name}}"
-                            style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px; border-radius:80px;">
-                    </td>
-                    <td class="player-name">{{this.name}}</td>
-                    <td class="d-none d-md-table-cell">{{this.position}}</td>
-                    <td class="d-none d-md-table-cell">{{this.matchesPlayed}}</td>
-                    <td>{{this.goals}}</td>
-                    <td class="d-none d-md-table-cell">{{this.yellowCards}}</td>
-                    <td class="d-none d-md-table-cell">{{this.redCards}}</td>
-                    <td class="d-none d-lg-table-cell">{{this.team.name}}</td>
-                    <td>
-                        <a href="#" class="text-dark me-3"><i class="bi bi-pencil"></i></a>
-                        <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
-                    </td>
-                </tr>
-                {{else}}
-                <tr>
-                    <td colspan="9" class="text-center text-muted">No hay jugadores disponibles</td>
-                </tr>
-                {{/each}}
-            </tbody>
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">Nombre</th>
+              <th scope="col" class="d-none d-md-table-cell">Posición</th>
+              <th scope="col" class="d-none d-md-table-cell">PJ</th>
+              <th scope="col">Goles</th>
+              <th scope="col" class="d-none d-md-table-cell">TA</th>
+              <th scope="col" class="d-none d-md-table-cell">TR</th>
+              <th scope="col" class="d-none d-lg-table-cell">Equipo</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each players}}
+            <tr>
+              <td>
+                <img src="{{this.image}}" alt="Foto de {{this.name}}"
+                  style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px; border-radius:80px;">
+              </td>
+              <td class="player-name">{{this.name}}</td>
+              <td class="d-none d-md-table-cell">{{this.position}}</td>
+              <td class="d-none d-md-table-cell">{{this.matchesPlayed}}</td>
+              <td>{{this.goals}}</td>
+              <td class="d-none d-md-table-cell">{{this.yellowCards}}</td>
+              <td class="d-none d-md-table-cell">{{this.redCards}}</td>
+              <td class="d-none d-lg-table-cell">{{this.team.name}}</td>
+              <td>
+                <a href="#" class="text-dark me-3"><i class="bi bi-pencil"></i></a>
+                <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
+              </td>
+            </tr>
+            {{else}}
+            <tr>
+              <td colspan="9" class="text-center text-muted">No hay jugadores disponibles</td>
+            </tr>
+            {{/each}}
+          </tbody>
         </table>
+      </div>
     </div>
-</div>
 
     {{/if}}
 
