@@ -12,60 +12,58 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <script>
+<script>
     function fetchLigaData() {
-      const leagueId = document.getElementById("ligaSelect").value;
-      const section = "{{section}}"; // Obtiene la sección activa ('equipos' o 'jugadores')
-      window.location.href = `/dashboard/admin/${section}?leagueId=${leagueId}`;
+        const leagueId = document.getElementById("ligaSelect").value;
+        const section = "{{section}}"; // Obtiene la sección activa ('equipos' o 'jugadores')
+        window.location.href = `/dashboard/admin/${section}?leagueId=${leagueId}`;
     }
 
+    // Función de búsqueda en las tarjetas de equipos
     function filterTeams() {
-      const input = document.getElementById("searchInput");
-      const filter = input.value.toLowerCase();
-      const rows = document.querySelectorAll("#teamsTable tbody tr");
+        const input = document.getElementById("searchInput").value.toLowerCase();
+        const cards = document.querySelectorAll(".col-md-6.col-lg-4");
 
-      rows.forEach(row => {
-        const teamName = row.querySelector(".team-name").textContent.toLowerCase();
-        if (teamName.includes(filter)) {
-          row.style.display = ""; // Muestra la fila si coincide con la búsqueda
-        } else {
-          row.style.display = "none"; // Oculta la fila si no coincide
-        }
-      });
+        cards.forEach(card => {
+            const teamName = card.querySelector(".card-header h5").textContent.toLowerCase();
+            if (teamName.includes(input)) {
+                card.style.display = ""; // Muestra la tarjeta si coincide con la búsqueda
+            } else {
+                card.style.display = "none"; // Oculta la tarjeta si no coincide
+            }
+        });
     }
 
+    // Función de búsqueda en la tabla de jugadores
     function filterPlayers() {
-      const input = document.getElementById("searchPlayerInput");
-      const filter = input.value.toLowerCase();
-      const rows = document.querySelectorAll("#playersTable tbody tr");
+        const input = document.getElementById("searchPlayerInput").value.toLowerCase();
+        const rows = document.querySelectorAll("#playersTable tbody tr");
 
-      rows.forEach(row => {
-        const playerName = row.querySelector(".player-name").textContent.toLowerCase();
-        if (playerName.includes(filter)) {
-          row.style.display = ""; // Muestra la fila si coincide con la búsqueda
-        } else {
-          row.style.display = "none"; // Oculta la fila si no coincide
-        }
-      });
+        rows.forEach(row => {
+            const playerName = row.querySelector(".player-name").textContent.toLowerCase();
+            if (playerName.includes(input)) {
+                row.style.display = ""; // Muestra la fila si coincide con la búsqueda
+            } else {
+                row.style.display = "none"; // Oculta la fila si no coincide
+            }
+        });
     }
-
 
     function filterPlayersByTeam() {
-      const selectedTeamId = document.getElementById("teamFilterSelect").value;
-      const rows = document.querySelectorAll("#playersTable tbody tr");
+        const selectedTeamId = document.getElementById("teamFilterSelect").value;
+        const rows = document.querySelectorAll("#playersTable tbody tr");
 
-      rows.forEach(row => {
-        const rowTeamId = row.getAttribute("data-team-id");
-
-        // Mostrar solo jugadores del equipo seleccionado, o todos si está en "Todos"
-        if (selectedTeamId === "all" || rowTeamId === selectedTeamId) {
-          row.style.display = "";
-        } else {
-          row.style.display = "none";
-        }
-      });
+        rows.forEach(row => {
+            const rowTeamId = row.getAttribute("data-team-id");
+            if (selectedTeamId === "all" || rowTeamId === selectedTeamId) {
+                row.style.display = ""; // Muestra la fila si coincide el equipo o está en "Todos"
+            } else {
+                row.style.display = "none"; // Oculta la fila si no coincide
+            }
+        });
     }
-  </script>
+</script>
+
 
 </head>
 
@@ -79,67 +77,47 @@
     {{> select_admin}}
 
     <div class="card p-4 mb-4">
-      <h2 class="fw-bold">Equipos</h2>
-      <p class="text-muted">Gestión de equipos de la liga</p>
+  <h2 class="fw-bold">Equipos</h2>
+  <p class="text-muted">Gestión de equipos de la liga</p>
 
-      <div class="d-flex justify-content-between mb-3">
-        <input type="text" id="searchInput" class="form-control" placeholder="Buscar equipo..."
-          aria-label="Buscar equipo" style="max-width: 500px;" oninput="filterTeams()">
-        <button class="btn btn-dark ms-3" type="button" onclick="addTeam()">
-          <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
-        </button>
-      </div>
+  <div class="d-flex justify-content-between mb-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="Buscar equipo..." aria-label="Buscar equipo" style="max-width: 500px;" oninput="filterTeams()">
+    <button class="btn btn-dark ms-3" type="button" onclick="addTeam()">
+      <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
+    </button>
+  </div>
 
-      <!-- Contenedor de la tabla responsiva -->
-      <div class="table-responsive">
-        <table class="table table-striped" id="teamsTable">
-          <thead>
-            <tr>
-              <th scope="col">Logo</th>
-              <th scope="col">Nombre</th>
-              <th scope="col" class="d-none d-md-table-cell">PJ</th>
-              <th scope="col" class="d-none d-md-table-cell">G</th>
-              <th scope="col" class="d-none d-md-table-cell">E</th>
-              <th scope="col" class="d-none d-md-table-cell">P</th>
-              <th scope="col" class="d-none d-md-table-cell">GF</th>
-              <th scope="col" class="d-none d-md-table-cell">GC</th>
-              <th scope="col" class="d-none d-md-table-cell">Pts</th>
-              <th scope="col" class="d-none d-lg-table-cell">Balance</th>
-              <th scope="col" class="d-none d-lg-table-cell">Capitán</th>
-              <th scope="col">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each teams}}
-            <tr>
-              <td>
-                <img src="{{this.logo}}" alt="{{this.name}}"
-                  style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px">
-              </td>
-              <td class="team-name">{{this.name}}</td>
-              <td class="d-none d-md-table-cell">{{this.matchesPlayed}}</td>
-              <td class="d-none d-md-table-cell">{{this.victories}}</td>
-              <td class="d-none d-md-table-cell">{{this.draws}}</td>
-              <td class="d-none d-md-table-cell">{{this.defeats}}</td>
-              <td class="d-none d-md-table-cell">{{this.goalsFor}}</td>
-              <td class="d-none d-md-table-cell">{{this.goalsAgainst}}</td>
-              <td class="d-none d-md-table-cell">{{this.points}}</td>
-              <td class="d-none d-lg-table-cell">${{this.balance}}</td>
-              <td class="d-none d-lg-table-cell">{{this.captainId}}</td>
-              <td>
-                <a href="#" class="text-dark me-3"><i class="bi bi-pencil"></i></a>
-                <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
-              </td>
-            </tr>
-            {{else}}
-            <tr>
-              <td colspan="12" class="text-center text-muted">No hay equipos disponibles</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
+  <div class="row">
+    {{#each teams}}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header text-center bg-dark text-white">
+          <h5 class="fw-bold mb-0">{{this.name}}</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-center mb-3">
+            <img src="{{this.logo}}" alt="{{this.name}}" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+          </div>
+          <ul class="list-group list-group-flush text-center">
+            <li class="list-group-item"><strong>PJ:</strong> {{this.matchesPlayed}}</li>
+            <li class="list-group-item"><strong>G:</strong> {{this.victories}} | <strong>E:</strong> {{this.draws}} | <strong>P:</strong> {{this.defeats}}</li>
+            <li class="list-group-item"><strong>GF:</strong> {{this.goalsFor}} | <strong>GC:</strong> {{this.goalsAgainst}}</li>
+            <li class="list-group-item"><strong>Pts:</strong> {{this.points}} | <strong>Balance:</strong> ${{this.balance}}</li>
+            <li class="list-group-item"><strong>Capitán:</strong> {{this.captainId}}</li>
+          </ul>
+        </div>
+        <div class="card-footer bg-light text-center">
+          <a href="#" class="btn btn-outline-primary btn-sm me-2"><i class="bi bi-pencil"></i> Editar</a>
+          <a href="#" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Eliminar</a>
+        </div>
       </div>
     </div>
+    {{else}}
+    <div class="col-12 text-center text-muted">No hay equipos disponibles</div>
+    {{/each}}
+  </div>
+</div>
+
 
     {{/if}}
     {{#if (eq section 'jugadores')}}
