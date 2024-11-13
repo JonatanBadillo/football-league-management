@@ -51,20 +51,20 @@
 
 
     function filterPlayersByTeam() {
-    const selectedTeamId = document.getElementById("teamFilterSelect").value;
-    const rows = document.querySelectorAll("#playersTable tbody tr");
+      const selectedTeamId = document.getElementById("teamFilterSelect").value;
+      const rows = document.querySelectorAll("#playersTable tbody tr");
 
-    rows.forEach(row => {
+      rows.forEach(row => {
         const rowTeamId = row.getAttribute("data-team-id");
 
         // Mostrar solo jugadores del equipo seleccionado, o todos si está en "Todos"
         if (selectedTeamId === "all" || rowTeamId === selectedTeamId) {
-            row.style.display = "";
+          row.style.display = "";
         } else {
-            row.style.display = "none";
+          row.style.display = "none";
         }
-    });
-}
+      });
+    }
   </script>
 
 </head>
@@ -146,70 +146,70 @@
     {{> select_admin}}
 
     <div class="card p-4 mb-4">
-    <h2 class="fw-bold">Jugadores</h2>
-    <p class="text-muted">Gestión de jugadores de la liga</p>
+      <h2 class="fw-bold">Jugadores</h2>
+      <p class="text-muted">Gestión de jugadores de la liga</p>
 
-    <!-- Filtro por equipo y campo de búsqueda -->
-    <div class="d-flex justify-content-between mb-3">
+      <!-- Filtro por equipo y campo de búsqueda -->
+      <div class="d-flex justify-content-between mb-3">
         <select id="teamFilterSelect" class="form-select w-auto" onchange="filterPlayersByTeam()">
-            <option value="all">Todos los equipos</option>
-            {{#each teams}} <!-- Usa aquí los equipos disponibles -->
-            <option value="{{this.id}}">{{this.name}}</option>
-            {{/each}}
+          <option value="all">Todos los equipos</option>
+          {{#each teams}} <!-- Usa aquí los equipos disponibles -->
+          <option value="{{this.id}}">{{this.name}}</option>
+          {{/each}}
         </select>
 
         <input type="text" id="searchPlayerInput" class="form-control" placeholder="Buscar jugador..."
-            aria-label="Buscar jugador" style="max-width: 500px;" oninput="filterPlayers()">
-        
-        <button class="btn btn-dark ms-3" type="button" onclick="addPlayer()">
-            <i class="bi bi-plus-lg me-1"></i>Añadir Jugador
-        </button>
-    </div>
+          aria-label="Buscar jugador" style="max-width: 500px;" oninput="filterPlayers()">
 
-    <!-- Contenedor de la tabla responsiva -->
-    <div class="table-responsive">
+        <button class="btn btn-dark ms-3" type="button" onclick="addPlayer()">
+          <i class="bi bi-plus-lg me-1"></i>Añadir Jugador
+        </button>
+      </div>
+
+      <!-- Contenedor de la tabla responsiva -->
+      <div class="table-responsive">
         <table class="table table-striped" id="playersTable">
-            <thead>
-                <tr>
-                    <th scope="col"></th>
-                    <th scope="col">Nombre</th>
-                    <th scope="col" class="d-none d-md-table-cell">Posición</th>
-                    <th scope="col" class="d-none d-md-table-cell">PJ</th>
-                    <th scope="col">Goles</th>
-                    <th scope="col" class="d-none d-md-table-cell">TA</th>
-                    <th scope="col" class="d-none d-md-table-cell">TR</th>
-                    <th scope="col" class="d-none d-lg-table-cell">Equipo</th>
-                    <th scope="col">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each players}}
-                <tr data-team-id="{{this.team.id}}"> <!-- Agrega un atributo de datos para el ID del equipo -->
-                    <td>
-                        <img src="{{this.image}}" alt="Foto de {{this.name}}"
-                            style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px; border-radius:80px;">
-                    </td>
-                    <td class="player-name">{{this.name}}</td>
-                    <td class="d-none d-md-table-cell">{{this.position}}</td>
-                    <td class="d-none d-md-table-cell">{{this.matchesPlayed}}</td>
-                    <td>{{this.goals}}</td>
-                    <td class="d-none d-md-table-cell">{{this.yellowCards}}</td>
-                    <td class="d-none d-md-table-cell">{{this.redCards}}</td>
-                    <td class="d-none d-lg-table-cell">{{this.team.name}}</td>
-                    <td>
-                        <a href="#" class="text-dark me-3"><i class="bi bi-pencil"></i></a>
-                        <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
-                    </td>
-                </tr>
-                {{else}}
-                <tr>
-                    <td colspan="9" class="text-center text-muted">No hay jugadores disponibles</td>
-                </tr>
-                {{/each}}
-            </tbody>
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">Nombre</th>
+              <th scope="col" class="d-none d-md-table-cell">Posición</th>
+              <th scope="col" class="d-none d-md-table-cell">PJ</th>
+              <th scope="col">Goles</th>
+              <th scope="col" class="d-none d-md-table-cell">TA</th>
+              <th scope="col" class="d-none d-md-table-cell">TR</th>
+              <th scope="col" class="d-none d-lg-table-cell">Equipo</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each players}}
+            <tr data-team-id="{{this.team.id}}"> <!-- Agrega un atributo de datos para el ID del equipo -->
+              <td>
+                <img src="{{this.image}}" alt="Foto de {{this.name}}"
+                  style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px; border-radius:80px;">
+              </td>
+              <td class="player-name">{{this.name}}</td>
+              <td class="d-none d-md-table-cell">{{this.position}}</td>
+              <td class="d-none d-md-table-cell">{{this.matchesPlayed}}</td>
+              <td>{{this.goals}}</td>
+              <td class="d-none d-md-table-cell">{{this.yellowCards}}</td>
+              <td class="d-none d-md-table-cell">{{this.redCards}}</td>
+              <td class="d-none d-lg-table-cell">{{this.team.name}}</td>
+              <td>
+                <a href="#" class="text-dark me-3"><i class="bi bi-pencil"></i></a>
+                <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
+              </td>
+            </tr>
+            {{else}}
+            <tr>
+              <td colspan="9" class="text-center text-muted">No hay jugadores disponibles</td>
+            </tr>
+            {{/each}}
+          </tbody>
         </table>
+      </div>
     </div>
-</div>
 
 
 
