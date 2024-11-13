@@ -6,6 +6,19 @@ import Player from "../model/Player";
 import User from "../model/User";
 import Match from "../model/Match";
 import Jornada from "../model/Jornada";
+import path from 'path';
+import multer from 'multer';
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
 
 const router = express.Router();
 
@@ -650,6 +663,69 @@ router.get('/api/teams', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener equipos' });
   }
 });
+
+
+/////////////////////////////////  VIEWS  /////////////////////////////////
+
+// Ruta para mostrar el formulario de registro de capitán
+router.get('/dashboard/admin/registrar-capitan', (req, res) => {
+  res.render('registrarCapitan', { title: 'Registrar Capitán' });
+});
+
+// Ruta para procesar el registro de capitán
+router.post('/dashboard/admin/registrar-capitan', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const newCaptain = await User.create({ username, password, role: 'captain' });
+    res.redirect('/dashboard/admin/equipos'); // Redirige a la lista de equipos
+  } catch (error) {
+    console.error('Error al registrar el capitán:', error);
+    res.status(500).json({ error: 'Error al registrar el capitán' });
+  }
+});
+
+// Procesa la creación de equipo
+router.post('/equipos', upload.single('logo'), async (req, res) => {
+  const { name, leagueId, captainId, newCaptainUsername, newCaptainPassword } = req.body;
+  const logo = req.file ? `/uploads/${req.file.filename}` : '/images/logo_default_team.png';
+
+  try {
+    let finalCaptainId = captainId;
+
+    if (!captainId && newCaptainUsername && newCaptainPassword) {
+      const newCaptain = await User.create({
+        username: newCaptainUsername,
+        password: newCaptainPassword,
+        role: 'captain',
+      });
+      finalCaptainId = newCaptain.id;
+    }
+
+    await Team.create({
+      name,
+      leagueId,
+      captainId: finalCaptainId,
+      logo,
+      balance: 0,
+      goalsFor: 0,
+      goalsAgainst: 0,
+      victories: 0,
+      defeats: 0,
+      draws: 0,
+      points: 0,
+      matchesPlayed: 0,
+    });
+
+    res.redirect('/dashboard/admin/equipos');
+  } catch (error) {
+    console.error("Error al agregar el equipo:", error);
+    res.status(500).json({ error: "Error al agregar el equipo" });
+  }
+});
+
+
+
+
 
 
 export default router;

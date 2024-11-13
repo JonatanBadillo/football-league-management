@@ -13,6 +13,7 @@ import Match from "./model/Match";
 import Player from "./model/Player";
 import User from "./model/User";
 
+
 const app = express();
 const PORT = 3000;
 
@@ -42,21 +43,29 @@ app.set("views", path.join(__dirname, "../src/views"));
 // Middleware para manejar JSON y archivos estáticos
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../src/public")));
+// Configurar carpeta estática para imágenes cargadas
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+
 //
 app.use(express.urlencoded({ extended: true }));
 
 // Cargar las rutas de administración sin autorización
-app.use("/admin", adminRoutes);
+// app.use("/admin", adminRoutes);
+app.use('/dashboard/admin', adminRoutes);
+
 
 // Configuración de Multer para la carga de archivos
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, 'uploads/'); // Ruta donde se guardan las imágenes
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
+
+
 const upload = multer({ storage });
 
 // Ruta de carga de imágenes

@@ -62,6 +62,12 @@
             }
         });
     }
+
+    function toggleCaptainFields() {
+    const isChecked = document.getElementById("newCaptainCheckbox").checked;
+    document.getElementById("existingCaptainSelect").style.display = isChecked ? "none" : "block";
+    document.getElementById("newCaptainFields").style.display = isChecked ? "block" : "none";
+  }
 </script>
 
 
@@ -82,9 +88,69 @@
 
   <div class="d-flex justify-content-between mb-3">
     <input type="text" id="searchInput" class="form-control" placeholder="Buscar equipo..." aria-label="Buscar equipo" style="max-width: 500px;" oninput="filterTeams()">
-    <button class="btn btn-dark ms-3" type="button" onclick="addTeam()">
-      <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
-    </button>
+    <!-- Botón para abrir el modal de agregar equipo -->
+<button class="btn btn-dark ms-3" data-bs-toggle="modal" data-bs-target="#addTeamModal">
+  <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
+</button>
+
+<!-- Modal de Agregar Equipo -->
+<div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addTeamModalLabel">Agregar Equipo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/dashboard/admin/equipos" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="teamName" class="form-label">Nombre del Equipo</label>
+            <input type="text" class="form-control" id="teamName" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="leagueId" class="form-label">Liga</label>
+            <select id="leagueId" name="leagueId" class="form-select" required>
+              {{#each leagues}}
+                <option value="{{this.id}}">{{this.name}}</option>
+              {{/each}}
+            </select>
+          </div>
+          <div class="mb-3">
+    <label for="teamLogo" class="form-label">Logo del Equipo (opcional)</label>
+    <input type="file" class="form-control" id="teamLogo" name="logo">
+  </div>
+          <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="newCaptainCheckbox" onchange="toggleCaptainFields()">
+            <label class="form-check-label" for="newCaptainCheckbox">Registrar nuevo Capitán</label>
+          </div>
+          <div id="existingCaptainSelect" class="mb-3">
+            <label for="captainId" class="form-label">Capitán</label>
+            <select id="captainId" name="captainId" class="form-select">
+              <option value="">Seleccionar Capitán</option>
+              {{#each captains}}
+                <option value="{{this.id}}">{{this.username}}</option>
+              {{/each}}
+            </select>
+          </div>
+          <div id="newCaptainFields" style="display: none;">
+            <div class="mb-3">
+              <label for="newCaptainUsername" class="form-label">Nombre de Usuario del Capitán</label>
+              <input type="text" class="form-control" id="newCaptainUsername" name="newCaptainUsername">
+            </div>
+            <div class="mb-3">
+              <label for="newCaptainPassword" class="form-label">Contraseña</label>
+              <input type="password" class="form-control" id="newCaptainPassword" name="newCaptainPassword">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Equipo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
   </div>
 
   <div class="row">
