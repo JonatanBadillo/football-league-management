@@ -239,26 +239,42 @@ app.get("/dashboard/admin/jugadores", async (req, res) => {
           leagueId = leagues[0].id ? leagues[0].id.toString() : undefined;
       }
 
-      if (!leagueId) {
-          return res
-              .status(404)
-              .json({ error: "No se encontraron ligas en la base de datos." });
-      }
 
-      const leagueIdNum = parseInt(leagueId, 10);
 
-      // Obtener jugadores de la liga seleccionada
+
+    // Verificar que existan ligas en la base de datos
+    if (!leagueId && leagues.length > 0) {
+      leagueId = leagues[0].id ? leagues[0].id.toString() : undefined; // Verificar que `id` esté definido
+    }
+
+    if (!leagueId) {
+      return res
+        .status(404)
+        .json({ error: "No se encontraron ligas en la base de datos." });
+    }
+
+    const leagueIdNum = parseInt(leagueId, 10);
+
+      // Filtrar los equipos por el ID de la liga seleccionada
+      const teams = await Team.findAll({
+          where: { leagueId: leagueIdNum },
+          attributes: ["id", "name"],
+          order: [["name", "ASC"]]
+      });
+
+      // Obtener los jugadores de la liga seleccionada
       const players = await Player.findAll({
           where: { leagueId: leagueIdNum },
           order: [["name", "ASC"]],
-          include: [{ model: Team, attributes: ["name"] }],
+          include: [{ model: Team, attributes: ["id", "name"] }],
       });
 
       res.render("admin", {
           title: "Administrador",
           leagues,
+          teams, // Solo equipos de la liga seleccionada
           players,
-          section: 'jugadores', 
+          section: 'jugadores',
           selectedLeagueId: leagueIdNum,
           layout: false,
       });
@@ -267,6 +283,7 @@ app.get("/dashboard/admin/jugadores", async (req, res) => {
       res.status(500).json({ error: "Error al cargar datos de jugadores" });
   }
 });
+
 
 
 // Opciones SSL para HTTPS
