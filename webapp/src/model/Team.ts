@@ -84,4 +84,6 @@ Team.init(
   }
 );
 
+Team.belongsTo(User, { as: 'captain', foreignKey: 'captainId' });
+
 export default Team;

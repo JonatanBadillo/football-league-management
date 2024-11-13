@@ -10,4 +10,7 @@ League.hasMany(Team, { foreignKey: 'leagueId' });
 League.hasMany(Player, { foreignKey: 'leagueId' });
 League.hasMany(Match, { foreignKey: 'leagueId' });
 
+// Relación de capitán en el equipo
+Team.belongsTo(User, { as: 'captain', foreignKey: 'captainId' });
+
 export { User, Team, Player, Match, League };

@@ -213,6 +213,13 @@ app.get("/dashboard/admin/equipos", async (req, res) => {
     // Obtener los equipos de la liga seleccionada
     const teams = await Team.findAll({
       where: { leagueId: leagueIdNum },
+      include: [
+        {
+          model: User,
+          as: 'captain', // Usa el alias definido en la relación
+          attributes: ['username'], // Solo trae el nombre de usuario
+        },
+      ],
       order: [["points", "DESC"]],
     });
 
