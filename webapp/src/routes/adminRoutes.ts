@@ -5,6 +5,7 @@ import Team from "../model/Team";
 import Player from "../model/Player";
 import User from "../model/User";
 import Match from "../model/Match";
+import Jornada from "../model/Jornada";
 
 const router = express.Router();
 
@@ -13,51 +14,20 @@ const router = express.Router();
 router.post("/league", async (req, res) => {
   const { name } = req.body;
   try {
-    const league = await League.create({ name });
+    const league = await League.create({ name, totalGoalsFor: 0, matchesPlayed: 0 });
     res.status(201).json(league);
   } catch (error) {
     console.error("Error al crear la liga:", error);
-    res
-      .status(500)
-      .json({
-        error: "Error al crear la liga",
-        details: (error as Error).message,
-      });
+    res.status(500).json({ error: "Error al crear la liga", details: (error as Error).message });
   }
 });
 
 // Crear un equipo y asignarlo a una liga
+// Crear un equipo
 router.post("/team", async (req, res) => {
-  const {
-    name,
-    leagueId,
-    captainId,
-    balance = 0.0,
-    logo = null,
-    goalsFor = 0,
-    goalsAgainst = 0,
-    victories = 0,
-    defeats = 0,
-    draws = 0,
-    points = 0,
-    matchesPlayed = 0,
-  } = req.body;
-
+  const { name, leagueId, captainId, balance = 0.0, logo = null, goalsFor = 0, goalsAgainst = 0, victories = 0, defeats = 0, draws = 0, points = 0, matchesPlayed = 0 } = req.body;
   try {
-    const team = await Team.create({
-      name,
-      leagueId,
-      captainId,
-      balance,
-      logo,
-      goalsFor,
-      goalsAgainst,
-      victories,
-      defeats,
-      draws,
-      points,
-      matchesPlayed,
-    });
+    const team = await Team.create({ name, leagueId, captainId, balance, logo, goalsFor, goalsAgainst, victories, defeats, draws, points, matchesPlayed });
     res.status(201).json(team);
   } catch (error) {
     console.error("Error al crear el equipo:", error);
@@ -80,6 +50,18 @@ router.post("/user", async (req, res) => {
         error: "Error al crear el usuario",
         details: (error as Error).message,
       });
+  }
+});
+
+// Crear una jornada y asignarla a una liga
+router.post("/jornada", async (req, res) => {
+  const { name, date, leagueId } = req.body;
+  try {
+    const jornada = await Jornada.create({ name, date, leagueId });
+    res.status(201).json(jornada);
+  } catch (error) {
+    console.error("Error al crear la jornada:", error);
+    res.status(500).json({ error: "Error al crear la jornada", details: (error as Error).message });
   }
 });
 
@@ -183,6 +165,23 @@ router.delete("/user/:id", async (req, res) => {
   }
 });
 
+// Eliminar una jornada
+router.delete("/jornada/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const jornada = await Jornada.findByPk(id);
+    if (!jornada) {
+      return res.status(404).json({ error: "Jornada no encontrada" });
+    }
+    await jornada.destroy();
+    res.status(200).json({ message: "Jornada eliminada correctamente" });
+  } catch (error) {
+    console.error("Error al eliminar la jornada:", error);
+    res.status(500).json({ error: "Error al eliminar la jornada" });
+  }
+});
+
+
 // Eliminar una liga por ID
 router.delete("/league/:id", async (req, res) => {
   const { id } = req.params;
@@ -285,7 +284,22 @@ router.put("/team/:id", async (req, res) => {
   }
 });
 
-
+// Actualizar una jornada
+router.put("/jornada/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, date, leagueId } = req.body;
+  try {
+    const jornada = await Jornada.findByPk(id);
+    if (!jornada) {
+      return res.status(404).json({ error: "Jornada no encontrada" });
+    }
+    await jornada.update({ name, date, leagueId });
+    res.status(200).json(jornada);
+  } catch (error) {
+    console.error("Error al actualizar la jornada:", error);
+    res.status(500).json({ error: "Error al actualizar la jornada" });
+  }
+});
 
 // Editar un capitán (usuario) por ID
 router.put("/user/:id", async (req, res) => {
@@ -427,6 +441,49 @@ router.get("/teams", async (req, res) => {
   }
 });
 
+// Obtener todas las jornadas de una liga
+router.get("/jornadas/:leagueId", async (req, res) => {
+  const { leagueId } = req.params;
+  try {
+    const jornadas = await Jornada.findAll({ where: { leagueId }, include: { model: Match } });
+    res.status(200).json(jornadas);
+  } catch (error) {
+    console.error("Error al obtener las jornadas:", error);
+    res.status(500).json({ error: "Error al obtener las jornadas" });
+  }
+});
+
+// Obtener una jornada específica por ID
+router.get("/jornada/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const jornada = await Jornada.findByPk(id, { include: { model: Match } });
+    if (!jornada) {
+      return res.status(404).json({ error: "Jornada no encontrada" });
+    }
+    res.status(200).json(jornada);
+  } catch (error) {
+    console.error("Error al obtener la jornada:", error);
+    res.status(500).json({ error: "Error al obtener la jornada" });
+  }
+});
+
+// Actualizar goles acumulados y partidos jugados en una liga
+router.put("/league/update-stats/:id", async (req, res) => {
+  const { id } = req.params;
+  const { totalGoalsFor, matchesPlayed } = req.body;
+  try {
+    const league = await League.findByPk(id);
+    if (!league) {
+      return res.status(404).json({ error: "Liga no encontrada" });
+    }
+    await league.update({ totalGoalsFor, matchesPlayed });
+    res.status(200).json(league);
+  } catch (error) {
+    console.error("Error al actualizar los datos de la liga:", error);
+    res.status(500).json({ error: "Error al actualizar los datos de la liga" });
+  }
+});
 
 // Obtener un equipo específico por ID
 router.get("/team/:id", async (req, res) => {

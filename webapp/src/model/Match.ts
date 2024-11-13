@@ -4,6 +4,7 @@ import sequelize from '../config/database';
 import Team from './Team';
 import User from './User';
 import League from './League';
+import Jornada from './Jornada'; // Importa Jornada para asociarlo
 
 class Match extends Model {}
 
@@ -15,11 +16,11 @@ Match.init(
       primaryKey: true,
     },
     date: {
-      type: DataTypes.DATEONLY, // Solo la fecha
+      type: DataTypes.DATEONLY,
       allowNull: false,
     },
     time: {
-      type: DataTypes.TIME, // Solo la hora
+      type: DataTypes.TIME,
       allowNull: false,
     },
     scoreHome: {
@@ -34,10 +35,10 @@ Match.init(
   { sequelize, modelName: 'match' }
 );
 
-// Asociaciones
 Match.belongsTo(Team, { as: 'homeTeam', foreignKey: 'homeTeamId' });
 Match.belongsTo(Team, { as: 'awayTeam', foreignKey: 'awayTeamId' });
 Match.belongsTo(User, { as: 'referee', foreignKey: 'refereeId' });
 Match.belongsTo(League, { foreignKey: 'leagueId' });
+Match.belongsTo(Jornada, { foreignKey: 'jornadaId', as: 'jornada' }); // Relación con Jornada
 
 export default Match;

@@ -2,17 +2,16 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
 
-// Define una interfaz para los atributos de la liga
 interface LeagueAttributes {
   id: number;
   name: string;
+  totalGoalsFor: number;  // Acumulación de goles a favor de todos los equipos en la liga
+  matchesPlayed: number;  // Número de partidos jugados en la liga
 }
 
-// Define una interfaz para los atributos opcionales en la creación
 interface LeagueCreationAttributes extends Optional<LeagueAttributes, 'id'> {}
 
 class League extends Model<LeagueAttributes, LeagueCreationAttributes> {
-  // Define los métodos get y set para que TypeScript reconozca los atributos
   get id(): number {
     return this.getDataValue('id');
   }
@@ -21,8 +20,12 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> {
     return this.getDataValue('name');
   }
 
-  set name(value: string) {
-    this.setDataValue('name', value);
+  get totalGoalsFor(): number {
+    return this.getDataValue('totalGoalsFor');
+  }
+
+  get matchesPlayed(): number {
+    return this.getDataValue('matchesPlayed');
   }
 }
 
@@ -35,6 +38,16 @@ League.init(
     },
     name: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    totalGoalsFor: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false,
+    },
+    matchesPlayed: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
       allowNull: false,
     },
   },

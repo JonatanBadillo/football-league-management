@@ -1,16 +1,21 @@
+// src/models/index.ts
 import User from './User';
 import Team from './Team';
 import Player from './Player';
 import Match from './Match';
 import League from './League';
+import Jornada from './Jornada';
 
-// Relaciones adicionales
-Team.hasMany(Player, { foreignKey: 'teamId' });
+// Asegúrate de que todos los modelos estén correctamente inicializados y relacionados aquí
 League.hasMany(Team, { foreignKey: 'leagueId' });
 League.hasMany(Player, { foreignKey: 'leagueId' });
 League.hasMany(Match, { foreignKey: 'leagueId' });
+League.hasMany(Jornada, { foreignKey: 'leagueId', as: 'jornadas' });
 
-// Relación de capitán en el equipo
+Jornada.hasMany(Match, { foreignKey: 'jornadaId', as: 'matches' });
+Match.belongsTo(Jornada, { foreignKey: 'jornadaId', as: 'jornada' });
+
 Team.belongsTo(User, { as: 'captain', foreignKey: 'captainId' });
+Team.hasMany(Player, { foreignKey: 'teamId' });
 
-export { User, Team, Player, Match, League };
+export { User, Team, Player, Match, League, Jornada };
