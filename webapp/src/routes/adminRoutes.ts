@@ -10,6 +10,7 @@ import path from 'path';
 import multer from 'multer';
 import xss from 'xss';
 
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -103,7 +104,105 @@ router.post('/equipos', upload.single('logo'), async (req, res) => {
   }
 });
 
+// Ruta para mostrar las ligas
+router.get('/ligas', async (req, res) => {
+  try {
+    const leagues = await League.findAll(); // Obtiene todas las ligas registradas
+    res.render('admin', {
+      title: 'Administrador - Ligas',
+      section: 'ligas',
+      leagues,
+    });
+  } catch (error) {
+    console.error('Error al cargar las ligas:', error);
+    res.status(500).render('admin', {
+      title: 'Administrador - Ligas',
+      section: 'ligas',
+      errorMessage: 'No se pudieron cargar las ligas.',
+      leagues: [],
+    });
+  }
+});
 
+// Ruta para agregar una nueva liga
+router.post('/ligas', async (req, res) => {
+  const { name } = req.body;
+
+  // Validación y sanitización del nombre de la liga
+  const sanitizedLeagueName = xss(name);
+  if (!sanitizedLeagueName || sanitizedLeagueName.length < 3) {
+    return res.status(400).render('admin', {
+      title: 'Administrador - Ligas',
+      section: 'ligas',
+      errorMessage: 'El nombre de la liga debe tener al menos 3 caracteres.',
+      leagues: await League.findAll(),
+    });
+  }
+
+  try {
+    await League.create({ 
+      name: sanitizedLeagueName,
+      totalGoalsFor: 0,
+      matchesPlayed: 0
+    });
+    res.redirect('/dashboard/admin/ligas');
+  } catch (error) {
+    console.error('Error al agregar la liga:', error);
+    res.status(500).render('admin', {
+      title: 'Administrador - Ligas',
+      section: 'ligas',
+      errorMessage: 'Error al agregar la liga. Por favor, inténtelo nuevamente.',
+      leagues: await League.findAll(),
+    });
+  }
+});
+
+// Ruta para eliminar una liga
+router.post('/ligas/:id/eliminar', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await League.destroy({ where: { id } });
+    res.redirect('/dashboard/admin/ligas');
+  } catch (error) {
+    console.error('Error al eliminar la liga:', error);
+    res.status(500).render('admin', {
+      title: 'Administrador - Ligas',
+      section: 'ligas',
+      errorMessage: 'Error al eliminar la liga. Por favor, inténtelo nuevamente.',
+      leagues: await League.findAll(),
+    });
+  }
+});
+
+// Ruta para editar el nombre de una liga
+router.post('/ligas/:id/editar', async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  const sanitizedLeagueName = xss(name);
+  if (!sanitizedLeagueName || sanitizedLeagueName.length < 3) {
+    return res.status(400).render('admin', {
+      title: 'Administrador - Ligas',
+      section: 'ligas',
+      errorMessage: 'El nombre de la liga debe tener al menos 3 caracteres.',
+      leagues: await League.findAll(),
+    });
+  }
+
+  try {
+    await League.update({ name: sanitizedLeagueName }, { where: { id } });
+    res.redirect('/dashboard/admin/ligas');
+  } catch (error) {
+    console.error('Error al editar la liga:', error);
+    res.status(500).render('admin', {
+      title: 'Administrador - Ligas',
+      section: 'ligas',
+      errorMessage: 'Error al editar la liga. Por favor, inténtelo nuevamente.',
+      leagues: await League.findAll(),
+    });
+  }
+});
 
 
 
