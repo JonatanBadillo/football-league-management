@@ -199,7 +199,7 @@ app.post("/login", async (req, res) => {
 
 
 app.get('/dashboard/admin', (req, res) => {
-  res.redirect('/dashboard/admin/equipos');
+  res.redirect('/dashboard/admin/ligas');
 });
 
 
