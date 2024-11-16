@@ -12,63 +12,129 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
+  <script>
     function fetchLigaData() {
-        const leagueId = document.getElementById("ligaSelect").value;
-        const section = "{{section}}"; // Obtiene la sección activa ('equipos' o 'jugadores')
-        window.location.href = `/dashboard/admin/${section}?leagueId=${leagueId}`;
+      const leagueId = document.getElementById("ligaSelect").value;
+      const section = "{{section}}"; // Obtiene la sección activa ('equipos' o 'jugadores')
+      window.location.href = `/dashboard/admin/${section}?leagueId=${leagueId}`;
     }
 
     // Función de búsqueda en las tarjetas de equipos
     function filterTeams() {
-        const input = document.getElementById("searchInput").value.toLowerCase();
-        const cards = document.querySelectorAll(".col-md-6.col-lg-4");
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const cards = document.querySelectorAll(".col-md-6.col-lg-4");
 
-        cards.forEach(card => {
-            const teamName = card.querySelector(".card-header h5").textContent.toLowerCase();
-            if (teamName.includes(input)) {
-                card.style.display = ""; // Muestra la tarjeta si coincide con la búsqueda
-            } else {
-                card.style.display = "none"; // Oculta la tarjeta si no coincide
-            }
-        });
+      cards.forEach(card => {
+        const teamName = card.querySelector(".card-header h5").textContent.toLowerCase();
+        if (teamName.includes(input)) {
+          card.style.display = ""; // Muestra la tarjeta si coincide con la búsqueda
+        } else {
+          card.style.display = "none"; // Oculta la tarjeta si no coincide
+        }
+      });
     }
 
     // Función de búsqueda en la tabla de jugadores
     function filterPlayers() {
-        const input = document.getElementById("searchPlayerInput").value.toLowerCase();
-        const rows = document.querySelectorAll("#playersTable tbody tr");
+      const input = document.getElementById("searchPlayerInput").value.toLowerCase();
+      const rows = document.querySelectorAll("#playersTable tbody tr");
 
-        rows.forEach(row => {
-            const playerName = row.querySelector(".player-name").textContent.toLowerCase();
-            if (playerName.includes(input)) {
-                row.style.display = ""; // Muestra la fila si coincide con la búsqueda
-            } else {
-                row.style.display = "none"; // Oculta la fila si no coincide
-            }
-        });
+      rows.forEach(row => {
+        const playerName = row.querySelector(".player-name").textContent.toLowerCase();
+        if (playerName.includes(input)) {
+          row.style.display = ""; // Muestra la fila si coincide con la búsqueda
+        } else {
+          row.style.display = "none"; // Oculta la fila si no coincide
+        }
+      });
     }
 
     function filterPlayersByTeam() {
-        const selectedTeamId = document.getElementById("teamFilterSelect").value;
-        const rows = document.querySelectorAll("#playersTable tbody tr");
+      const selectedTeamId = document.getElementById("teamFilterSelect").value;
+      const rows = document.querySelectorAll("#playersTable tbody tr");
 
-        rows.forEach(row => {
-            const rowTeamId = row.getAttribute("data-team-id");
-            if (selectedTeamId === "all" || rowTeamId === selectedTeamId) {
-                row.style.display = ""; // Muestra la fila si coincide el equipo o está en "Todos"
-            } else {
-                row.style.display = "none"; // Oculta la fila si no coincide
-            }
-        });
+      rows.forEach(row => {
+        const rowTeamId = row.getAttribute("data-team-id");
+        if (selectedTeamId === "all" || rowTeamId === selectedTeamId) {
+          row.style.display = ""; // Muestra la fila si coincide el equipo o está en "Todos"
+        } else {
+          row.style.display = "none"; // Oculta la fila si no coincide
+        }
+      });
     }
 
     function toggleCaptainFields() {
-    const isChecked = document.getElementById("newCaptainCheckbox").checked;
-    document.getElementById("existingCaptainSelect").style.display = isChecked ? "none" : "block";
-    document.getElementById("newCaptainFields").style.display = isChecked ? "block" : "none";
+      const isChecked = document.getElementById("newCaptainCheckbox").checked;
+      document.getElementById("existingCaptainSelect").style.display = isChecked ? "none" : "block";
+      document.getElementById("newCaptainFields").style.display = isChecked ? "block" : "none";
+    }
+
+    function validateForm() {
+  let isValid = true;
+
+  // Validar Nombre del Equipo
+  const teamName = document.getElementById('teamName').value.trim();
+  if (!teamName || teamName.length < 3) {
+    document.getElementById('teamNameError').style.display = 'block';
+    isValid = false;
+  } else {
+    document.getElementById('teamNameError').style.display = 'none';
   }
-</script>
+
+  // Validar Nombre de Usuario del Capitán
+  const username = document.getElementById('newCaptainUsername').value.trim();
+  if (!username || username.length < 3) {
+    document.getElementById('newCaptainUsernameError').style.display = 'block';
+    isValid = false;
+  } else {
+    document.getElementById('newCaptainUsernameError').style.display = 'none';
+  }
+
+  // Validar Contraseña del Capitán
+  const password = document.getElementById('newCaptainPassword').value;
+  const passwordPattern = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/; // Al menos 8 caracteres, una mayúscula y un número
+  if (!passwordPattern.test(password)) {
+    document.getElementById('newCaptainPasswordError').style.display = 'block';
+    isValid = false;
+  } else {
+    document.getElementById('newCaptainPasswordError').style.display = 'none';
+  }
+
+  return isValid;
+}
+
+
+    function submitTeamForm(event) {
+      event.preventDefault(); // Evita que el formulario se envíe automáticamente
+
+      const formData = new FormData(event.target);
+
+      fetch('/dashboard/admin/equipos', {
+        method: 'POST',
+        body: formData,
+      })
+        .then(response => response.json())
+        .then(data => {
+          const errorMessage = document.getElementById('error-message');
+          if (data.error) {
+            errorMessage.textContent = data.error;  // Muestra el mensaje de error
+            errorMessage.style.display = 'block';    // Muestra el contenedor de error
+          } else {
+            // Si no hay error, redirige o realiza alguna acción
+            window.location.href = '/dashboard/admin/equipos';
+          }
+        })
+        .catch(error => {
+          console.error('Error al registrar el equipo:', error);
+          const errorMessage = document.getElementById('error-message');
+          errorMessage.textContent = 'Hubo un error al registrar el equipo. Por favor, inténtelo de nuevo.'; // Error genérico
+          errorMessage.style.display = 'block'; // Muestra el contenedor de error
+        });
+    }
+
+    // Asegúrate de que el formulario use esta función
+    document.getElementById('addTeamForm').addEventListener('submit', submitTeamForm);
+  </script>
 
 
 </head>
@@ -77,216 +143,215 @@
   {{> navbaradmin}}
 
   <div class="container mt-4">
-    <h1 class="fw-bold">Panel de Administración</h1>
+  <h1 class="fw-bold">Panel de Administración</h1>
 
-    {{#if (eq section 'equipos')}}
-    {{> select_admin}}
+  
 
-    <div class="card p-4 mb-4">
-  <h2 class="fw-bold">Equipos</h2>
-  <p class="text-muted">Gestión de equipos de la liga</p>
+  {{#if (eq section 'equipos')}}
+  {{> select_admin}}
 
-  <div class="d-flex justify-content-between mb-3">
-    <input type="text" id="searchInput" class="form-control" placeholder="Buscar equipo..." aria-label="Buscar equipo" style="max-width: 500px;" oninput="filterTeams()">
-    <!-- Botón para abrir el modal de agregar equipo -->
-<button class="btn btn-dark ms-3" data-bs-toggle="modal" data-bs-target="#addTeamModal">
-  <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
-</button>
+  <div class="card p-4 mb-4">
+    <h2 class="fw-bold">Equipos</h2>
+    <p class="text-muted">Gestión de equipos de la liga</p>
 
-<!-- Modal de Agregar Equipo -->
-<div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addTeamModalLabel">Agregar Equipo</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="d-flex justify-content-between mb-3">
+      <input type="text" id="searchInput" class="form-control" placeholder="Buscar equipo..." aria-label="Buscar equipo" style="max-width: 500px;" oninput="filterTeams()">
+      <!-- Botón para abrir el modal de agregar equipo -->
+      <button class="btn btn-dark ms-3" data-bs-toggle="modal" data-bs-target="#addTeamModal">
+        <i class="bi bi-plus-lg me-1"></i>Añadir Equipo
+      </button>
+
+      <!-- Modal de Agregar Equipo -->
+      <div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addTeamModalLabel">Agregar Equipo</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/dashboard/admin/equipos" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+  <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+  {{#if errorMessage}}
+  <div id="error-message" class="alert alert-danger">{{errorMessage}}</div>
+  {{/if}}
+  <div class="modal-body">
+    <!-- Datos del Equipo -->
+    <div class="mb-3">
+      <label for="teamName" class="form-label">Nombre del Equipo</label>
+      <input type="text" class="form-control" id="teamName" name="name" required>
+      <div id="teamNameError" class="text-danger" style="display: none;">El nombre del equipo es obligatorio y debe tener al menos 3 caracteres.</div>
+    </div>
+    <div class="mb-3">
+      <label for="leagueId" class="form-label">Liga</label>
+      <select id="leagueId" name="leagueId" class="form-select" required>
+        {{#each leagues}}
+        <option value="{{this.id}}">{{this.name}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="teamLogo" class="form-label">Logo del Equipo (opcional)</label>
+      <input type="file" class="form-control" id="teamLogo" name="logo" accept="image/*">
+      <div id="teamLogoError" class="text-danger" style="display: none;">El logo debe ser una imagen válida (JPG, PNG, etc.).</div>
+    </div>
+
+    <!-- Datos del Capitán -->
+    <h5 class="fw-bold">Datos del Capitán</h5>
+    <div class="mb-3">
+      <label for="newCaptainUsername" class="form-label">Nombre de Usuario del Capitán</label>
+      <input type="text" class="form-control" id="newCaptainUsername" name="newCaptainUsername" required>
+      <div id="newCaptainUsernameError" class="text-danger" style="display: none;">El nombre de usuario es obligatorio y debe tener al menos 3 caracteres.</div>
+    </div>
+    <div class="mb-3">
+      <label for="newCaptainPassword" class="form-label">Contraseña</label>
+      <input type="password" class="form-control" id="newCaptainPassword" name="newCaptainPassword" required>
+      <div id="newCaptainPasswordError" class="text-danger" style="display: none;">
+        La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.
       </div>
-      <form action="/dashboard/admin/equipos" method="POST" enctype="multipart/form-data">
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="teamName" class="form-label">Nombre del Equipo</label>
-            <input type="text" class="form-control" id="teamName" name="name" required>
-          </div>
-          <div class="mb-3">
-            <label for="leagueId" class="form-label">Liga</label>
-            <select id="leagueId" name="leagueId" class="form-select" required>
-              {{#each leagues}}
-                <option value="{{this.id}}">{{this.name}}</option>
-              {{/each}}
-            </select>
-          </div>
-          <div class="mb-3">
-    <label for="teamLogo" class="form-label">Logo del Equipo (opcional)</label>
-    <input type="file" class="form-control" id="teamLogo" name="logo">
-  </div>
-          <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="newCaptainCheckbox" onchange="toggleCaptainFields()">
-            <label class="form-check-label" for="newCaptainCheckbox">Registrar nuevo Capitán</label>
-          </div>
-          <div id="existingCaptainSelect" class="mb-3">
-            <label for="captainId" class="form-label">Capitán</label>
-            <select id="captainId" name="captainId" class="form-select">
-              <option value="">Seleccionar Capitán</option>
-              {{#each captains}}
-                <option value="{{this.id}}">{{this.username}}</option>
-              {{/each}}
-            </select>
-          </div>
-          <div id="newCaptainFields" style="display: none;">
-            <div class="mb-3">
-              <label for="newCaptainUsername" class="form-label">Nombre de Usuario del Capitán</label>
-              <input type="text" class="form-control" id="newCaptainUsername" name="newCaptainUsername">
-            </div>
-            <div class="mb-3">
-              <label for="newCaptainPassword" class="form-label">Contraseña</label>
-              <input type="password" class="form-control" id="newCaptainPassword" name="newCaptainPassword">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar Equipo</button>
-        </div>
-      </form>
     </div>
   </div>
-</div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    <button type="submit" class="btn btn-primary">Guardar Equipo</button>
   </div>
+</form>
 
-  <div class="row">
-    {{#each teams}}
-    <div class="col-md-6 col-lg-4 mb-4">
-      <div class="card shadow-sm border-0" style="border-radius: 12px;">
-        <div class="card-header bg-dark text-white text-center" style="border-top-left-radius: 12px; border-top-right-radius: 12px;">
-          <h5 class="fw-bold mb-0">{{this.name}}</h5>
-        </div>
-        <div class="card-body text-center">
-          <img src="{{this.logo}}" alt="{{this.name}}" class="rounded-circle border border-2" style="width: 70px; height: 70px; object-fit: cover; margin-bottom: 10px;">
 
-          <div class="d-flex justify-content-around mb-3">
-            <div class="text-center">
-              <i class="bi bi-trophy-fill text-warning"></i>
-              <p class="mb-0 small text-muted">Puntos</p>
-              <p class="fw-bold mb-0">{{this.points}}</p>
-            </div>
-            <div class="text-center">
-              <i class="bi bi-people-fill text-info"></i>
-              <p class="mb-0 small text-muted">Partidos</p>
-              <p class="fw-bold mb-0">{{this.matchesPlayed}}</p>
-            </div>
-            <div class="text-center">
-              <i class="bi bi-cash-coin text-success"></i>
-              <p class="mb-0 small text-muted">Balance</p>
-              <p class="fw-bold mb-0">${{this.balance}}</p>
-            </div>
+
           </div>
-
-          <ul class="list-group list-group-flush text-start small">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span><i class="bi bi-person-badge-fill text-primary me-2"></i> Capitán:</span> 
-              <span>{{this.captain.username}}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span><i class="bi bi-bar-chart-fill text-secondary me-2"></i> GF / GC:</span> 
-              <span>{{this.goalsFor}} / {{this.goalsAgainst}}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-              <span><i class="bi bi-arrow-up-right-square-fill text-success me-2"></i> G: {{this.victories}}</span>
-              <span><i class="bi bi-arrow-right-square-fill text-muted me-2"></i> E: {{this.draws}}</span>
-              <span><i class="bi bi-arrow-down-right-square-fill text-danger me-2"></i> P: {{this.defeats}}</span>
-            </li>
-          </ul>
-        </div>
-        <div class="card-footer bg-light text-center">
-          <a href="#" class="btn btn-outline-primary btn-sm me-2"><i class="bi bi-pencil me-1"></i>Editar</a>
-          <a href="#" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash me-1"></i>Eliminar</a>
         </div>
       </div>
     </div>
-    {{else}}
-    <div class="col-12 text-center text-muted">No hay equipos disponibles</div>
-    {{/each}}
+
+    <div class="row">
+      {{#each teams}}
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card shadow-sm border-0" style="border-radius: 12px;">
+          <div class="card-header bg-dark text-white text-center" style="border-top-left-radius: 12px; border-top-right-radius: 12px;">
+            <h5 class="fw-bold mb-0">{{this.name}}</h5>
+          </div>
+          <div class="card-body text-center">
+            <img src="{{this.logo}}" alt="{{this.name}}" class="rounded-circle border border-2" style="width: 70px; height: 70px; object-fit: cover; margin-bottom: 10px;">
+
+            <div class="d-flex justify-content-around mb-3">
+              <div class="text-center">
+                <i class="bi bi-trophy-fill text-warning"></i>
+                <p class="mb-0 small text-muted">Puntos</p>
+                <p class="fw-bold mb-0">{{this.points}}</p>
+              </div>
+              <div class="text-center">
+                <i class="bi bi-people-fill text-info"></i>
+                <p class="mb-0 small text-muted">Partidos</p>
+                <p class="fw-bold mb-0">{{this.matchesPlayed}}</p>
+              </div>
+              <div class="text-center">
+                <i class="bi bi-cash-coin text-success"></i>
+                <p class="mb-0 small text-muted">Balance</p>
+                <p class="fw-bold mb-0">${{this.balance}}</p>
+              </div>
+            </div>
+
+            <ul class="list-group list-group-flush text-start small">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-person-badge-fill text-primary me-2"></i> Capitán:</span>
+                <span>{{this.captain.username}}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-bar-chart-fill text-secondary me-2"></i> GF / GC:</span>
+                <span>{{this.goalsFor}} / {{this.goalsAgainst}}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <span><i class="bi bi-arrow-up-right-square-fill text-success me-2"></i> G: {{this.victories}}</span>
+                <span><i class="bi bi-arrow-right-square-fill text-muted me-2"></i> E: {{this.draws}}</span>
+                <span><i class="bi bi-arrow-down-right-square-fill text-danger me-2"></i> P: {{this.defeats}}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="card-footer bg-light text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm me-2"><i class="bi bi-pencil me-1"></i>Editar</a>
+            <a href="#" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash me-1"></i>Eliminar</a>
+          </div>
+        </div>
+      </div>
+      {{else}}
+      <div class="col-12 text-center text-muted">No hay equipos disponibles</div>
+      {{/each}}
+    </div>
   </div>
-</div>
 
+  {{/if}}
+  {{#if (eq section 'jugadores')}}
+  {{> select_admin}}
 
+  <div class="card p-4 mb-4">
+    <h2 class="fw-bold">Jugadores</h2>
+    <p class="text-muted">Gestión de jugadores de la liga</p>
 
+    <!-- Filtro por equipo y campo de búsqueda -->
+    <div class="d-flex justify-content-between mb-3">
+      <select id="teamFilterSelect" class="form-select w-auto" onchange="filterPlayersByTeam()">
+        <option value="all">Todos los equipos</option>
+        {{#each teams}}
+        <option value="{{this.id}}">{{this.name}}</option>
+        {{/each}}
+      </select>
 
-    {{/if}}
-    {{#if (eq section 'jugadores')}}
-    {{> select_admin}}
+      <input type="text" id="searchPlayerInput" class="form-control" placeholder="Buscar jugador..." aria-label="Buscar jugador" style="max-width: 500px;" oninput="filterPlayers()">
 
-    <div class="card p-4 mb-4">
-      <h2 class="fw-bold">Jugadores</h2>
-      <p class="text-muted">Gestión de jugadores de la liga</p>
+      <button class="btn btn-dark ms-3" type="button" onclick="addPlayer()">
+        <i class="bi bi-plus-lg me-1"></i>Añadir Jugador
+      </button>
+    </div>
 
-      <!-- Filtro por equipo y campo de búsqueda -->
-      <div class="d-flex justify-content-between mb-3">
-        <select id="teamFilterSelect" class="form-select w-auto" onchange="filterPlayersByTeam()">
-          <option value="all">Todos los equipos</option>
-          {{#each teams}} <!-- Usa aquí los equipos disponibles -->
-          <option value="{{this.id}}">{{this.name}}</option>
+    <!-- Contenedor de la tabla responsiva -->
+    <div class="table-responsive">
+      <table class="table table-striped" id="playersTable">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">Nombre</th>
+            <th scope="col" class="d-none d-md-table-cell">Posición</th>
+            <th scope="col" class="d-none d-md-table-cell">PJ</th>
+            <th scope="col">Goles</th>
+            <th scope="col" class="d-none d-md-table-cell">TA</th>
+            <th scope="col" class="d-none d-md-table-cell">TR</th>
+            <th scope="col" class="d-none d-lg-table-cell">Equipo</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each players}}
+          <tr data-team-id="{{this.team.id}}">
+            <td>
+              <img src="{{this.image}}" alt="Foto de {{this.name}}" style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px; border-radius:80px;">
+            </td>
+            <td class="player-name">{{this.name}}</td>
+            <td class="d-none d-md-table-cell">{{this.position}}</td>
+            <td class="d-none d-md-table-cell">{{this.matchesPlayed}}</td>
+            <td>{{this.goals}}</td>
+            <td class="d-none d-md-table-cell">{{this.yellowCards}}</td>
+            <td class="d-none d-md-table-cell">{{this.redCards}}</td>
+            <td class="d-none d-lg-table-cell">{{this.team.name}}</td>
+            <td>
+              <a href="#" class="text-dark me-3"><i class="bi bi-pencil"></i></a>
+              <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+          {{else}}
+          <tr>
+            <td colspan="9" class="text-center text-muted">No hay jugadores disponibles</td>
+          </tr>
           {{/each}}
-        </select>
-
-        <input type="text" id="searchPlayerInput" class="form-control" placeholder="Buscar jugador..."
-          aria-label="Buscar jugador" style="max-width: 500px;" oninput="filterPlayers()">
-
-        <button class="btn btn-dark ms-3" type="button" onclick="addPlayer()">
-          <i class="bi bi-plus-lg me-1"></i>Añadir Jugador
-        </button>
-      </div>
-
-      <!-- Contenedor de la tabla responsiva -->
-      <div class="table-responsive">
-        <table class="table table-striped" id="playersTable">
-          <thead>
-            <tr>
-              <th scope="col"></th>
-              <th scope="col">Nombre</th>
-              <th scope="col" class="d-none d-md-table-cell">Posición</th>
-              <th scope="col" class="d-none d-md-table-cell">PJ</th>
-              <th scope="col">Goles</th>
-              <th scope="col" class="d-none d-md-table-cell">TA</th>
-              <th scope="col" class="d-none d-md-table-cell">TR</th>
-              <th scope="col" class="d-none d-lg-table-cell">Equipo</th>
-              <th scope="col">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each players}}
-            <tr data-team-id="{{this.team.id}}"> <!-- Agrega un atributo de datos para el ID del equipo -->
-              <td>
-                <img src="{{this.image}}" alt="Foto de {{this.name}}"
-                  style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px; border-radius:80px;">
-              </td>
-              <td class="player-name">{{this.name}}</td>
-              <td class="d-none d-md-table-cell">{{this.position}}</td>
-              <td class="d-none d-md-table-cell">{{this.matchesPlayed}}</td>
-              <td>{{this.goals}}</td>
-              <td class="d-none d-md-table-cell">{{this.yellowCards}}</td>
-              <td class="d-none d-md-table-cell">{{this.redCards}}</td>
-              <td class="d-none d-lg-table-cell">{{this.team.name}}</td>
-              <td>
-                <a href="#" class="text-dark me-3"><i class="bi bi-pencil"></i></a>
-                <a href="#" class="text-dark"><i class="bi bi-trash"></i></a>
-              </td>
-            </tr>
-            {{else}}
-            <tr>
-              <td colspan="9" class="text-center text-muted">No hay jugadores disponibles</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
+        </tbody>
+      </table>
     </div>
-
-
-
-    {{/if}}
-
   </div>
+
+  {{/if}}
+
+</div>
+
 </body>
 {{> footer}}
 
