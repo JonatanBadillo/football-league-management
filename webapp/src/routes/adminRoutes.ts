@@ -9,6 +9,9 @@ import Jornada from "../model/Jornada";
 import path from 'path';
 import multer from 'multer';
 import xss from 'xss';
+import { Transaction } from 'sequelize';
+import sequelize from '../config/database';
+
 
 
 const storage = multer.diskStorage({
@@ -162,22 +165,51 @@ router.post('/ligas', async (req, res) => {
 });
 
 // Ruta para eliminar una liga
+// Ruta para eliminar una liga
 router.post('/ligas/:id/eliminar', async (req, res) => {
   const { id } = req.params;
 
   try {
-    await League.destroy({ where: { id } });
+    // Inicia una transacción
+    await sequelize.transaction(async (t: Transaction) => {
+      // Eliminar equipos asociados
+      await Team.destroy({
+        where: { leagueId: id },
+        transaction: t, // Usar la transacción
+      });
+
+      // Eliminar jugadores asociados
+      await Player.destroy({
+        where: { leagueId: id },
+        transaction: t,
+      });
+
+      // Eliminar partidos asociados
+      await Match.destroy({
+        where: { leagueId: id },
+        transaction: t,
+      });
+
+      // Finalmente, eliminar la liga
+      await League.destroy({
+        where: { id },
+        transaction: t,
+      });
+    });
+
+    // Redirigir después de la eliminación
     res.redirect('/dashboard/admin/ligas');
   } catch (error) {
     console.error('Error al eliminar la liga:', error);
     res.status(500).render('admin', {
       title: 'Administrador - Ligas',
       section: 'ligas',
-      errorMessage: 'Error al eliminar la liga. Por favor, inténtelo nuevamente.',
+      errorMessage: 'No se pudo eliminar la liga. Por favor, inténtelo nuevamente.',
       leagues: await League.findAll(),
     });
   }
 });
+
 
 // Ruta para editar el nombre de una liga
 router.post('/ligas/:id/editar', async (req, res) => {

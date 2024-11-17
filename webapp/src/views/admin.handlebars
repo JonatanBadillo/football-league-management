@@ -175,12 +175,32 @@
                 <i class="bi bi-pencil"></i> Editar
               </button>
 
-              <!-- Formulario para eliminar -->
-              <form action="/dashboard/admin/ligas/{{this.id}}/eliminar" method="POST">
-                <button type="submit" class="btn btn-danger btn-sm">
-                  <i class="bi bi-trash"></i> Eliminar
-                </button>
-              </form>
+              <!-- Botón para eliminar con modal -->
+<button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-{{this.id}}">
+  <i class="bi bi-trash"></i> Eliminar
+</button>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmDeleteModal-{{this.id}}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel-{{this.id}}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteModalLabel-{{this.id}}">Confirmar Eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas eliminar la liga <strong>{{this.name}}</strong>? Esto eliminará todos los datos asociados.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form action="/dashboard/admin/ligas/{{this.id}}/eliminar" method="POST" style="display: inline;">
+          <button type="submit" class="btn btn-danger">Eliminar Liga</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
             </div>
           </div>
         </div>
@@ -262,63 +282,68 @@
         </button>
 
         <!-- Modal de Agregar Equipo -->
-        <!-- Modal de Agregar Equipo -->
-<div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addTeamModalLabel">Agregar Equipo</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form action="/dashboard/admin/equipos" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
-        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
-        {{#if errorMessage}}
-        <div id="error-message" class="alert alert-danger">{{errorMessage}}</div>
-        {{/if}}
-        <div class="modal-body">
-          <!-- Datos del Equipo -->
-          <div class="mb-3">
-            <label for="teamName" class="form-label">Nombre del Equipo</label>
-            <input type="text" class="form-control" id="teamName" name="name" required>
-            <div id="teamNameError" class="text-danger" style="display: none;">El nombre del equipo es obligatorio y debe tener al menos 3 caracteres.</div>
-          </div>
-          <div class="mb-3">
-            <label for="leagueId" class="form-label">Liga</label>
-            <select id="leagueId" name="leagueId" class="form-select" required>
-              {{#each leagues}}
-              <option value="{{this.id}}" {{#if (eq ../selectedLeagueId this.id)}}selected{{/if}}>{{this.name}}</option>
-              {{/each}}
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="teamLogo" class="form-label">Logo del Equipo (opcional)</label>
-            <input type="file" class="form-control" id="teamLogo" name="logo" accept="image/*">
-            <div id="teamLogoError" class="text-danger" style="display: none;">El logo debe ser una imagen válida (JPG, PNG, etc.).</div>
-          </div>
+        <div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addTeamModalLabel">Agregar Equipo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form action="/dashboard/admin/equipos" method="POST" enctype="multipart/form-data"
+                onsubmit="return validateForm()">
+                <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+                {{#if errorMessage}}
+                <div id="error-message" class="alert alert-danger">{{errorMessage}}</div>
+                {{/if}}
+                <div class="modal-body">
+                  <!-- Datos del Equipo -->
+                  <div class="mb-3">
+                    <label for="teamName" class="form-label">Nombre del Equipo</label>
+                    <input type="text" class="form-control" id="teamName" name="name" required>
+                    <div id="teamNameError" class="text-danger" style="display: none;">El nombre del equipo es
+                      obligatorio y debe tener al menos 3 caracteres.</div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="leagueId" class="form-label">Liga</label>
+                    <select id="leagueId" name="leagueId" class="form-select" required>
+                      {{#each leagues}}
+                      <option value="{{this.id}}" {{#if (eq ../selectedLeagueId this.id)}}selected{{/if}}>{{this.name}}
+                      </option>
+                      {{/each}}
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="teamLogo" class="form-label">Logo del Equipo (opcional)</label>
+                    <input type="file" class="form-control" id="teamLogo" name="logo" accept="image/*">
+                    <div id="teamLogoError" class="text-danger" style="display: none;">El logo debe ser una imagen
+                      válida (JPG, PNG, etc.).</div>
+                  </div>
 
-          <!-- Datos del Capitán -->
-          <h5 class="fw-bold">Datos del Capitán</h5>
-          <div class="mb-3">
-            <label for="newCaptainUsername" class="form-label">Nombre de Usuario del Capitán</label>
-            <input type="text" class="form-control" id="newCaptainUsername" name="newCaptainUsername" required>
-            <div id="newCaptainUsernameError" class="text-danger" style="display: none;">El nombre de usuario es obligatorio y debe tener al menos 3 caracteres.</div>
-          </div>
-          <div class="mb-3">
-            <label for="newCaptainPassword" class="form-label">Contraseña</label>
-            <input type="password" class="form-control" id="newCaptainPassword" name="newCaptainPassword" required>
-            <div id="newCaptainPasswordError" class="text-danger" style="display: none;">
-              La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.
+                  <!-- Datos del Capitán -->
+                  <h5 class="fw-bold">Datos del Capitán</h5>
+                  <div class="mb-3">
+                    <label for="newCaptainUsername" class="form-label">Nombre de Usuario del Capitán</label>
+                    <input type="text" class="form-control" id="newCaptainUsername" name="newCaptainUsername" required>
+                    <div id="newCaptainUsernameError" class="text-danger" style="display: none;">El nombre de usuario es
+                      obligatorio y debe tener al menos 3 caracteres.</div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="newCaptainPassword" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="newCaptainPassword" name="newCaptainPassword"
+                      required>
+                    <div id="newCaptainPasswordError" class="text-danger" style="display: none;">
+                      La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn btn-primary">Guardar Equipo</button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar Equipo</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
       </div>
 
