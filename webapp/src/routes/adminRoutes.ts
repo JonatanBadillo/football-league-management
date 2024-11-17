@@ -294,6 +294,74 @@ router.post('/ligas/:id/editar', async (req, res) => {
 });
 
 
+//////////////////////////////////////// JUGADORES ////////////////////////////////////////
+
+// Ruta para agregar un nuevo jugador
+router.post('/jugadores', upload.single('image'), async (req, res) => {
+  const { name, position, goals, yellowCards, redCards, teamId, leagueId } = req.body;
+
+  try {
+    const newPlayer = await Player.create({
+      name,
+      position,
+      goals: parseInt(goals, 10) || 0,
+      yellowCards: parseInt(yellowCards, 10) || 0,
+      redCards: parseInt(redCards, 10) || 0,
+      teamId: parseInt(teamId, 10),
+      leagueId: parseInt(leagueId, 10),
+      image: req.file ? `/uploads/${req.file.filename}` : '/images/default_player.png',
+    });
+
+    res.redirect(`/dashboard/admin/jugadores?leagueId=${leagueId}`);
+  } catch (error) {
+    console.error('Error al agregar jugador:', error);
+    res.status(500).json({ error: 'Error al agregar jugador.' });
+  }
+});
+
+
+// Ruta para editar un jugador
+router.post('/jugadores/:id/editar', upload.single('image'), async (req, res) => {
+  const { id } = req.params;
+  const { name, position, goals, yellowCards, redCards, teamId } = req.body;
+
+  try {
+    const updatedData: any = {
+      name,
+      position,
+      goals: parseInt(goals, 10) || 0,
+      yellowCards: parseInt(yellowCards, 10) || 0,
+      redCards: parseInt(redCards, 10) || 0,
+      teamId: parseInt(teamId, 10),
+    };
+
+    if (req.file) {
+      updatedData.image = `/uploads/${req.file.filename}`;
+    }
+
+    await Player.update(updatedData, { where: { id } });
+
+    res.redirect(`/dashboard/admin/jugadores`);
+  } catch (error) {
+    console.error('Error al editar jugador:', error);
+    res.status(500).json({ error: 'Error al editar jugador.' });
+  }
+});
+
+// Ruta para eliminar un jugador
+router.post('/jugadores/:id/eliminar', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await Player.destroy({ where: { id } });
+    res.redirect(`/dashboard/admin/jugadores`);
+  } catch (error) {
+    console.error('Error al eliminar jugador:', error);
+    res.status(500).json({ error: 'Error al eliminar jugador.' });
+  }
+});
+
+
 
 
 
