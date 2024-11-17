@@ -90,9 +90,7 @@ app.get("/", async (req, res) => {
     }
 
     if (!leagueId) {
-      return res
-        .status(404)
-        .json({ error: "No se encontraron ligas en la base de datos." });
+      return res.redirect("/login");
     }
 
     const leagueIdNum = parseInt(leagueId, 10);
