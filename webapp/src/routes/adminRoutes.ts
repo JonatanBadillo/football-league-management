@@ -100,6 +100,7 @@ router.post('/equipos', upload.single('logo'), async (req, res) => {
       errorMessage: 'Hubo un error al agregar el equipo. Por favor, intente de nuevo.',
       leagues: await League.findAll(),
       teams: await Team.findAll(),
+      selectedLeagueId: leagueId,
     });
   }
 });
