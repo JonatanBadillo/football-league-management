@@ -108,6 +108,59 @@ router.post('/equipos', upload.single('logo'), async (req, res) => {
   }
 });
 
+router.post('/equipos/:id/eliminar', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Eliminar el equipo con el ID proporcionado
+    await Team.destroy({ where: { id } });
+    res.redirect('/dashboard/admin/equipos');
+  } catch (error) {
+    console.error('Error al eliminar el equipo:', error);
+    res.status(500).render('admin', {
+      title: 'Administrador - Equipos',
+      section: 'equipos',
+      errorMessage: 'Error al eliminar el equipo. Por favor, inténtelo nuevamente.',
+      leagues: await League.findAll(),
+      teams: await Team.findAll(),
+    });
+  }
+});
+
+router.post('/equipos/:id/editar', upload.single('logo'), async (req, res) => {
+  const { id } = req.params;
+  const { name, balance } = req.body;
+
+  try {
+    const updatedData: any = {
+      name: xss(name),
+      balance: parseFloat(balance), // Asegúrate de convertirlo a número
+    };
+
+    // Si se sube un nuevo logo, incluirlo en la actualización
+    if (req.file) {
+      updatedData.logo = `/uploads/${req.file.filename}`;
+    }
+
+    // Actualizar los datos del equipo
+    await Team.update(updatedData, { where: { id } });
+
+    res.redirect('/dashboard/admin/equipos');
+  } catch (error) {
+    console.error('Error al editar el equipo:', error);
+    res.status(500).render('admin', {
+      title: 'Administrador - Equipos',
+      section: 'equipos',
+      errorMessage: 'Error al editar el equipo. Por favor, inténtelo nuevamente.',
+      leagues: await League.findAll(),
+      teams: await Team.findAll(),
+    });
+  }
+});
+
+
+
+
+
 // Ruta para mostrar las ligas
 router.get('/ligas', async (req, res) => {
   try {

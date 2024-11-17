@@ -181,7 +181,7 @@
         <div class="card-footer d-flex justify-content-between align-items-center">
           <!-- Botón para editar -->
           <button class="btn btn-outline-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editLeagueModal-{{this.id}}">
-            <i class="bi bi-pencil me-1"></i> Editar
+            <i class="bi bi-pencil me-1"></i>Editar
           </button>
 
           <!-- Botón para eliminar con modal -->
@@ -354,14 +354,14 @@
       </div>
 
       <div class="row">
-        {{#each teams}}
-        <div class="col-md-6 col-lg-4 mb-4">
-          <div class="card shadow-sm border-0" style="border-radius: 12px;">
-            <div class="card-header bg-dark text-white text-center"
-              style="border-top-left-radius: 12px; border-top-right-radius: 12px;">
-              <h5 class="fw-bold mb-0">{{this.name}}</h5>
-            </div>
-            <div class="card-body text-center">
+  {{#each teams}}
+  <div class="col-md-6 col-lg-4 mb-4">
+    <div class="card shadow-sm border-0" style="border-radius: 12px;">
+      <div class="card-header bg-dark text-white text-center"
+        style="border-top-left-radius: 12px; border-top-right-radius: 12px;">
+        <h5 class="fw-bold mb-0">{{this.name}}</h5>
+      </div>
+      <div class="card-body text-center">
               <img src="{{this.logo}}" alt="{{this.name}}" class="rounded-circle border border-2"
                 style="width: 70px; height: 70px; object-fit: cover; margin-bottom: 10px;">
 
@@ -404,17 +404,76 @@
                 </li>
               </ul>
             </div>
-            <div class="card-footer bg-light text-center">
-              <a href="#" class="btn btn-outline-primary btn-sm me-2"><i class="bi bi-pencil me-1"></i>Editar</a>
-              <a href="#" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash me-1"></i>Eliminar</a>
-            </div>
+      <div class="card-footer bg-light text-center">
+        <!-- Botón para editar -->
+        <button class="btn btn-outline-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editTeamModal-{{this.id}}">
+          <i class="bi bi-pencil me-1"></i> Editar
+        </button>
+
+        <!-- Botón para eliminar -->
+        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteTeamModal-{{this.id}}">
+          <i class="bi bi-trash me-1"></i> Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+<!-- Modal para editar equipo -->
+<div class="modal fade" id="editTeamModal-{{this.id}}" tabindex="-1" aria-labelledby="editTeamModalLabel-{{this.id}}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Equipo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/dashboard/admin/equipos/{{this.id}}/editar" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="teamName-{{this.id}}" class="form-label">Nombre del Equipo</label>
+            <input type="text" class="form-control" id="teamName-{{this.id}}" name="name" value="{{this.name}}" required>
+          </div>
+          <div class="mb-3">
+            <label for="teamLogo-{{this.id}}" class="form-label">Logo del Equipo (opcional)</label>
+            <input type="file" class="form-control" id="teamLogo-{{this.id}}" name="logo" accept="image/*">
+          </div>
+          <div class="mb-3">
+            <label for="teamBalance-{{this.id}}" class="form-label">Balance del Equipo</label>
+            <input type="number" class="form-control" id="teamBalance-{{this.id}}" name="balance" value="{{this.balance}}" required>
           </div>
         </div>
-        {{else}}
-        <div class="col-12 text-center text-muted">No hay equipos
-          disponibles</div>
-        {{/each}}
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    <button type="submit" class="btn btn-warning text-dark">Guardar Cambios</button>
+  </div>
+</form>
+
       </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación para eliminar equipo -->
+  <div class="modal fade" id="confirmDeleteTeamModal-{{this.id}}" tabindex="-1" aria-labelledby="confirmDeleteTeamModalLabel-{{this.id}}" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-exclamation-circle me-2"></i>Confirmar Eliminación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de que deseas eliminar el equipo <strong>{{this.name}}</strong>? Esta acción no se puede deshacer.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <form action="/dashboard/admin/equipos/{{this.id}}/eliminar" method="POST" style="display: inline;">
+            <button type="submit" class="btn btn-danger">Eliminar Equipo</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{/each}}
+</div>
+
     </div>
 
     {{/if}}
