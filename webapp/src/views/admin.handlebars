@@ -633,76 +633,76 @@
 
       <!-- Contenedor de la tabla responsiva -->
       <div class="table-responsive">
-        <table class="table table-striped" id="playersTable">
-          <thead>
-            <tr>
-              <th scope="col"></th>
-              <th scope="col">Nombre</th>
-              <th scope="col" class="d-none d-md-table-cell">Posición</th>
-              <th scope="col" class="d-none d-md-table-cell">PJ</th>
-              <th scope="col">Goles</th>
-              <th scope="col" class="d-none d-md-table-cell">TA</th>
-              <th scope="col" class="d-none d-md-table-cell">TR</th>
-              <th scope="col" class="d-none d-lg-table-cell">Equipo</th>
-              <th scope="col">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each players}}
-            <tr data-team-id="{{this.team.id}}">
-              <td>
-                <img src="{{this.image}}" alt="Foto de {{this.name}}"
-                  style="width: 35px; height: 35px; object-fit: cover; margin-right: 10px; border-radius:80px;">
-              </td>
-              <td class="player-name">{{this.name}}</td>
-              <td class="d-none d-md-table-cell">{{this.position}}</td>
-              <td class="d-none d-md-table-cell">{{this.matchesPlayed}}</td>
-              <td>{{this.goals}}</td>
-              <td class="d-none d-md-table-cell">{{this.yellowCards}}</td>
-              <td class="d-none d-md-table-cell">{{this.redCards}}</td>
-              <td class="d-none d-lg-table-cell">{{this.team.name}}</td>
-              <td>
-                <a href="#" class="text-dark me-3" data-bs-toggle="modal" data-bs-target="#editPlayerModal-{{this.id}}">
-                  <i class="bi bi-pencil"></i>
-                </a>
-                <a href="#" class="text-danger" data-bs-toggle="modal" data-bs-target="#deletePlayerModal-{{this.id}}">
-                  <i class="bi bi-trash"></i>
-                </a>
-              </td>
+  <table class="table table-hover align-middle" id="playersTable">
+    <thead class="table-dark text-center">
+      <tr>
 
+        <th scope="col">Foto</th>
+        <th scope="col">Nombre <i class="bi bi-person-circle text-info"></i></th>
+        <th scope="col">Posición <i class="bi bi-geo text-primary"></i></th>
+        <th scope="col">PJ <i class="bi bi-clipboard-check text-success"></i></th>
+        <th scope="col">Goles <i class="bi bi-trophy text-warning"></i></th>
+        <th scope="col">TA <i class="bi bi-square-fill text-warning"></i></th>
+        <th scope="col">TR <i class="bi bi-square-fill text-danger"></i></th>
+        <th scope="col">Equipo <i class="bi bi-people-fill text-secondary"></i></th>
+        <th scope="col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each players}}
+      <tr>
 
-              <!-- Modal para Confirmar Eliminación -->
-              <div class="modal fade" id="deletePlayerModal-{{this.id}}" tabindex="-1"
-                aria-labelledby="deletePlayerModalLabel-{{this.id}}" aria-hidden="true">
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title">Eliminar Jugador</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                      ¿Estás seguro de que deseas eliminar al jugador <strong>{{this.name}}</strong>?
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                      <form action="/dashboard/admin/jugadores/{{this.id}}/eliminar" method="POST"
-                        style="display: inline;">
-                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </tr>
-            {{else}}
-            <tr>
-              <td colspan="9" class="text-center text-muted">No hay jugadores
-                disponibles</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
+        <td class="text-center">
+          <img src="{{this.image}}" alt="Foto de {{this.name}}"
+               style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+        </td>
+        <td class="fw-bold text-center">{{this.name}}</td>
+        <td class="text-center">
+          {{#if (eq this.position "Portero")}}
+            <i class="bi bi-shield-fill text-primary"></i> Portero
+          {{else if (eq this.position "Defensa")}}
+            <i class="bi bi-stop-fill text-success"></i> Defensa
+          {{else if (eq this.position "Medio")}}
+            <i class="bi bi-circle-fill text-warning"></i> Medio
+          {{else if (eq this.position "Delantero")}}
+            <i class="bi bi-forward-fill text-danger"></i> Delantero
+          {{/if}}
+        </td>
+        <td class="text-center">{{this.matchesPlayed}}</td>
+        <td class="text-center">
+          <i class="bi bi-star-fill text-warning"></i> {{this.goals}}
+        </td>
+        <td class="text-center">
+          <i class="bi bi-square-fill text-warning"></i> {{this.yellowCards}}
+        </td>
+        <td class="text-center">
+          <i class="bi bi-square-fill text-danger"></i> {{this.redCards}}
+        </td>
+        <td class="text-center">{{this.team.name}}</td>
+        <td class="text-center">
+          <a href="#" class="btn btn-sm btn-outline-primary me-2"
+             data-bs-toggle="modal" data-bs-target="#editPlayerModal-{{this.id}}">
+            <i class="bi bi-pencil-fill"></i>
+          </a>
+          <a href="#" class="btn btn-sm btn-outline-danger"
+             data-bs-toggle="modal" data-bs-target="#deletePlayerModal-{{this.id}}">
+            <i class="bi bi-trash-fill"></i>
+          </a>
+        </td>
+      </tr>
+      {{/each}}
+
+      {{#unless players.length}}
+      <tr>
+        <td colspan="10" class="text-center text-muted py-3">
+          <i class="bi bi-exclamation-triangle-fill text-warning"></i> No hay jugadores disponibles
+        </td>
+      </tr>
+      {{/unless}}
+    </tbody>
+  </table>
+</div>
+
     </div>
 
     {{/if}}
