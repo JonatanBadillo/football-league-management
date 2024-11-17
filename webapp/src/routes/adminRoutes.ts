@@ -112,6 +112,7 @@ router.get('/ligas', async (req, res) => {
       title: 'Administrador - Ligas',
       section: 'ligas',
       leagues,
+      layout: false, // Esto asegura que no use el layout `main.handlebars`
     });
   } catch (error) {
     console.error('Error al cargar las ligas:', error);
@@ -120,9 +121,11 @@ router.get('/ligas', async (req, res) => {
       section: 'ligas',
       errorMessage: 'No se pudieron cargar las ligas.',
       leagues: [],
+      layout: false, // También aquí usamos `layout: false`
     });
   }
 });
+
 
 // Ruta para agregar una nueva liga
 router.post('/ligas', async (req, res) => {
