@@ -231,7 +231,7 @@ app.get("/dashboard/admin/equipos", async (req, res) => {
     });
 
     res.render("admin", {
-      title: "Administrador",
+      title: "Administrador - Equipos",
       leagues,teams,
       section: 'equipos',
       selectedLeagueId: leagueIdNum,
@@ -284,7 +284,7 @@ app.get("/dashboard/admin/jugadores", async (req, res) => {
       });
 
       res.render("admin", {
-          title: "Administrador",
+          title: "Administrador - Jugadores",
           leagues,
           teams, // Solo equipos de la liga seleccionada
           players,

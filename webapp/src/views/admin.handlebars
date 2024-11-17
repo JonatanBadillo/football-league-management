@@ -145,6 +145,7 @@
       }
     });
 
+  
   </script>
 
 </head>
@@ -531,9 +532,15 @@
                     <input type="text" class="form-control" id="playerName" name="name" required>
                   </div>
                   <div class="mb-3">
-                    <label for="playerPosition" class="form-label">Posición</label>
-                    <input type="text" class="form-control" id="playerPosition" name="position">
-                  </div>
+  <label for="playerPosition" class="form-label">Posición</label>
+  <select id="playerPosition" name="position" class="form-select" required>
+    <option value="Portero">Portero</option>
+    <option value="Defensa">Defensa</option>
+    <option value="Medio">Medio</option>
+    <option value="Delantero">Delantero</option>
+  </select>
+</div>
+
                   <div class="mb-3">
                     <label for="playerGoals" class="form-label">Goles</label>
                     <input type="number" class="form-control" id="playerGoals" name="goals" min="0" value="0">
@@ -579,10 +586,15 @@
                       value="{{this.name}}" required>
                   </div>
                   <div class="mb-3">
-                    <label for="playerPosition-{{this.id}}" class="form-label">Posición</label>
-                    <input type="text" class="form-control" id="playerPosition-{{this.id}}" name="position"
-                      value="{{this.position}}">
-                  </div>
+  <label for="playerPosition" class="form-label">Posición</label>
+  <select id="playerPosition" name="position" class="form-select" required>
+    <option value="Portero">Portero</option>
+    <option value="Defensa">Defensa</option>
+    <option value="Medio">Medio</option>
+    <option value="Delantero">Delantero</option>
+  </select>
+</div>
+
                   <div class="mb-3">
                     <label for="playerGoals-{{this.id}}" class="form-label">Goles</label>
                     <input type="number" class="form-control" id="playerGoals-{{this.id}}" name="goals"

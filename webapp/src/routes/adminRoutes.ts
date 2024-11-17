@@ -309,7 +309,7 @@ router.post('/jugadores', upload.single('image'), async (req, res) => {
       redCards: parseInt(redCards, 10) || 0,
       teamId: parseInt(teamId, 10),
       leagueId: parseInt(leagueId, 10),
-      image: req.file ? `/uploads/${req.file.filename}` : '/images/default_player.png',
+      image: req.file ? `/uploads/${req.file.filename}` : '/images/player_noimage.png',
     });
 
     res.redirect(`/dashboard/admin/jugadores?leagueId=${leagueId}`);
@@ -318,6 +318,7 @@ router.post('/jugadores', upload.single('image'), async (req, res) => {
     res.status(500).json({ error: 'Error al agregar jugador.' });
   }
 });
+
 
 
 // Ruta para editar un jugador
@@ -335,6 +336,7 @@ router.post('/jugadores/:id/editar', upload.single('image'), async (req, res) =>
       teamId: parseInt(teamId, 10),
     };
 
+    // Si no se sube una imagen, conserva la existente
     if (req.file) {
       updatedData.image = `/uploads/${req.file.filename}`;
     }
@@ -347,6 +349,7 @@ router.post('/jugadores/:id/editar', upload.single('image'), async (req, res) =>
     res.status(500).json({ error: 'Error al editar jugador.' });
   }
 });
+
 
 // Ruta para eliminar un jugador
 router.post('/jugadores/:id/eliminar', async (req, res) => {
