@@ -18,26 +18,25 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/'); // Ruta donde se guardan los archivos
   },
-  filename: async (req, file, cb) => {
+  filename: (req, file, cb) => {
     try {
-      const leagueId = req.body.leagueId;
-      const teamName = req.body.name;
-
-      // Sanitiza los datos del equipo y la liga
-      const sanitizedTeamName = teamName.replace(/[^a-zA-Z0-9]/g, '_'); // Reemplaza caracteres no válidos
-      const sanitizedLeagueId = leagueId.replace(/[^a-zA-Z0-9]/g, '_');
-
-      // Genera un nombre único con fecha para evitar colisiones
+      // Asegúrate de que los datos necesarios existen
+      const leagueId = req.body?.leagueId || 'unknown_league';
+      const teamName = req.body?.name || 'unknown_team';
       const timestamp = Date.now();
 
-      // Formato del archivo: liga_equipo_timestamp.extensión
+      // Sanitiza los valores
+      const sanitizedLeagueId = leagueId.replace(/[^a-zA-Z0-9]/g, '_');
+      const sanitizedTeamName = teamName.replace(/[^a-zA-Z0-9]/g, '_');
+
+      // Genera un nombre para el archivo
       const fileExtension = path.extname(file.originalname);
       const newFileName = `${sanitizedLeagueId}_${sanitizedTeamName}_${timestamp}${fileExtension}`;
 
       cb(null, newFileName);
     } catch (error) {
       console.error('Error generando el nombre del archivo:', error);
-      cb(error as Error, file.originalname); // Usa el nombre original si ocurre un error
+      cb(null, `default_${Date.now()}${path.extname(file.originalname)}`); // Genera un nombre por defecto en caso de error
     }
   },
 });
