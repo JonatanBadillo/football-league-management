@@ -351,18 +351,41 @@ router.post('/jugadores/:id/editar', upload.single('image'), async (req, res) =>
 });
 
 
-// Ruta para eliminar un jugador
-router.post('/jugadores/:id/eliminar', async (req, res) => {
+router.post('/equipos/:id/eliminar', async (req, res) => {
   const { id } = req.params;
 
   try {
-    await Player.destroy({ where: { id } });
-    res.redirect(`/dashboard/admin/jugadores`);
+    // Buscar el equipo y obtener el ID del capitán asociado
+    const team: any = await Team.findOne({ where: { id } });
+
+    if (!team) {
+      return res.status(404).json({ error: 'Equipo no encontrado.' });
+    }
+
+    const captainId = team.captainId; // Obtener el ID del capitán asociado
+
+    // Eliminar el equipo
+    await Team.destroy({ where: { id } });
+
+    // Eliminar el capitán asociado
+    if (captainId) {
+      await User.destroy({ where: { id: captainId } });
+    }
+
+    res.redirect('/dashboard/admin/equipos');
   } catch (error) {
-    console.error('Error al eliminar jugador:', error);
-    res.status(500).json({ error: 'Error al eliminar jugador.' });
+    console.error('Error al eliminar el equipo:', error);
+    res.status(500).render('admin', {
+      title: 'Administrador - Equipos',
+      section: 'equipos',
+      errorMessage: 'Error al eliminar el equipo. Por favor, inténtelo nuevamente.',
+      leagues: await League.findAll(),
+      teams: await Team.findAll(),
+    });
   }
 });
+
+
 
 
 
