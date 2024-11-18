@@ -16,10 +16,29 @@ import sequelize from '../config/database';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, 'uploads/'); // Ruta donde se guardan los archivos
   },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+  filename: async (req, file, cb) => {
+    try {
+      const leagueId = req.body.leagueId;
+      const teamName = req.body.name;
+
+      // Sanitiza los datos del equipo y la liga
+      const sanitizedTeamName = teamName.replace(/[^a-zA-Z0-9]/g, '_'); // Reemplaza caracteres no válidos
+      const sanitizedLeagueId = leagueId.replace(/[^a-zA-Z0-9]/g, '_');
+
+      // Genera un nombre único con fecha para evitar colisiones
+      const timestamp = Date.now();
+
+      // Formato del archivo: liga_equipo_timestamp.extensión
+      const fileExtension = path.extname(file.originalname);
+      const newFileName = `${sanitizedLeagueId}_${sanitizedTeamName}_${timestamp}${fileExtension}`;
+
+      cb(null, newFileName);
+    } catch (error) {
+      console.error('Error generando el nombre del archivo:', error);
+      cb(error as Error, file.originalname); // Usa el nombre original si ocurre un error
+    }
   },
 });
 
@@ -46,6 +65,9 @@ router.post('/dashboard/admin/registrar-capitan', async (req, res) => {
     res.status(500).json({ error: 'Error al registrar el capitán' });
   }
 });
+
+
+/////////////////////////////////  EQUIPOS  /////////////////////////////////
 
 // Procesa la creación de equipo
 router.post('/equipos', upload.single('logo'), async (req, res) => {
@@ -84,7 +106,7 @@ router.post('/equipos', upload.single('logo'), async (req, res) => {
       leagueId: sanitizedLeagueId,
       captainId: newCaptain.id,
       logo,
-      balance: 0,
+      balance: 500,
       goalsFor: 0,
       goalsAgainst: 0,
       victories: 0,
@@ -158,7 +180,7 @@ router.post('/equipos/:id/editar', upload.single('logo'), async (req, res) => {
 });
 
 
-
+//////////////////////////////////////// LIGAS ////////////////////////////////////////
 
 
 // Ruta para mostrar las ligas
@@ -217,7 +239,6 @@ router.post('/ligas', async (req, res) => {
   }
 });
 
-// Ruta para eliminar una liga
 // Ruta para eliminar una liga
 router.post('/ligas/:id/eliminar', async (req, res) => {
   const { id } = req.params;
