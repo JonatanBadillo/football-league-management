@@ -280,7 +280,7 @@ app.get("/dashboard/admin/jugadores", async (req, res) => {
       const players = await Player.findAll({
           where: { leagueId: leagueIdNum },
           order: [["name", "ASC"]],
-          include: [{ model: Team, attributes: ["id", "name"] }],
+          include: [{ model: Team, attributes: ["id", "name","logo"] }],
       });
 
       res.render("admin", {

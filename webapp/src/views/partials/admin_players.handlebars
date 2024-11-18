@@ -170,7 +170,9 @@
     <td class="text-center"><i class="bi bi-star-fill text-warning"></i> {{this.goals}}</td>
     <td class="text-center"><i class="bi bi-square-fill text-warning"></i> {{this.yellowCards}}</td>
     <td class="text-center"><i class="bi bi-square-fill text-danger"></i> {{this.redCards}}</td>
-    <td class="text-center">{{this.team.name}}</td>
+    <td class="text-center"><img src="{{this.team.logo}}" alt="Logo del equipo {{this.team.name}}"
+       style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px; margin-left: 10px">
+ {{this.team.name}}</td>
     <td class="text-center">
       <a href="#" class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal"
         data-bs-target="#editPlayerModal-{{this.id}}">
