@@ -409,6 +409,7 @@ router.post('/equipos/:id/eliminar', async (req, res) => {
 
 
 //////////////////////////////////////// USUARIOS ////////////////////////////////////////
+///////////////// admin //////////////////////
 router.get('/usuarios/administradores', async (req, res) => {
   try {
     // Obtén todos los usuarios con el rol 'admin'
@@ -581,7 +582,159 @@ router.post('/usuarios/administradores/eliminar/:id', async (req, res) => {
   }
 });
 
+///////////////// arbitros //////////////////////
+router.get('/usuarios/arbitros', async (req, res) => {
+  try {
+    // Obtiene todos los árbitros con el rol "referee"
+    const referees = await User.findAll({ where: { role: 'referee' } });
 
+    res.render('admin', {
+      title: 'Administradores - Árbitros',
+      section: 'arbitros', // Define que la sección activa es "arbitros"
+      referees, // Pasa los árbitros a la vista
+      layout: false, // No usa el layout principal
+    });
+  } catch (error) {
+    console.error('Error al obtener árbitros:', error);
+    res.status(500).send('Error al cargar los árbitros.');
+  }
+});
+
+
+router.post('/usuarios/arbitros/agregar', async (req, res) => {
+  const errors: string[] = [];
+
+  try {
+    const username = xss(req.body.username.trim());
+    const password = xss(req.body.password.trim());
+
+    // Validación de nombre de usuario
+    const usernameRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+    if (!username || !usernameRegex.test(username)) {
+      errors.push('El nombre de usuario no debe incluir espacios, debe tener al menos 6 caracteres, incluyendo letras y números.');
+    }
+
+    // Validación de contraseña
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!password || !passwordRegex.test(password)) {
+      errors.push(
+        'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una minúscula, un número y un carácter especial.'
+      );
+    }
+
+    // Verificar si el árbitro ya existe
+    const existingReferee = await User.findOne({ where: { username, role: 'referee' } });
+    if (existingReferee) {
+      errors.push('El nombre de usuario ya está en uso.');
+    }
+
+    if (errors.length > 0) {
+      const referees = await User.findAll({ where: { role: 'referee' } });
+      return res.render('admin', {
+        title: 'Administradores - Árbitros',
+        section: 'arbitros',
+        referees,
+        errorMessage: errors.join('<br>'),
+        layout: false,
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.create({
+      username,
+      password: hashedPassword,
+      role: 'referee',
+    });
+
+    res.redirect('/dashboard/admin/usuarios/arbitros');
+  } catch (error) {
+    console.error('Error al agregar árbitro:', error);
+    res.status(500).send('Error al agregar el árbitro.');
+  }
+});
+
+
+router.post('/usuarios/arbitros/editar/:id', async (req, res) => {
+  const { id } = req.params;
+  const errors: string[] = [];
+
+  try {
+    const username = xss(req.body.username.trim());
+    const password = xss(req.body.password.trim());
+
+    const referee = await User.findByPk(id);
+    if (!referee || referee.role !== 'referee') {
+      return res.status(404).send('Árbitro no encontrado.');
+    }
+
+    // Validación de nombre de usuario
+    const usernameRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+    if (!username || !usernameRegex.test(username)) {
+      errors.push('El nombre de usuario debe tener al menos 6 caracteres, incluyendo letras y números.');
+    }
+
+    // Validación de contraseña (opcional)
+    if (password && password !== '') {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(password)) {
+        errors.push(
+          'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una minúscula, un número y un carácter especial.'
+        );
+      }
+    }
+
+    // Verificar si el nombre ya está en uso por otro árbitro
+    const existingReferee = await User.findOne({
+      where: { username, role: 'referee', id: { [Op.ne]: id } },
+    });
+    if (existingReferee) {
+      errors.push('El nombre de usuario ya está en uso.');
+    }
+
+    if (errors.length > 0) {
+      const referees = await User.findAll({ where: { role: 'referee' } });
+      return res.render('admin', {
+        title: 'Administradores - Árbitros',
+        section: 'arbitros',
+        referees,
+        errorMessage: errors.join('<br>'),
+        layout: false,
+      });
+    }
+
+    const updatedData: any = { username };
+    if (password && password !== '') {
+      updatedData.password = await bcrypt.hash(password, 10);
+    }
+
+    await referee.update(updatedData);
+
+    res.redirect('/dashboard/admin/usuarios/arbitros');
+  } catch (error) {
+    console.error('Error al editar árbitro:', error);
+    res.status(500).send('Error al editar el árbitro.');
+  }
+});
+
+
+router.post('/usuarios/arbitros/eliminar/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const referee = await User.findByPk(id);
+    if (!referee || referee.role !== 'referee') {
+      return res.status(404).send('Árbitro no encontrado.');
+    }
+
+    await referee.destroy();
+
+    res.redirect('/dashboard/admin/usuarios/arbitros');
+  } catch (error) {
+    console.error('Error al eliminar árbitro:', error);
+    res.status(500).send('Error al eliminar el árbitro.');
+  }
+});
 
 
 
