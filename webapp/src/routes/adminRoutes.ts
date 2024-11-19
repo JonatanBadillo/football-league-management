@@ -424,6 +424,76 @@ router.get('/usuarios/administradores', async (req, res) => {
   }
 });
 
+router.post('/usuarios/administradores/agregar', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // Verifica que no exista un usuario con el mismo nombre
+    const existingAdmin = await User.findOne({ where: { username, role: 'admin' } });
+    if (existingAdmin) {
+      return res.status(400).send('El usuario ya existe como administrador.');
+    }
+
+    // Crea un nuevo administrador
+    await User.create({
+      username,
+      password, // Asegúrate de aplicar hashing si es necesario
+      role: 'admin',
+    });
+
+    res.redirect('/dashboard/admin/usuarios/administradores');
+  } catch (error) {
+    console.error('Error al agregar administrador:', error);
+    res.status(500).send('Error al agregar el administrador.');
+  }
+});
+
+router.post('/usuarios/administradores/editar/:id', async (req, res) => {
+  const { id } = req.params;
+  const { username, password } = req.body;
+
+  try {
+    // Encuentra al administrador por ID
+    const admin = await User.findByPk(id);
+
+    if (!admin || admin.role !== 'admin') {
+      return res.status(404).send('Administrador no encontrado.');
+    }
+
+    // Actualiza los datos
+    await admin.update({
+      username,
+      password, // Aplica hashing si es necesario
+    });
+
+    res.redirect('/dashboard/admin/usuarios/administradores');
+  } catch (error) {
+    console.error('Error al editar administrador:', error);
+    res.status(500).send('Error al editar el administrador.');
+  }
+});
+
+router.post('/usuarios/administradores/eliminar/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Encuentra al administrador por ID
+    const admin = await User.findByPk(id);
+
+    if (!admin || admin.role !== 'admin') {
+      return res.status(404).send('Administrador no encontrado.');
+    }
+
+    // Elimina al administrador
+    await admin.destroy();
+
+    res.redirect('/dashboard/admin/usuarios/administradores');
+  } catch (error) {
+    console.error('Error al eliminar administrador:', error);
+    res.status(500).send('Error al eliminar el administrador.');
+  }
+});
+
 
 
 
