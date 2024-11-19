@@ -22,54 +22,59 @@
 </div>
 
   <!-- Tabla responsiva -->
-  <div class="table-responsive">
+<div class="table-responsive">
   <table class="table table-hover table-bordered align-middle text-center">
     <thead class="table-dark">
       <tr>
-        <th>Usuario</th>
-        <th>Equipo</th>
-        <th>Liga</th>
-        <th>Acciones</th>
+        <th scope="col"><i class="bi bi-person-fill"></i> Usuario</th>
+        <th scope="col"><i class="bi bi-trophy-fill"></i> Equipo</th>
+        <th scope="col"><i class="bi bi-shield-fill"></i> Liga</th>
+        <th scope="col"><i class="bi bi-tools"></i> Acciones</th>
       </tr>
     </thead>
     <tbody id="captainsTableBody">
       {{#each captains}}
-        <tr>
-          <td>{{this.username}}</td>
-          <td>{{this.teamName}}</td>
-          <td>{{this.leagueName}}</td>
-          <td>
-            <!-- Botón Editar -->
-            <button
-              class="btn btn-warning btn-sm me-2"
-              data-bs-toggle="modal"
-              data-bs-target="#editCaptainModal-{{this.id}}"
-            >
-              <i class="bi bi-pencil-fill"></i>
-            </button>
-            <!-- Botón Eliminar -->
-            <button
-              class="btn btn-danger btn-sm"
-              data-bs-toggle="modal"
-              data-bs-target="#deleteCaptainModal-{{this.id}}"
-            >
-              <i class="bi bi-trash-fill"></i>
-            </button>
-          </td>
-        </tr>
+      <tr>
+        <td>
+          <i class="bi bi-person-circle text-primary"></i> {{this.username}}
+        </td>
+        <td>
+          <i class="bi bi-flag-fill text-success"></i> {{this.teamName}}
+        </td>
+        <td>
+          <i class="bi bi-award-fill text-warning"></i> {{this.leagueName}}
+        </td>
+        <td>
+          <!-- Botón Editar -->
+          <button 
+            class="btn btn-warning btn-sm me-2" 
+            data-bs-toggle="modal" 
+            data-bs-target="#editCaptainModal-{{this.id}}">
+            <i class="bi bi-pencil-fill"></i> Editar
+          </button>
+          <!-- Botón Eliminar -->
+          <button 
+            class="btn btn-danger btn-sm" 
+            data-bs-toggle="modal" 
+            data-bs-target="#deleteCaptainModal-{{this.id}}">
+            <i class="bi bi-trash-fill"></i> Eliminar
+          </button>
+        </td>
+      </tr>
       {{/each}}
 
       {{#unless captains.length}}
-        <tr>
-          <td colspan="4" class="text-center text-muted">
-            <i class="bi bi-exclamation-circle-fill text-warning"></i>
-            No hay capitanes registrados.
-          </td>
-        </tr>
+      <tr>
+        <td colspan="4" class="text-center text-muted">
+          <i class="bi bi-exclamation-circle-fill text-warning"></i>
+          No hay capitanes registrados.
+        </td>
+      </tr>
       {{/unless}}
     </tbody>
   </table>
 </div>
+
 
 </div>
 
