@@ -148,6 +148,17 @@
     });
   }
 
+  function filterAwayTeams() {
+  const homeTeamId = document.getElementById("homeTeam").value;
+  const awayTeamSelect = document.getElementById("awayTeam");
+
+  [...awayTeamSelect.options].forEach(option => {
+    option.disabled = option.value === homeTeamId;
+  });
+}
+document.getElementById("homeTeam").addEventListener("change", filterAwayTeams);
+
+
     document.getElementById('addTeamForm').addEventListener('submit', submitTeamForm);
 
 

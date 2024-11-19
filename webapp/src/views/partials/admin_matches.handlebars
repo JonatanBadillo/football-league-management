@@ -1,10 +1,16 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2 class="fw-bold">Gestión de Partidos por Jornadas</h2>
-  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMatchModal">
-    <i class="bi bi-plus-circle me-1"></i>Agregar Partido
-  </button>
+  <div>
+    <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addJornadaModal">
+      <i class="bi bi-plus-circle me-1"></i>Agregar Jornada
+    </button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMatchModal">
+      <i class="bi bi-plus-circle me-1"></i>Agregar Partido
+    </button>
+  </div>
 </div>
 
+<!-- Acordeón para listar jornadas y partidos -->
 {{#if jornadas.length}}
 <div class="accordion" id="jornadasAccordion">
   {{#each jornadas}}
@@ -63,6 +69,32 @@
 <p class="text-center">No hay jornadas registradas para esta liga.</p>
 {{/if}}
 
+<!-- Modal para agregar jornada -->
+<div class="modal fade" id="addJornadaModal" tabindex="-1" aria-labelledby="addJornadaModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="/dashboard/admin/jornadas" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addJornadaModalLabel">Agregar Jornada</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="leagueId" value="{{selectedLeagueId}}">
+          <div class="mb-3">
+            <label for="date" class="form-label">Fecha de la Jornada</label>
+            <input type="date" name="date" id="date" class="form-control" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 <!-- Modal para Agregar Partido -->
 <div class="modal fade" id="addMatchModal" tabindex="-1" aria-labelledby="addMatchModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -99,12 +131,12 @@
             </select>
           </div>
           <div class="mb-3">
-            <label for="date" class="form-label">Fecha</label>
-            <input type="date" name="date" id="date" class="form-control" required>
+            <label for="matchDate" class="form-label">Fecha</label>
+            <input type="date" name="date" id="matchDate" class="form-control" required>
           </div>
           <div class="mb-3">
-            <label for="time" class="form-label">Hora</label>
-            <input type="time" name="time" id="time" class="form-control" required>
+            <label for="matchTime" class="form-label">Hora</label>
+            <input type="time" name="time" id="matchTime" class="form-control" required>
           </div>
         </div>
         <div class="modal-footer">

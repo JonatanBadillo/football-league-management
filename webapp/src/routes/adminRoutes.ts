@@ -954,6 +954,141 @@ router.post("/usuarios/capitanes/editar/:id", async (req, res) => {
 
 //////////////////////////////////////// PARTIDOS ////////////////////////////////////////
 
+router.get("/partidos", async (req, res) => {
+  try {
+    const leagues = await League.findAll(); // Todas las ligas disponibles
+    const leagueId = req.query.leagueId || (leagues.length ? leagues[0].id : null); // Liga seleccionada
+
+    if (!leagueId) {
+      return res.render("admin", {
+        title: "Gestión de Partidos",
+        section: "partidos",
+        leagues: [],
+        jornadas: [],
+        teams: [],
+        selectedLeagueId: null,
+      });
+    }
+
+    const selectedLeagueId = parseInt(leagueId.toString(), 10);
+
+    // Cargar jornadas con partidos
+    const jornadas = await Jornada.findAll({
+      where: { leagueId: selectedLeagueId },
+      include: {
+        model: Match,
+        as: "matches",
+        include: [
+          { model: Team, as: "homeTeam", attributes: ["id", "name", "logo"] },
+          { model: Team, as: "awayTeam", attributes: ["id", "name", "logo"] },
+        ],
+      },
+      order: [["date", "ASC"]],
+    });
+
+    // Equipos de la liga
+    const teams = await Team.findAll({
+      where: { leagueId: selectedLeagueId },
+      attributes: ["id", "name"],
+    });
+
+    // Enviar respuesta
+    return res.render("admin", {
+      title: "Gestión de Partidos",
+      section: "partidos",
+      leagues,
+      jornadas,
+      teams,
+      selectedLeagueId,
+      layout: false,
+    });
+  } catch (error) {
+    console.error("Error al cargar partidos:", error);
+    if (!res.headersSent) {
+      res.status(500).send("Error al cargar los partidos.");
+    }
+  }
+});
+
+
+
+
+router.post("/partidos", async (req, res) => {
+  const { jornadaId, homeTeamId, awayTeamId, date, time, leagueId } = req.body;
+
+  try {
+    // Verificar que el equipo local y visitante no sean iguales
+    if (homeTeamId === awayTeamId) {
+      return res.status(400).send("Un equipo no puede jugar contra sí mismo.");
+    }
+
+    // Verificar si ya existe el partido, independientemente de quién es local/visitante
+    const existingMatch = await Match.findOne({
+      where: {
+        jornadaId,
+        [Op.or]: [
+          { homeTeamId, awayTeamId },
+          { homeTeamId: awayTeamId, awayTeamId: homeTeamId },
+        ],
+      },
+    });
+
+    if (existingMatch) {
+      return res.status(400).send(
+        "El partido ya se ha registrado en esta jornada o en otra."
+      );
+    }
+
+    // Crear el partido
+    await Match.create({
+      jornadaId,
+      homeTeamId,
+      awayTeamId,
+      date,
+      time,
+      leagueId,
+      scoreHome: 0,
+      scoreAway: 0,
+    });
+
+    res.redirect(`/dashboard/admin/partidos?leagueId=${leagueId}`);
+  } catch (error) {
+    console.error("Error al agregar partido:", error);
+    res.status(500).send("Error al agregar el partido.");
+  }
+});
+
+
+
+router.post("/jornadas", async (req, res) => {
+  const { date, leagueId } = req.body;
+
+  try {
+    // Obtener la última jornada de la liga para calcular el nuevo nombre
+    const lastJornada = await Jornada.findOne({
+      where: { leagueId },
+      order: [["date", "DESC"]],
+    });
+
+    const newJornadaNumber = lastJornada
+      ? parseInt(lastJornada.name.split(" ")[1], 10) + 1 // Incrementar el número de la jornada
+      : 1;
+
+    const newJornadaName = `Jornada ${newJornadaNumber}`;
+
+    // Crear la nueva jornada
+    await Jornada.create({
+      name: newJornadaName,
+      date,
+      leagueId,
+    });
+
+    res.redirect(`/dashboard/admin/partidos?leagueId=${leagueId}`);
+  } catch (error) {
+    console.error("Error al crear jornada:", error);
+    res.status(500).send("Error al crear la jornada.");
+  }
+});
 
 
 
