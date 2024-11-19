@@ -133,6 +133,20 @@
         });
     }
 
+    function filterCaptains() {
+    const input = document.getElementById("searchCaptainInput").value.toLowerCase();
+    const rows = document.querySelectorAll("#captainsTableBody tr");
+
+    rows.forEach((row) => {
+      const username = row.querySelector("td:first-child").textContent.toLowerCase();
+
+      if (username.includes(input)) {
+        row.style.display = ""; // Muestra la fila si coincide con la búsqueda
+      } else {
+        row.style.display = "none"; // Oculta la fila si no coincide
+      }
+    });
+  }
 
     document.getElementById('addTeamForm').addEventListener('submit', submitTeamForm);
 

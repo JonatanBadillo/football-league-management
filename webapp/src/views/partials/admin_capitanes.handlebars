@@ -8,16 +8,18 @@
   </div>
   {{/if}}
 
-  <!-- Botón para agregar capitán -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <button
-      class="btn btn-dark"
-      data-bs-toggle="modal"
-      data-bs-target="#addCaptainModal"
-    >
-      <i class="bi bi-plus-circle me-2"></i>Agregar Capitán
-    </button>
-  </div>
+  <!-- Barra de búsqueda por nombre de usuario -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <input
+    type="text"
+    id="searchCaptainInput"
+    class="form-control"
+    placeholder="Buscar capitán por nombre de usuario..."
+    aria-label="Buscar capitán"
+    style="max-width: 500px;"
+    oninput="filterCaptains()"
+  />
+</div>
 
   <!-- Tabla responsiva -->
   <div class="table-responsive">
@@ -30,7 +32,7 @@
         <th>Acciones</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="captainsTableBody">
       {{#each captains}}
         <tr>
           <td>{{this.username}}</td>
