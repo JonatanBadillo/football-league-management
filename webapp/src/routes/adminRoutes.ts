@@ -1014,15 +1014,14 @@ router.get("/partidos", async (req, res) => {
 
 
 router.post("/partidos", async (req, res) => {
-  const { jornadaId, homeTeamId, awayTeamId, date, time, leagueId } = req.body;
+  const { jornadaId, homeTeamId, awayTeamId, time, leagueId } = req.body;
 
   try {
-    // Verificar que el equipo local y visitante no sean iguales
     if (homeTeamId === awayTeamId) {
       return res.status(400).send("Un equipo no puede jugar contra sí mismo.");
     }
 
-    // Verificar si ya existe el partido, independientemente de quién es local/visitante
+    // Verificar si el partido ya existe
     const existingMatch = await Match.findOne({
       where: {
         jornadaId,
@@ -1034,9 +1033,15 @@ router.post("/partidos", async (req, res) => {
     });
 
     if (existingMatch) {
-      return res.status(400).send(
-        "El partido ya se ha registrado en esta jornada o en otra."
-      );
+      return res
+        .status(400)
+        .send("El partido ya se ha registrado en esta jornada u otra.");
+    }
+
+    // Obtener la fecha de la jornada
+    const jornada = await Jornada.findByPk(jornadaId);
+    if (!jornada) {
+      return res.status(404).send("Jornada no encontrada.");
     }
 
     // Crear el partido
@@ -1044,7 +1049,7 @@ router.post("/partidos", async (req, res) => {
       jornadaId,
       homeTeamId,
       awayTeamId,
-      date,
+      date: jornada.date, // Asignar la fecha de la jornada
       time,
       leagueId,
       scoreHome: 0,
@@ -1060,25 +1065,25 @@ router.post("/partidos", async (req, res) => {
 
 
 
+
 router.post("/jornadas", async (req, res) => {
   const { date, leagueId } = req.body;
 
   try {
-    // Obtener la última jornada de la liga para calcular el nuevo nombre
+    // Obtener la última jornada de la liga
     const lastJornada = await Jornada.findOne({
       where: { leagueId },
       order: [["date", "DESC"]],
     });
 
-    const newJornadaNumber = lastJornada
-      ? parseInt(lastJornada.name.split(" ")[1], 10) + 1 // Incrementar el número de la jornada
-      : 1;
+    // Autogenerar el nombre de la jornada
+    const nextJornadaName = lastJornada
+      ? `Jornada ${parseInt(lastJornada.name.split(" ")[1]) + 1}`
+      : "Jornada 1";
 
-    const newJornadaName = `Jornada ${newJornadaNumber}`;
-
-    // Crear la nueva jornada
+    // Crear jornada
     await Jornada.create({
-      name: newJornadaName,
+      name: nextJornadaName,
       date,
       leagueId,
     });
@@ -1089,6 +1094,7 @@ router.post("/jornadas", async (req, res) => {
     res.status(500).send("Error al crear la jornada.");
   }
 });
+
 
 
 

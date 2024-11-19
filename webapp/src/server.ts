@@ -31,9 +31,10 @@ app.engine(
     helpers: {
       subtract: (a: number, b: number) => a - b,
       increment: (index: number) => index + 1,
-      formatDate: (date: moment.MomentInput) =>
-        moment(date).format("MMM DD, h:mm A"), // Helper para formatear fechas
-      toFixed: (number: number, decimals: any) => number.toFixed(decimals), // Helper para redondear decimales,
+      formatDate: (date: moment.MomentInput, onlyDate = false) => {
+        const momentDate = moment(date);
+        return onlyDate ? momentDate.format("MMM DD, YYYY") : momentDate.format("MMM DD, h:mm A");
+      },      
       eq: (a: any, b: any) => a === b,
     },
   })

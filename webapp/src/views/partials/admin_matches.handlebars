@@ -17,8 +17,9 @@
   <div class="accordion-item">
     <h2 class="accordion-header" id="heading{{this.id}}">
       <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{this.id}}" aria-expanded="true" aria-controls="collapse{{this.id}}">
-        Jornada: {{this.name}} - Fecha: {{formatDate this.date}}
-      </button>
+  Jornada: {{this.name}} - Fecha: {{formatDate this.date true}}
+</button>
+
     </h2>
     <div id="collapse{{this.id}}" class="accordion-collapse collapse" aria-labelledby="heading{{this.id}}" data-bs-parent="#jornadasAccordion">
       <div class="accordion-body">
@@ -95,6 +96,7 @@
 </div>
 
 
+
 <!-- Modal para Agregar Partido -->
 <div class="modal fade" id="addMatchModal" tabindex="-1" aria-labelledby="addMatchModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -110,7 +112,7 @@
             <label for="jornadaId" class="form-label">Jornada</label>
             <select name="jornadaId" id="jornadaId" class="form-select" required>
               {{#each jornadas}}
-              <option value="{{this.id}}">{{this.name}}</option>
+              <option value="{{this.id}}">{{this.name}} - Fecha: {{formatDate this.date}}</option>
               {{/each}}
             </select>
           </div>
@@ -131,12 +133,8 @@
             </select>
           </div>
           <div class="mb-3">
-            <label for="matchDate" class="form-label">Fecha</label>
-            <input type="date" name="date" id="matchDate" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="matchTime" class="form-label">Hora</label>
-            <input type="time" name="time" id="matchTime" class="form-control" required>
+            <label for="time" class="form-label">Hora</label>
+            <input type="time" name="time" id="time" class="form-control" required>
           </div>
         </div>
         <div class="modal-footer">
@@ -147,3 +145,4 @@
     </div>
   </div>
 </div>
+
