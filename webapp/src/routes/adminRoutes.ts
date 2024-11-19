@@ -803,13 +803,18 @@ router.post("/usuarios/arbitros/eliminar/:id", async (req, res) => {
 ///////////////// capitanes //////////////////////
 router.get("/usuarios/capitanes", async (req, res) => {
   try {
-    // Obtener todos los capitanes con sus equipos asociados
+    // Obtener todos los capitanes con sus equipos y ligas asociadas
     const captains = await Team.findAll({
       include: [
         {
           model: User,
           as: "captain", // Alias definido en Team.belongsTo
           attributes: ["id", "username"], // Traer solo los atributos necesarios del capitán
+        },
+        {
+          model: League,
+          as: "league", // Alias definido en Team.belongsTo(League)
+          attributes: ["name"], // Traer el nombre de la liga
         },
       ],
       attributes: ["name"], // Solo traer el nombre del equipo
@@ -820,6 +825,7 @@ router.get("/usuarios/capitanes", async (req, res) => {
       id: team.captain.id,
       username: team.captain.username,
       teamName: team.name,
+      leagueName: team.league ? team.league.name : "Sin Liga",
     }));
 
     res.render("admin", {
@@ -833,6 +839,9 @@ router.get("/usuarios/capitanes", async (req, res) => {
     res.status(500).send("Error al cargar los capitanes.");
   }
 });
+
+
+
 
 router.post("/usuarios/capitanes/eliminar/:id", async (req, res) => {
   const { id } = req.params;

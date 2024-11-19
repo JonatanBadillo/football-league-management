@@ -21,51 +21,54 @@
 
   <!-- Tabla responsiva -->
   <div class="table-responsive">
-    <table class="table table-hover table-bordered align-middle text-center">
-      <thead class="table-dark">
+  <table class="table table-hover table-bordered align-middle text-center">
+    <thead class="table-dark">
+      <tr>
+        <th>Usuario</th>
+        <th>Equipo</th>
+        <th>Liga</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each captains}}
         <tr>
-          <th>Usuario</th>
-          <th>Equipo</th>
-          <th>Acciones</th>
+          <td>{{this.username}}</td>
+          <td>{{this.teamName}}</td>
+          <td>{{this.leagueName}}</td>
+          <td>
+            <!-- Botón Editar -->
+            <button
+              class="btn btn-warning btn-sm me-2"
+              data-bs-toggle="modal"
+              data-bs-target="#editCaptainModal-{{this.id}}"
+            >
+              <i class="bi bi-pencil-fill"></i>
+            </button>
+            <!-- Botón Eliminar -->
+            <button
+              class="btn btn-danger btn-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#deleteCaptainModal-{{this.id}}"
+            >
+              <i class="bi bi-trash-fill"></i>
+            </button>
+          </td>
         </tr>
-      </thead>
-      <tbody>
-        {{#each captains}}
-          <tr>
-            <td>{{this.username}}</td>
-            <td>{{this.teamName}}</td>
-            <td>
-              <!-- Botón Editar -->
-              <button
-                class="btn btn-warning btn-sm me-2"
-                data-bs-toggle="modal"
-                data-bs-target="#editCaptainModal-{{this.id}}"
-              >
-                <i class="bi bi-pencil-fill"></i>
-              </button>
-              <!-- Botón Eliminar -->
-              <button
-                class="btn btn-danger btn-sm"
-                data-bs-toggle="modal"
-                data-bs-target="#deleteCaptainModal-{{this.id}}"
-              >
-                <i class="bi bi-trash-fill"></i>
-              </button>
-            </td>
-          </tr>
-        {{/each}}
+      {{/each}}
 
-        {{#unless captains.length}}
-          <tr>
-            <td colspan="3" class="text-center text-muted">
-              <i class="bi bi-exclamation-circle-fill text-warning"></i>
-              No hay capitanes registrados.
-            </td>
-          </tr>
-        {{/unless}}
-      </tbody>
-    </table>
-  </div>
+      {{#unless captains.length}}
+        <tr>
+          <td colspan="4" class="text-center text-muted">
+            <i class="bi bi-exclamation-circle-fill text-warning"></i>
+            No hay capitanes registrados.
+          </td>
+        </tr>
+      {{/unless}}
+    </tbody>
+  </table>
+</div>
+
 </div>
 
 <!-- Modal para agregar capitán -->

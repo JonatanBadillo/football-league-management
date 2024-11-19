@@ -85,5 +85,10 @@ Team.init(
 );
 
 Team.belongsTo(User, { as: 'captain', foreignKey: 'captainId' });
+Team.belongsTo(League, {
+  foreignKey: "leagueId",
+  as: "league", // Alias para usar en las consultas
+});
+
 
 export default Team;
