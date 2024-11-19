@@ -167,14 +167,6 @@
               />
               <small class="text-muted">Dejar en blanco para no cambiar la contraseña.</small>
             </div>
-            <div class="mb-3">
-              <label for="team-{{this.id}}" class="form-label">Equipo</label>
-              <select name="teamId" id="team-{{this.id}}" class="form-select">
-                {{#each ../teams}}
-                  <option value="{{this.id}}" {{#if (eq ../teamId this.id)}}selected{{/if}}>{{this.name}}</option>
-                {{/each}}
-              </select>
-            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -201,7 +193,7 @@
         </div>
         <form action="/dashboard/admin/usuarios/capitanes/eliminar/{{this.id}}" method="POST">
           <div class="modal-body">
-            <p>¿Estás seguro de que deseas eliminar al capitán <strong>{{this.username}}</strong>?</p>
+            <p>¿Estás seguro de que deseas eliminar al capitán <strong>{{this.username}}</strong> y su equipo asociado?</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -212,3 +204,4 @@
     </div>
   </div>
 {{/each}}
+

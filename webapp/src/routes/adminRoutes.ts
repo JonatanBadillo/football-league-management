@@ -771,6 +771,87 @@ router.get('/usuarios/capitanes', async (req, res) => {
 });
 
 
+router.post('/usuarios/capitanes/eliminar/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Buscar el equipo asociado al capitán
+    const teamWithCaptain = await Team.findOne({ where: { captainId: id } });
+
+    if (!teamWithCaptain) {
+      return res.status(404).send('Equipo asociado al capitán no encontrado.');
+    }
+
+    // Eliminar equipo y capitán
+    await teamWithCaptain.destroy(); // Elimina el equipo
+    await User.destroy({ where: { id } }); // Elimina el capitán
+
+    res.redirect('/dashboard/admin/usuarios/capitanes');
+  } catch (error) {
+    console.error('Error al eliminar capitán:', error);
+    res.status(500).send('Error al eliminar el capitán.');
+  }
+});
+
+
+router.post('/usuarios/capitanes/editar/:id', async (req, res) => {
+  const { id } = req.params;
+  const { username, password } = req.body;
+  const errors: string[] = [];
+
+  try {
+    // Sanitización de datos
+    const sanitizedUsername = xss(username.trim());
+    const sanitizedPassword = password ? xss(password.trim()) : '';
+
+    // Validación de datos
+    if (!sanitizedUsername || sanitizedUsername.length < 6) {
+      errors.push('El nombre de usuario debe tener al menos 6 caracteres.');
+    }
+    if (sanitizedPassword && sanitizedPassword.length < 8) {
+      errors.push('La contraseña debe tener al menos 8 caracteres.');
+    }
+
+    // Buscar al capitán
+    const captain = await User.findOne({ where: { id, role: 'captain' } });
+
+    if (!captain) {
+      errors.push('El capitán no fue encontrado.');
+    }
+
+    // Si hay errores, renderizar con mensajes
+    if (errors.length > 0 || !captain) {
+      return res.render('admin', {
+        title: 'Administradores - Capitanes',
+        section: 'capitanes',
+        errorMessage: errors.join('<br>'),
+        layout: false,
+      });
+    }
+
+    // Actualizar los datos del capitán
+    if (sanitizedUsername) captain.username = sanitizedUsername;
+    if (sanitizedPassword) {
+      captain.password = await bcrypt.hash(sanitizedPassword, 10);
+    }
+
+    await captain.save();
+
+    res.redirect('/dashboard/admin/usuarios/capitanes');
+  } catch (error) {
+    console.error('Error al editar el capitán:', error);
+    res.status(500).send('Error al editar el capitán.');
+  }
+});
+
+
+
+
+
+
+
+
+
 
 
 
