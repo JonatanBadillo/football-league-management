@@ -4,9 +4,6 @@
     <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addJornadaModal">
       <i class="bi bi-plus-circle me-1"></i>Agregar Jornada
     </button>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMatchModal">
-      <i class="bi bi-plus-circle me-1"></i>Agregar Partido
-    </button>
   </div>
 </div>
 
@@ -22,33 +19,40 @@
     </h2>
     <div id="collapse{{this.id}}" class="accordion-collapse collapse" aria-labelledby="heading{{this.id}}" data-bs-parent="#jornadasAccordion">
       <div class="accordion-body">
-        <div class="d-flex justify-content-end">
-          <!-- Botones para editar y eliminar jornada -->
-          <button class="btn btn-warning btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editJornadaModal-{{this.id}}">
-            Editar Jornada
-          </button>
-          <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" 
-                  data-jornada-id="{{this.id}}" data-league-id="{{../selectedLeagueId}}">
-            Eliminar Jornada
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editJornadaModal-{{this.id}}">
+              Editar Jornada
+            </button>
+            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" 
+                    data-jornada-id="{{this.id}}" data-league-id="{{../selectedLeagueId}}">
+              Eliminar Jornada
+            </button>
+          </div>
+          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addMatchModal-{{this.id}}">
+            <i class="bi bi-plus-circle me-1"></i>Agregar Partido
           </button>
         </div>
+
         {{#if this.matches.length}}
         <table class="table table-striped">
           <thead>
             <tr>
-              <th>#</th>
+
               <th>Equipo Local</th>
               <th>Equipo Visitante</th>
               <th>Hora</th>
+              <th>Resultado</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {{#each this.matches}}
             <tr>
-              <td>{{@index}}</td>
+
               <td>{{this.homeTeam.name}}</td>
               <td>{{this.awayTeam.name}}</td>
+              <td> aqui poner pendiente si no se ha jugado , y en dado caso que ya , poner el resultado </td>
               <td>{{this.time}}</td>
               <td>
                 <!-- Espacio para futuras acciones con los partidos -->
@@ -88,32 +92,53 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal para Agregar Partido -->
+  <div class="modal fade" id="addMatchModal-{{this.id}}" tabindex="-1" aria-labelledby="addMatchModalLabel-{{this.id}}" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action="/dashboard/admin/partidos" method="POST">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addMatchModalLabel-{{this.id}}">Agregar Partido</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="leagueId" value="{{../selectedLeagueId}}">
+            <input type="hidden" name="jornadaId" value="{{this.id}}">
+            <div class="mb-3">
+              <label for="homeTeam-{{this.id}}" class="form-label">Equipo Local</label>
+              <select name="homeTeamId" id="homeTeam-{{this.id}}" class="form-select" required>
+                {{#each ../teams}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="awayTeam-{{this.id}}" class="form-label">Equipo Visitante</label>
+              <select name="awayTeamId" id="awayTeam-{{this.id}}" class="form-select" required>
+                {{#each ../teams}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="time-{{this.id}}" class="form-label">Hora</label>
+              <input type="time" name="time" id="time-{{this.id}}" class="form-control" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
   {{/each}}
 </div>
 {{else}}
 <p class="text-center">No hay jornadas registradas para esta liga.</p>
 {{/if}}
-
-<!-- Modal de Confirmación de Eliminación -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="deleteJornadaForm" method="POST">
-        <div class="modal-header">
-          <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>¿Está seguro de que desea eliminar esta jornada? Todos los partidos asociados también serán eliminados.</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-danger">Eliminar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 <!-- Modal para Agregar Jornada -->
 <div class="modal fade" id="addJornadaModal" tabindex="-1" aria-labelledby="addJornadaModalLabel" aria-hidden="true">
@@ -140,49 +165,21 @@
   </div>
 </div>
 
-<!-- Modal para Agregar Partido -->
-<div class="modal fade" id="addMatchModal" tabindex="-1" aria-labelledby="addMatchModalLabel" aria-hidden="true">
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form action="/dashboard/admin/partidos" method="POST">
+      <form id="deleteJornadaForm" method="POST">
         <div class="modal-header">
-          <h5 class="modal-title" id="addMatchModalLabel">Agregar Partido</h5>
+          <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" name="leagueId" value="{{selectedLeagueId}}">
-          <div class="mb-3">
-            <label for="jornadaId" class="form-label">Jornada</label>
-            <select name="jornadaId" id="jornadaId" class="form-select" required>
-              {{#each jornadas}}
-              <option value="{{this.id}}">{{this.name}} - Fecha: {{formatDate this.date}}</option>
-              {{/each}}
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="homeTeam" class="form-label">Equipo Local</label>
-            <select name="homeTeamId" id="homeTeam" class="form-select" required>
-              {{#each teams}}
-              <option value="{{this.id}}">{{this.name}}</option>
-              {{/each}}
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="awayTeam" class="form-label">Equipo Visitante</label>
-            <select name="awayTeamId" id="awayTeam" class="form-select" required>
-              {{#each teams}}
-              <option value="{{this.id}}">{{this.name}}</option>
-              {{/each}}
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="time" class="form-label">Hora</label>
-            <input type="time" name="time" id="time" class="form-control" required>
-          </div>
+          <p>¿Está seguro de que desea eliminar esta jornada? Todos los partidos asociados también serán eliminados.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar</button>
+          <button type="submit" class="btn btn-danger">Eliminar</button>
         </div>
       </form>
     </div>
