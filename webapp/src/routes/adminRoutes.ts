@@ -406,8 +406,23 @@ router.post('/equipos/:id/eliminar', async (req, res) => {
 });
 
 
+//////////////////////////////////////// USUARIOS ////////////////////////////////////////
+router.get('/usuarios/administradores', async (req, res) => {
+  try {
+    // Obtén todos los usuarios con el rol 'admin'
+    const admins = await User.findAll({ where: { role: 'admin' } });
 
-
+    res.render('admin', {
+      title: 'Administradores - Administradores',
+      section: 'usuarios',
+      admins, // Pasa los administradores a la vista
+      layout: false, // No usar el layout `main.handlebars`
+    });
+  } catch (error) {
+    console.error('Error al obtener administradores:', error);
+    res.status(500).send('Error al cargar los administradores');
+  }
+});
 
 
 
