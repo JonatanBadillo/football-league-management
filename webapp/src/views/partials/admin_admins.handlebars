@@ -88,19 +88,10 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold" id="addAdminModalLabel">Agregar
-          Administrador</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
+        <h5 class="modal-title fw-bold" id="addAdminModalLabel">Agregar Administrador</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form
-        action="/dashboard/admin/usuarios/administradores/agregar"
-        method="POST"
-      >
+      <form action="/dashboard/admin/usuarios/administradores/agregar" method="POST">
         <div class="modal-body">
           <div class="mb-3">
             <label for="username" class="form-label">Usuario</label>
@@ -111,6 +102,9 @@
               name="username"
               required
             />
+            <small class="text-muted">
+              El nombre de usuario debe tener al menos 6 caracteres, incluyendo letras y números.
+            </small>
           </div>
           <div class="mb-3">
             <label for="password" class="form-label">Contraseña</label>
@@ -121,21 +115,21 @@
               name="password"
               required
             />
+            <small class="text-muted">
+              La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula, un número y un carácter especial.
+            </small>
           </div>
           <input type="hidden" name="role" value="admin" />
         </div>
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >Cancelar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn btn-dark">Guardar</button>
         </div>
       </form>
     </div>
   </div>
 </div>
+
 
 <!-- Modales dinámicos para editar y eliminar -->
 {{#each admins}}

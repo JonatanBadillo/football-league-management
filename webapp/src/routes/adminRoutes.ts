@@ -429,22 +429,29 @@ router.get('/usuarios/administradores', async (req, res) => {
 // Ruta para agregar un nuevo administrador
 
 router.post('/usuarios/administradores/agregar', async (req, res) => {
-  const { username, password } = req.body;
   const errors: string[] = []; // Arreglo para almacenar mensajes de error
 
   try {
+    // Desinfectar datos
+    const username = xss(req.body.username.trim());
+    const password = xss(req.body.password.trim());
+
     // Validar nombre de usuario
     const usernameRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/; // Al menos 6 caracteres, incluye letras y números
-
-    if (!username || username.trim() === '') {
+    if (!username || username === '') {
       errors.push('El nombre de usuario es obligatorio.');
     } else if (!usernameRegex.test(username)) {
       errors.push('El nombre de usuario debe tener al menos 6 caracteres, incluyendo letras y números.');
     }
 
     // Validar contraseña
-    if (!password || password.length < 8) {
-      errors.push('La contraseña debe tener al menos 8 caracteres.');
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/; // 8+ caracteres, 1 mayúscula, 1 minúscula, 1 número, 1 carácter especial
+    if (!password || password === '') {
+      errors.push('La contraseña es obligatoria.');
+    } else if (!passwordRegex.test(password)) {
+      errors.push(
+        'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula, un número y un carácter especial.'
+      );
     }
 
     // Verifica que no exista un usuario con el mismo nombre
