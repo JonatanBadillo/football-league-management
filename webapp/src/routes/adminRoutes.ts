@@ -9,7 +9,7 @@ import Jornada from "../model/Jornada";
 import path from 'path';
 import multer from 'multer';
 import xss from 'xss';
-import { Op, Transaction } from 'sequelize';
+import { Op, QueryTypes, Transaction } from 'sequelize';
 import sequelize from '../config/database';
 import bcrypt from 'bcrypt';
 
@@ -735,6 +735,39 @@ router.post('/usuarios/arbitros/eliminar/:id', async (req, res) => {
     res.status(500).send('Error al eliminar el árbitro.');
   }
 });
+
+///////////////// capitanes //////////////////////
+router.get('/usuarios/capitanes', async (req, res) => {
+  try {
+    // Consulta personalizada para obtener capitanes y sus equipos
+    const captains = await sequelize.query(
+      `
+      SELECT
+        users.id AS id,
+        users.username AS username,
+        teams.name AS teamName
+      FROM users
+      LEFT JOIN teams ON teams.captainId = users.id
+      WHERE users.role = 'captain'
+      ORDER BY users.username ASC
+      `,
+      { type: QueryTypes.SELECT } // Indica que esperas un resultado de solo lectura
+    );
+
+    res.render('admin', {
+      title: 'Administradores - Capitanes',
+      section: 'capitanes',
+      captains, // Los datos están directamente en formato de arreglo de objetos
+      layout: false,
+    });
+  } catch (error) {
+    console.error('Error al obtener capitanes:', error);
+    res.status(500).send('Error al cargar los capitanes.');
+  }
+});
+
+
+
 
 
 
