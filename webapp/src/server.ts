@@ -13,6 +13,7 @@ import Match from "./model/Match";
 import Player from "./model/Player";
 import User from "./model/User";
 import bcrypt from "bcrypt";
+import { Jornada } from "./model";
 
 
 const app = express();
@@ -127,10 +128,13 @@ app.get("/", async (req, res) => {
       where: { leagueId: leagueIdNum },
       order: [["date", "ASC"]],
       include: [
-        { model: Team, as: "homeTeam" },
-        { model: Team, as: "awayTeam" },
+        { model: Team, as: "homeTeam" }, // Alias configurado en las asociaciones
+        { model: Team, as: "awayTeam" }, // Alias configurado en las asociaciones
+        { model: Jornada, as: "jornada" } // Alias configurado en las asociaciones
       ],
     });
+    
+    
 
     const totalGoals = await Player.sum("goals", {
       where: { leagueId: leagueIdNum },
@@ -155,7 +159,9 @@ app.get("/", async (req, res) => {
     });
   } catch (error) {
     console.error("Error al obtener datos para la página principal:", error);
-    res.status(500).json({ error: "Error al cargar datos" });
+    res.status(500).json({ error: "Error al cargar datos", details: (error as Error).message });
+    
+
   }
 });
 
@@ -323,6 +329,12 @@ sequelize
   .sync()
   .then(() => {
     console.log("Base de datos sincronizada");
+    console.log("Asociaciones de Match:", Match.associations); // Verificar aquí también
+    console.log("Asociacones de Jornada: ",Jornada.associations);
+    console.log("Asociacones de Team: ",Team.associations);
+    console.log("Asociacones de Player: ",Player.associations);
+    console.log("Asociacones de League: ",League.associations);
+
     https.createServer(sslOptions, app).listen(PORT, () => {
       console.log(`Server is running on https://localhost:${PORT}`);
     });

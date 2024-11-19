@@ -1,12 +1,34 @@
-// src/models/Match.ts
-import { DataTypes, Model } from 'sequelize';
-import sequelize from '../config/database';
-import Team from './Team';
-import User from './User';
-import League from './League';
-import Jornada from './Jornada'; // Importa Jornada para asociarlo
+import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "../config/database";
+import Team from "./Team";
+import Jornada from "./Jornada";
+import League from "./League";
 
-class Match extends Model {}
+interface MatchAttributes {
+  id: number;
+  date: Date;
+  time: string;
+  scoreHome: number;
+  scoreAway: number;
+  homeTeamId: number;
+  awayTeamId: number;
+  leagueId: number;
+  jornadaId: number;
+}
+
+interface MatchCreationAttributes extends Optional<MatchAttributes, "id"> {}
+
+class Match extends Model<MatchAttributes, MatchCreationAttributes> {
+  declare id: number;
+  declare date: Date;
+  declare time: string;
+  declare scoreHome: number;
+  declare scoreAway: number;
+  declare homeTeamId: number;
+  declare awayTeamId: number;
+  declare leagueId: number;
+  declare jornadaId: number;
+}
 
 Match.init(
   {
@@ -31,14 +53,32 @@ Match.init(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+    homeTeamId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    awayTeamId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    leagueId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    jornadaId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
-  { sequelize, modelName: 'match' }
+  {
+    sequelize,
+    modelName: "match",
+    tableName: "matches",
+  }
 );
 
-Match.belongsTo(Team, { as: 'homeTeam', foreignKey: 'homeTeamId' });
-Match.belongsTo(Team, { as: 'awayTeam', foreignKey: 'awayTeamId' });
-Match.belongsTo(User, { as: 'referee', foreignKey: 'refereeId' });
-Match.belongsTo(League, { foreignKey: 'leagueId' });
-Match.belongsTo(Jornada, { foreignKey: 'jornadaId', as: 'jornada' }); // Relación con Jornada
+Match.belongsTo(Team, { as: "homeTeam", foreignKey: "homeTeamId" });
+Match.belongsTo(Team, { as: "awayTeam", foreignKey: "awayTeamId" });
+Match.belongsTo(Jornada, { foreignKey: "jornadaId", as: "jornada" });
 
 export default Match;

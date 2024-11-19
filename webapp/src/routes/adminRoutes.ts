@@ -1,5 +1,5 @@
 // src/routes/adminRoutes.ts
-import express from "express";
+import express, { Request, Response } from "express";
 import League from "../model/League";
 import Team from "../model/Team";
 import Player from "../model/Player";
@@ -953,104 +953,7 @@ router.post("/usuarios/capitanes/editar/:id", async (req, res) => {
 
 
 //////////////////////////////////////// PARTIDOS ////////////////////////////////////////
-router.get("/partidos", async (req, res) => {
-  try {
-    const leagues = await League.findAll();
-    let leagueId = req.query.leagueId as string | undefined;
 
-    if (!leagueId && leagues.length > 0) {
-      leagueId = leagues[0].id ? leagues[0].id.toString() : undefined;
-    }
-
-    if (!leagueId) {
-      return res.render("admin", {
-        title: "Administrador - Partidos",
-        section: "partidos",
-        leagues: [],
-        matches: [],
-        teams: [],
-        selectedLeagueId: null,
-        errorMessage: "No se encontraron ligas. Agrega una para empezar.",
-        layout: false,
-      });
-    }
-
-    const leagueIdNum = parseInt(leagueId, 10);
-
-    // Obtener los equipos y partidos de la liga seleccionada
-    const teams = await Team.findAll({
-      where: { leagueId: leagueIdNum },
-      attributes: ["id", "name", "logo"],
-    });
-
-    const matches = await Match.findAll({
-      where: { leagueId: leagueIdNum },
-      include: [
-        { model: Team, as: "homeTeam", attributes: ["name", "logo"] },
-        { model: Team, as: "awayTeam", attributes: ["name", "logo"] },
-      ],
-      order: [["date", "ASC"]],
-    });
-
-    res.render("admin", {
-      title: "Administrador - Partidos",
-      section: "partidos",
-      leagues,
-      matches,
-      teams,
-      selectedLeagueId: leagueIdNum,
-      layout: false,
-    });
-  } catch (error) {
-    console.error("Error al cargar partidos:", error);
-    res.status(500).render("admin", {
-      title: "Administrador - Partidos",
-      section: "partidos",
-      errorMessage: "Hubo un error al cargar los partidos.",
-      leagues: [],
-      matches: [],
-      teams: [],
-      layout: false,
-    });
-  }
-});
-
-
-router.post("/partidos", async (req, res) => {
-  const { homeTeamId, awayTeamId, date, time, leagueId } = req.body;
-
-  try {
-    await Match.create({
-      homeTeamId,
-      awayTeamId,
-      date,
-      time,
-      leagueId,
-    });
-    res.redirect(`/dashboard/admin/partidos?leagueId=${leagueId}`);
-  } catch (error) {
-    console.error("Error al agregar partido:", error);
-    res.status(500).send("Error al agregar partido");
-  }
-});
-
-router.post("/partidos", async (req, res) => {
-  const { homeTeamId, awayTeamId, date, time, leagueId } = req.body;
-
-  try {
-    await Match.create({
-      homeTeamId,
-      awayTeamId,
-      date,
-      time,
-      leagueId,
-    });
-    res.redirect(`/dashboard/admin/partidos?leagueId=${leagueId}`);
-  } catch (error) {
-    console.error("Error al agregar partido:", error);
-    res.status(500).send("Error al agregar partido");
-  }
-});
 
 
 

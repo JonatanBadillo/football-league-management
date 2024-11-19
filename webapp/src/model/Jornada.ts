@@ -1,7 +1,6 @@
-// src/models/Jornada.ts
-import { DataTypes, Model, Optional } from 'sequelize';
-import sequelize from '../config/database';
-import Match from './Match'; // Asegúrate de que esta importación esté bien configurada
+import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "../config/database";
+import Match from "./Match";
 
 interface JornadaAttributes {
   id: number;
@@ -10,7 +9,7 @@ interface JornadaAttributes {
   leagueId: number;
 }
 
-interface JornadaCreationAttributes extends Optional<JornadaAttributes, 'id'> {}
+interface JornadaCreationAttributes extends Optional<JornadaAttributes, "id"> {}
 
 class Jornada extends Model<JornadaAttributes, JornadaCreationAttributes> {
   declare id: number;
@@ -37,25 +36,13 @@ Jornada.init(
     leagueId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'leagues',
-        key: 'id',
-      },
     },
   },
   {
     sequelize,
-    modelName: 'jornada',
-    tableName: 'jornadas',
+    modelName: "jornada",
+    tableName: "jornadas",
   }
 );
-
-// Verifica que `Match` esté correctamente definido como modelo antes de asociarlo
-if (typeof Match === 'function' && Match.prototype instanceof Model) {
-  Jornada.hasMany(Match, { foreignKey: 'jornadaId', as: 'matches' });
-  Match.belongsTo(Jornada, { foreignKey: 'jornadaId', as: 'jornada' });
-} else {
-  console.error("Error: `Match` no es un modelo de Sequelize. Verifica su definición en `Match.ts`.");
-}
 
 export default Jornada;
