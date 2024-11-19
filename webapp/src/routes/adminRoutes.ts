@@ -11,6 +11,8 @@ import multer from 'multer';
 import xss from 'xss';
 import { Transaction } from 'sequelize';
 import sequelize from '../config/database';
+import bcrypt from 'bcrypt';
+
 
 
 
@@ -424,20 +426,52 @@ router.get('/usuarios/administradores', async (req, res) => {
   }
 });
 
+// Ruta para agregar un nuevo administrador
+
 router.post('/usuarios/administradores/agregar', async (req, res) => {
   const { username, password } = req.body;
+  const errors: string[] = []; // Arreglo para almacenar mensajes de error
 
   try {
+    // Validar nombre de usuario
+    const usernameRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/; // Al menos 6 caracteres, incluye letras y números
+
+    if (!username || username.trim() === '') {
+      errors.push('El nombre de usuario es obligatorio.');
+    } else if (!usernameRegex.test(username)) {
+      errors.push('El nombre de usuario debe tener al menos 6 caracteres, incluyendo letras y números.');
+    }
+
+    // Validar contraseña
+    if (!password || password.length < 8) {
+      errors.push('La contraseña debe tener al menos 8 caracteres.');
+    }
+
     // Verifica que no exista un usuario con el mismo nombre
     const existingAdmin = await User.findOne({ where: { username, role: 'admin' } });
     if (existingAdmin) {
-      return res.status(400).send('El usuario ya existe como administrador.');
+      errors.push('El usuario ya existe como administrador.');
     }
 
-    // Crea un nuevo administrador
+    // Si hay errores, renderizar la vista con los mensajes de error
+    if (errors.length > 0) {
+      const admins = await User.findAll({ where: { role: 'admin' } });
+      return res.render('admin', {
+        title: 'Administradores - Administradores',
+        section: 'usuarios',
+        admins,
+        errorMessage: errors.join('<br>'), // Junta los mensajes en HTML
+        layout: false,
+      });
+    }
+
+    // Hashear la contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Crear el nuevo administrador
     await User.create({
       username,
-      password, // Asegúrate de aplicar hashing si es necesario
+      password: hashedPassword,
       role: 'admin',
     });
 
@@ -447,6 +481,7 @@ router.post('/usuarios/administradores/agregar', async (req, res) => {
     res.status(500).send('Error al agregar el administrador.');
   }
 });
+
 
 router.post('/usuarios/administradores/editar/:id', async (req, res) => {
   const { id } = req.params;

@@ -1,6 +1,12 @@
 <div class="card p-4 mb-4 shadow" style="min-height: 80vh;">
   <h2 class="fw-bold">Administradores Registrados</h2>
   <p class="text-muted">Gestión de administradores del sistema</p>
+  {{#if errorMessage}}
+<div class="alert alert-danger">
+  {{{errorMessage}}}
+</div>
+{{/if}}
+
 
   <!-- Botón para agregar administrador -->
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -9,9 +15,11 @@
       data-bs-toggle="modal"
       data-bs-target="#addAdminModal"
     >
+    
       <i class="bi bi-plus-circle me-2"></i>Agregar Administrador
     </button>
   </div>
+  
 
   <!-- Tabla responsiva -->
   <div class="table-responsive">
