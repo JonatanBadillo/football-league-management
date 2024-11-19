@@ -739,25 +739,29 @@ router.post('/usuarios/arbitros/eliminar/:id', async (req, res) => {
 ///////////////// capitanes //////////////////////
 router.get('/usuarios/capitanes', async (req, res) => {
   try {
-    // Consulta personalizada para obtener capitanes y sus equipos
-    const captains = await sequelize.query(
-      `
-      SELECT
-        users.id AS id,
-        users.username AS username,
-        teams.name AS teamName
-      FROM users
-      LEFT JOIN teams ON teams.captainId = users.id
-      WHERE users.role = 'captain'
-      ORDER BY users.username ASC
-      `,
-      { type: QueryTypes.SELECT } // Indica que esperas un resultado de solo lectura
-    );
+    // Obtener todos los capitanes con sus equipos asociados
+    const captains = await Team.findAll({
+      include: [
+        {
+          model: User,
+          as: 'captain', // Alias definido en Team.belongsTo
+          attributes: ['id', 'username'], // Traer solo los atributos necesarios del capitán
+        },
+      ],
+      attributes: ['name'], // Solo traer el nombre del equipo
+    });
+
+    // Formatear los datos para la vista
+    const captainsData = captains.map((team: any) => ({
+      id: team.captain.id,
+      username: team.captain.username,
+      teamName: team.name,
+    }));
 
     res.render('admin', {
       title: 'Administradores - Capitanes',
       section: 'capitanes',
-      captains, // Los datos están directamente en formato de arreglo de objetos
+      captains: captainsData, // Pasa los datos formateados a la vista
       layout: false,
     });
   } catch (error) {
@@ -765,6 +769,9 @@ router.get('/usuarios/capitanes', async (req, res) => {
     res.status(500).send('Error al cargar los capitanes.');
   }
 });
+
+
+
 
 
 
