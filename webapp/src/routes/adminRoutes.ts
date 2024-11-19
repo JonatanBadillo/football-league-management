@@ -72,41 +72,86 @@ router.post("/dashboard/admin/registrar-capitan", async (req, res) => {
 // Procesa la creación de equipo
 router.post("/equipos", upload.single("logo"), async (req, res) => {
   const { name, leagueId, newCaptainUsername, newCaptainPassword } = req.body;
+  const errors: string[] = [];
 
   // Sanitización de datos
-  const sanitizedTeamName = xss(name);
-  const sanitizedLeagueId = xss(leagueId);
-  const sanitizedUsername = xss(newCaptainUsername);
-  const sanitizedPassword = xss(newCaptainPassword);
+  const sanitizedTeamName = xss(name.trim());
+  const sanitizedLeagueId = xss(leagueId.trim());
+  const sanitizedUsername = xss(newCaptainUsername.trim());
+  const sanitizedPassword = newCaptainPassword ? xss(newCaptainPassword.trim()) : "";
 
   const logo = req.file
     ? `/uploads/${req.file.filename}`
     : "/images/logo_default_team.png";
 
-  // Validación de datos del capitán
-  if (!sanitizedUsername || sanitizedPassword.length < 6) {
-    return res.status(400).render("admin", {
-      title: "Administrador",
-      section: "equipos",
-      errorMessage:
-        "El nombre de usuario y la contraseña del capitán son obligatorios y la contraseña debe tener al menos 6 caracteres.",
-      leagues: await League.findAll(),
-      teams: await Team.findAll(),
-    });
+  // Validación del nombre del equipo
+  if (!sanitizedTeamName || sanitizedTeamName.length < 3) {
+    errors.push("El nombre del equipo debe tener al menos 3 caracteres.");
+  }
+
+  // Validación de la liga
+  if (!sanitizedLeagueId) {
+    errors.push("Debes seleccionar una liga válida.");
+  }
+
+  // Validación del nombre de usuario del capitán
+  const usernameRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d_-]{6,}$/;
+  if (!sanitizedUsername || !usernameRegex.test(sanitizedUsername)) {
+    errors.push(
+      'El nombre de usuario debe tener al menos 6 caracteres, incluir letras, números y puede contener "_" o "-".'
+    );
+  }
+
+  // Validación de la contraseña del capitán
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    console.log(passwordRegex.test(sanitizedPassword)); // Debería ser true
+
+  if (!sanitizedPassword) {
+    errors.push("La contraseña es obligatoria.");
+  } else if (!passwordRegex.test(sanitizedPassword)) {
+    console.error("Contraseña no válida:", sanitizedPassword);
+    errors.push(
+      "La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, una minúscula, un número y un carácter especial."
+    );
   }
 
   try {
+    // Verificar que el nombre de usuario no esté en uso
+    const existingUser = await User.findOne({
+      where: { username: sanitizedUsername },
+    });
+
+    if (existingUser) {
+      errors.push("El nombre de usuario ya está en uso.");
+    }
+
+    // Si hay errores, renderizar la vista con mensajes
+    if (errors.length > 0) {
+      console.error("Errores de validación:", errors);
+      return res.status(400).render("admin", {
+        title: "Administrador",
+        section: "equipos",
+        errorMessage: errors.join("<br>"),
+        leagues: await League.findAll(),
+        teams: await Team.findAll(),
+      });
+    }
+
     // Crear el nuevo capitán
+    const hashedPassword = await bcrypt.hash(sanitizedPassword, 10);
+
     const newCaptain = await User.create({
       username: sanitizedUsername,
-      password: sanitizedPassword,
+      password: hashedPassword,
       role: "captain",
     });
 
     // Crear el equipo y asociar el nuevo capitán
     await Team.create({
       name: sanitizedTeamName,
-      leagueId: sanitizedLeagueId,
+      leagueId: parseInt(sanitizedLeagueId, 10),
       captainId: newCaptain.id,
       logo,
       balance: 500,
@@ -133,6 +178,10 @@ router.post("/equipos", upload.single("logo"), async (req, res) => {
     });
   }
 });
+
+
+
+
 
 router.post("/equipos/:id/eliminar", async (req, res) => {
   const { id } = req.params;

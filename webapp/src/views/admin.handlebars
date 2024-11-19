@@ -91,8 +91,9 @@
       }
 
       // Validar Contraseña del Capitán
-      const password = document.getElementById('newCaptainPassword').value;
-      const passwordPattern = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/; // Al menos 8 caracteres, una mayúscula y un número
+      const password = document.getElementById('newCaptainPassword').value.trim();
+      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+ // Al menos 8 caracteres, una mayúscula y un número
       if (!passwordPattern.test(password)) {
         document.getElementById('newCaptainPasswordError').style.display = 'block';
         isValid = false;
