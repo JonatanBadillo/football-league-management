@@ -17,12 +17,21 @@
   <div class="accordion-item">
     <h2 class="accordion-header" id="heading{{this.id}}">
       <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{this.id}}" aria-expanded="true" aria-controls="collapse{{this.id}}">
-  Jornada: {{this.name}} - Fecha: {{formatDate this.date true}}
-</button>
-
+        Jornada: {{this.name}} - Fecha: {{formatDate this.date}}
+      </button>
     </h2>
     <div id="collapse{{this.id}}" class="accordion-collapse collapse" aria-labelledby="heading{{this.id}}" data-bs-parent="#jornadasAccordion">
       <div class="accordion-body">
+        <div class="d-flex justify-content-end">
+          <!-- Botones para editar y eliminar jornada -->
+          <button class="btn btn-warning btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editJornadaModal-{{this.id}}">
+            Editar Jornada
+          </button>
+          <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" 
+                  data-jornada-id="{{this.id}}" data-league-id="{{../selectedLeagueId}}">
+            Eliminar Jornada
+          </button>
+        </div>
         {{#if this.matches.length}}
         <table class="table table-striped">
           <thead>
@@ -30,7 +39,6 @@
               <th>#</th>
               <th>Equipo Local</th>
               <th>Equipo Visitante</th>
-              <th>Fecha</th>
               <th>Hora</th>
               <th>Acciones</th>
             </tr>
@@ -39,20 +47,11 @@
             {{#each this.matches}}
             <tr>
               <td>{{@index}}</td>
-              <td>
-                <img src="{{this.homeTeam.logo}}" alt="Logo Local" width="30">
-                {{this.homeTeam.name}}
-              </td>
-              <td>
-                <img src="{{this.awayTeam.logo}}" alt="Logo Visitante" width="30">
-                {{this.awayTeam.name}}
-              </td>
-              <td>{{formatDate this.date}}</td>
+              <td>{{this.homeTeam.name}}</td>
+              <td>{{this.awayTeam.name}}</td>
               <td>{{this.time}}</td>
               <td>
-                <form action="/dashboard/admin/partidos/{{this.id}}/eliminar" method="POST" class="d-inline">
-                  <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                </form>
+                <!-- Espacio para futuras acciones con los partidos -->
               </td>
             </tr>
             {{/each}}
@@ -64,13 +63,59 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal para Editar Jornada -->
+  <div class="modal fade" id="editJornadaModal-{{this.id}}" tabindex="-1" aria-labelledby="editJornadaModalLabel-{{this.id}}" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action="/dashboard/admin/jornadas/{{this.id}}/editar" method="POST">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editJornadaModalLabel-{{this.id}}">Editar Jornada</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="leagueId" value="{{../selectedLeagueId}}">
+            <div class="mb-3">
+              <label for="date-{{this.id}}" class="form-label">Fecha de la Jornada</label>
+              <input type="date" name="date" id="date-{{this.id}}" class="form-control" value="{{formatDate this.date true}}" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
   {{/each}}
 </div>
 {{else}}
 <p class="text-center">No hay jornadas registradas para esta liga.</p>
 {{/if}}
 
-<!-- Modal para agregar jornada -->
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="deleteJornadaForm" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>¿Está seguro de que desea eliminar esta jornada? Todos los partidos asociados también serán eliminados.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Eliminar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Agregar Jornada -->
 <div class="modal fade" id="addJornadaModal" tabindex="-1" aria-labelledby="addJornadaModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -94,8 +139,6 @@
     </div>
   </div>
 </div>
-
-
 
 <!-- Modal para Agregar Partido -->
 <div class="modal fade" id="addMatchModal" tabindex="-1" aria-labelledby="addMatchModalLabel" aria-hidden="true">
@@ -145,4 +188,3 @@
     </div>
   </div>
 </div>
-

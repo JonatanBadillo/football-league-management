@@ -12,6 +12,7 @@ import xss from "xss";
 import { Op, QueryTypes, Transaction } from "sequelize";
 import sequelize from "../config/database";
 import bcrypt from "bcrypt";
+import moment from "moment";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -1094,6 +1095,103 @@ router.post("/jornadas", async (req, res) => {
     res.status(500).send("Error al crear la jornada.");
   }
 });
+
+router.post("/jornadas/:id/editar", async (req, res) => {
+  const { id } = req.params;
+  const { date, leagueId } = req.body;
+
+  try {
+    // Actualizar la jornada
+    await Jornada.update(
+      { date: moment(date).startOf("day").toDate() },
+      { where: { id } }
+    );
+
+    res.redirect(`/dashboard/admin/partidos?leagueId=${leagueId}`);
+  } catch (error) {
+    console.error("Error al editar jornada:", error);
+    res.status(500).send("Error al editar la jornada.");
+  }
+});
+
+router.get("/partidos", async (req, res) => {
+  try {
+    const leagues = await League.findAll(); // Todas las ligas disponibles
+    const leagueId = req.query.leagueId || (leagues.length ? leagues[0].id : null);
+
+    if (!leagueId) {
+      return res.render("admin", {
+        title: "Gestión de Partidos",
+        section: "partidos",
+        leagues: [],
+        jornadas: [],
+        teams: [],
+        selectedLeagueId: null,
+      });
+    }
+
+    const selectedLeagueId = parseInt(leagueId.toString(), 10);
+
+    // Obtener jornadas con partidos
+    const jornadas = await Jornada.findAll({
+      where: { leagueId: selectedLeagueId },
+      include: {
+        model: Match,
+        as: "matches",
+        include: [
+          { model: Team, as: "homeTeam", attributes: ["id", "name", "logo"] },
+          { model: Team, as: "awayTeam", attributes: ["id", "name", "logo"] },
+        ],
+      },
+      order: [["date", "ASC"]],
+    });
+
+    // Obtener equipos de la liga
+    const teams = await Team.findAll({
+      where: { leagueId: selectedLeagueId },
+      attributes: ["id", "name"],
+    });
+
+    res.render("admin", {
+      title: "Gestión de Partidos",
+      section: "partidos",
+      leagues,
+      jornadas,
+      teams,
+      selectedLeagueId,
+      layout: false,
+    });
+  } catch (error) {
+    console.error("Error al cargar los partidos:", error);
+    res.status(500).send("Error al cargar los partidos.");
+  }
+});
+
+
+router.post("/jornadas/:id/eliminar", async (req, res) => {
+  const { id } = req.params;
+  const { leagueId } = req.body;
+
+  try {
+    // Contar partidos asociados a la jornada
+    const matchesCount = await Match.count({ where: { jornadaId: id } });
+
+    if (matchesCount > 0) {
+      // Eliminar partidos asociados
+      await Match.destroy({ where: { jornadaId: id } });
+    }
+
+    // Eliminar la jornada
+    await Jornada.destroy({ where: { id } });
+
+    res.redirect(`/dashboard/admin/partidos?leagueId=${leagueId}`);
+  } catch (error) {
+    console.error("Error al eliminar jornada:", error);
+    res.status(500).send("Error al eliminar la jornada.");
+  }
+});
+
+
 
 
 

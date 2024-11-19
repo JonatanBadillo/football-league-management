@@ -156,6 +156,21 @@
     option.disabled = option.value === homeTeamId;
   });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const confirmDeleteModal = document.getElementById("confirmDeleteModal");
+    const deleteJornadaForm = document.getElementById("deleteJornadaForm");
+
+    confirmDeleteModal.addEventListener("show.bs.modal", (event) => {
+      const button = event.relatedTarget;
+      const jornadaId = button.getAttribute("data-jornada-id");
+      const leagueId = button.getAttribute("data-league-id");
+
+      // Actualizar la acción del formulario
+      deleteJornadaForm.action = `/dashboard/admin/jornadas/${jornadaId}/eliminar`;
+      deleteJornadaForm.innerHTML += `<input type="hidden" name="leagueId" value="${leagueId}">`;
+    });
+  });
 document.getElementById("homeTeam").addEventListener("change", filterAwayTeams);
 
 
