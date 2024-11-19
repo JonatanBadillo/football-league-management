@@ -12,6 +12,7 @@ import Team from "./model/Team";
 import Match from "./model/Match";
 import Player from "./model/Player";
 import User from "./model/User";
+import bcrypt from "bcrypt";
 
 
 const app = express();
@@ -171,8 +172,8 @@ app.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ where: { username } });
 
-    if (!user || user.password !== password) {
-      // Si el usuario no existe o la contraseña es incorrecta
+    // Verifica si el usuario existe
+    if (!user) {
       return res.status(401).render("login", {
         layout: false,
         title: "Iniciar Sesión",
@@ -180,6 +181,17 @@ app.post("/login", async (req, res) => {
       });
     }
 
+    // Verifica la contraseña usando bcrypt.compare
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).render("login", {
+        layout: false,
+        title: "Iniciar Sesión",
+        errorMessage: "Usuario y/o contraseña incorrecta",
+      });
+    }
+
+    // Redirige según el rol del usuario
     if (user.role === "admin") {
       return res.redirect("/dashboard/admin");
     } else if (user.role === "captain") {

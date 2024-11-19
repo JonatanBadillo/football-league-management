@@ -9,7 +9,7 @@ import Jornada from "../model/Jornada";
 import path from 'path';
 import multer from 'multer';
 import xss from 'xss';
-import { Transaction } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 import sequelize from '../config/database';
 import bcrypt from 'bcrypt';
 
@@ -492,9 +492,13 @@ router.post('/usuarios/administradores/agregar', async (req, res) => {
 
 router.post('/usuarios/administradores/editar/:id', async (req, res) => {
   const { id } = req.params;
-  const { username, password } = req.body;
+  const errors: string[] = []; // Arreglo para almacenar mensajes de error
 
   try {
+    // Desinfectar datos
+    const username = xss(req.body.username.trim());
+    const password = xss(req.body.password.trim());
+
     // Encuentra al administrador por ID
     const admin = await User.findByPk(id);
 
@@ -502,11 +506,51 @@ router.post('/usuarios/administradores/editar/:id', async (req, res) => {
       return res.status(404).send('Administrador no encontrado.');
     }
 
-    // Actualiza los datos
-    await admin.update({
-      username,
-      password, // Aplica hashing si es necesario
+    // Validar nombre de usuario
+    const usernameRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/; // Al menos 6 caracteres, incluye letras y números
+    if (!username || username === '') {
+      errors.push('El nombre de usuario es obligatorio.');
+    } else if (!usernameRegex.test(username)) {
+      errors.push('El nombre de usuario debe tener al menos 6 caracteres, incluyendo letras y números.');
+    }
+
+    // Validar contraseña si está presente
+    if (password && password !== '') {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/; // 8+ caracteres, 1 mayúscula, 1 minúscula, 1 número, 1 carácter especial
+      if (!passwordRegex.test(password)) {
+        errors.push(
+          'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula, un número y un carácter especial.'
+        );
+      }
+    }
+
+    // Verifica que no exista otro usuario con el mismo nombre
+    const existingAdmin = await User.findOne({
+      where: { username, role: 'admin', id: { [Op.ne]: id } }, // Excluir al admin actual
     });
+    if (existingAdmin) {
+      errors.push('El nombre de usuario ya está en uso por otro administrador.');
+    }
+
+    // Si hay errores, renderizar la vista con los mensajes de error
+    if (errors.length > 0) {
+      const admins = await User.findAll({ where: { role: 'admin' } });
+      return res.render('admin', {
+        title: 'Administradores - Editar Administrador',
+        section: 'usuarios',
+        admins,
+        errorMessage: errors.join('<br>'), // Junta los mensajes en HTML
+        layout: false,
+      });
+    }
+
+    // Actualiza los datos del administrador
+    const updatedData: any = { username };
+    if (password && password !== '') {
+      updatedData.password = await bcrypt.hash(password, 10); // Hashear la nueva contraseña
+    }
+
+    await admin.update(updatedData);
 
     res.redirect('/dashboard/admin/usuarios/administradores');
   } catch (error) {
@@ -514,6 +558,7 @@ router.post('/usuarios/administradores/editar/:id', async (req, res) => {
     res.status(500).send('Error al editar el administrador.');
   }
 });
+
 
 router.post('/usuarios/administradores/eliminar/:id', async (req, res) => {
   const { id } = req.params;
