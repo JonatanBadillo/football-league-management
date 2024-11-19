@@ -456,7 +456,7 @@ router.post('/usuarios/administradores/agregar', async (req, res) => {
     }
 
     // Verifica que no exista un usuario con el mismo nombre
-    const existingAdmin = await User.findOne({ where: { username, role: 'admin' } });
+    const existingAdmin = await User.findOne({ where: { username } });
     if (existingAdmin) {
       errors.push('El usuario ya existe como administrador.');
     }
@@ -527,7 +527,7 @@ router.post('/usuarios/administradores/editar/:id', async (req, res) => {
 
     // Verifica que no exista otro usuario con el mismo nombre
     const existingAdmin = await User.findOne({
-      where: { username, role: 'admin', id: { [Op.ne]: id } }, // Excluir al admin actual
+      where: { username, id: { [Op.ne]: id } }, // Excluir al admin actual
     });
     if (existingAdmin) {
       errors.push('El nombre de usuario ya está en uso por otro administrador.');
@@ -623,7 +623,7 @@ router.post('/usuarios/arbitros/agregar', async (req, res) => {
     }
 
     // Verificar si el árbitro ya existe
-    const existingReferee = await User.findOne({ where: { username, role: 'referee' } });
+    const existingReferee = await User.findOne({ where: { username } });
     if (existingReferee) {
       errors.push('El nombre de usuario ya está en uso.');
     }
@@ -686,7 +686,7 @@ router.post('/usuarios/arbitros/editar/:id', async (req, res) => {
 
     // Verificar si el nombre ya está en uso por otro árbitro
     const existingReferee = await User.findOne({
-      where: { username, role: 'referee', id: { [Op.ne]: id } },
+      where: { username, id: { [Op.ne]: id } },
     });
     if (existingReferee) {
       errors.push('El nombre de usuario ya está en uso.');
