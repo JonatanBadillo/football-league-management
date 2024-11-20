@@ -957,8 +957,8 @@ router.post("/usuarios/capitanes/editar/:id", async (req, res) => {
 
 router.get("/partidos", async (req, res) => {
   try {
-    const leagues = await League.findAll(); // Todas las ligas disponibles
-    const leagueId = req.query.leagueId || (leagues.length ? leagues[0].id : null); // Liga seleccionada
+    const leagues = await League.findAll();
+    const leagueId = req.query.leagueId || (leagues.length ? leagues[0].id : null);
 
     if (!leagueId) {
       return res.render("admin", {
@@ -973,28 +973,33 @@ router.get("/partidos", async (req, res) => {
 
     const selectedLeagueId = parseInt(leagueId.toString(), 10);
 
-    // Cargar jornadas con partidos
     const jornadas = await Jornada.findAll({
       where: { leagueId: selectedLeagueId },
       include: {
         model: Match,
         as: "matches",
         include: [
-          { model: Team, as: "homeTeam", attributes: ["id", "name", "logo"] },
-          { model: Team, as: "awayTeam", attributes: ["id", "name", "logo"] },
+          {
+            model: Team,
+            as: "homeTeam",
+            include: [{ model: Player, as: "players" }],
+          },
+          {
+            model: Team,
+            as: "awayTeam",
+            include: [{ model: Player, as: "players" }],
+          },
         ],
       },
       order: [["date", "ASC"]],
     });
 
-    // Equipos de la liga
     const teams = await Team.findAll({
       where: { leagueId: selectedLeagueId },
       attributes: ["id", "name"],
     });
 
-    // Enviar respuesta
-    return res.render("admin", {
+    res.render("admin", {
       title: "Gestión de Partidos",
       section: "partidos",
       leagues,
@@ -1005,9 +1010,7 @@ router.get("/partidos", async (req, res) => {
     });
   } catch (error) {
     console.error("Error al cargar partidos:", error);
-    if (!res.headersSent) {
-      res.status(500).send("Error al cargar los partidos.");
-    }
+    res.status(500).send("Error al cargar los partidos.");
   }
 });
 
@@ -1114,58 +1117,6 @@ router.post("/jornadas/:id/editar", async (req, res) => {
   }
 });
 
-router.get("/partidos", async (req, res) => {
-  try {
-    const leagues = await League.findAll(); // Todas las ligas disponibles
-    const leagueId = req.query.leagueId || (leagues.length ? leagues[0].id : null);
-
-    if (!leagueId) {
-      return res.render("admin", {
-        title: "Gestión de Partidos",
-        section: "partidos",
-        leagues: [],
-        jornadas: [],
-        teams: [],
-        selectedLeagueId: null,
-      });
-    }
-
-    const selectedLeagueId = parseInt(leagueId.toString(), 10);
-
-    // Obtener jornadas con partidos
-    const jornadas = await Jornada.findAll({
-      where: { leagueId: selectedLeagueId },
-      include: {
-        model: Match,
-        as: "matches",
-        include: [
-          { model: Team, as: "homeTeam", attributes: ["id", "name", "logo"] },
-          { model: Team, as: "awayTeam", attributes: ["id", "name", "logo"] },
-        ],
-      },
-      order: [["date", "ASC"]],
-    });
-
-    // Obtener equipos de la liga
-    const teams = await Team.findAll({
-      where: { leagueId: selectedLeagueId },
-      attributes: ["id", "name"],
-    });
-
-    res.render("admin", {
-      title: "Gestión de Partidos",
-      section: "partidos",
-      leagues,
-      jornadas,
-      teams,
-      selectedLeagueId,
-      layout: false,
-    });
-  } catch (error) {
-    console.error("Error al cargar los partidos:", error);
-    res.status(500).send("Error al cargar los partidos.");
-  }
-});
 
 
 router.post("/jornadas/:id/eliminar", async (req, res) => {

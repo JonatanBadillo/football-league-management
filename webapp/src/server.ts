@@ -34,11 +34,22 @@ app.engine(
       formatDate: (date: moment.MomentInput, onlyDate = false) => {
         const momentDate = moment(date);
         return onlyDate ? momentDate.format("MMM DD, YYYY") : momentDate.format("MMM DD, h:mm A");
-      },      
+      },
       eq: (a: any, b: any) => a === b,
+      not: (value: any) => !value, // Helper para negación lógica
+      or: (...args: any[]) => {
+        const options = args.pop(); // Quita el objeto de opciones de Handlebars
+        return args.some(Boolean); // Retorna true si alguno de los valores es verdadero
+      },
+      toFixed: (value: number, precision: number) => {
+        if (typeof value !== "number") return "NaN"; // Valida que el valor sea un número
+        return value.toFixed(precision); // Aplica `toFixed`
+      },
     },
   })
 );
+
+
 
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "../src/views"));
