@@ -1015,8 +1015,6 @@ router.get("/partidos", async (req, res) => {
 });
 
 
-
-
 router.post("/partidos", async (req, res) => {
   const { jornadaId, homeTeamId, awayTeamId, time, leagueId } = req.body;
 
@@ -1064,6 +1062,34 @@ router.post("/partidos", async (req, res) => {
   } catch (error) {
     console.error("Error al agregar partido:", error);
     res.status(500).send("Error al agregar el partido.");
+  }
+});
+
+
+router.post("/partidos/:id", async (req, res) => {
+  const { id } = req.params;
+  const { playerUpdates, homeScore, awayScore } = req.body; // Datos enviados desde el frontend
+
+  try {
+    // Actualizar los goles de los jugadores
+    for (const update of playerUpdates) {
+      const { playerId, goals } = update;
+      await Player.update(
+        { goals },
+        { where: { id: playerId } }
+      );
+    }
+
+    // Actualizar el marcador del partido
+    await Match.update(
+      { scoreHome: homeScore, scoreAway: awayScore },
+      { where: { id } }
+    );
+
+    res.status(200).json({ message: "Partido actualizado correctamente." });
+  } catch (error) {
+    console.error("Error al actualizar el partido:", error);
+    res.status(500).json({ error: "Error al actualizar el partido." });
   }
 });
 
