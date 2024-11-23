@@ -19,8 +19,8 @@ Jornada.hasMany(Match, { foreignKey: "jornadaId", as: "matches" });
 Team.hasMany(Player, { foreignKey: "teamId" });
 
 
-Team.hasMany(Match, { foreignKey: "homeTeamId", as: "homeMatches" }); // Relación para partidos como local
-Team.hasMany(Match, { foreignKey: "awayTeamId", as: "awayMatches" }); // Relación para partidos como visitante
+Team.hasMany(Match, { foreignKey: "homeTeamId", as: "homeMatches" ,onDelete: "CASCADE" }); // Relación para partidos como local
+Team.hasMany(Match, { foreignKey: "awayTeamId", as: "awayMatches" ,onDelete: "CASCADE" }); // Relación para partidos como visitante
 
 
 

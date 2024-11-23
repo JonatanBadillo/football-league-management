@@ -187,8 +187,16 @@ router.post("/equipos", upload.single("logo"), async (req, res) => {
 router.post("/equipos/:id/eliminar", async (req, res) => {
   const { id } = req.params;
   try {
-    // Eliminar el equipo con el ID proporcionado
+    // Eliminar los partidos en los que el equipo sea local o visitante
+    await Match.destroy({
+      where: {
+        [Op.or]: [{ homeTeamId: id }, { awayTeamId: id }],
+      },
+    });
+
+    // Eliminar el equipo
     await Team.destroy({ where: { id } });
+
     res.redirect("/dashboard/admin/equipos");
   } catch (error) {
     console.error("Error al eliminar el equipo:", error);
@@ -202,6 +210,7 @@ router.post("/equipos/:id/eliminar", async (req, res) => {
     });
   }
 });
+
 
 router.post("/equipos/:id/editar", upload.single("logo"), async (req, res) => {
   const { id } = req.params;

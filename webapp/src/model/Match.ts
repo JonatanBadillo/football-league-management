@@ -77,8 +77,8 @@ Match.init(
   }
 );
 
-Match.belongsTo(Team, { as: "homeTeam", foreignKey: "homeTeamId" });
-Match.belongsTo(Team, { as: "awayTeam", foreignKey: "awayTeamId" });
+Match.belongsTo(Team, { as: "homeTeam", foreignKey: "homeTeamId" ,onDelete: "CASCADE" });
+Match.belongsTo(Team, { as: "awayTeam", foreignKey: "awayTeamId" ,onDelete: "CASCADE" });
 Match.belongsTo(Jornada, { foreignKey: "jornadaId", as: "jornada" });
 
 export default Match;
