@@ -52,16 +52,18 @@
               <td>{{this.awayTeam.name}}</td>
               <td>{{this.time}}</td>
               <td>
-                {{#if (or (not this.scoreHome) (not this.scoreAway))}}
-                Pendiente
-                {{else}}
-                {{this.scoreHome}} - {{this.scoreAway}}
-                {{/if}}
-              </td>
+  {{#if (or (not this.scoreHome) (not this.scoreAway))}}
+    Pendiente
+  {{else}}
+    {{this.scoreHome}} - {{this.scoreAway}}
+  {{/if}}
+</td>
+
               <td>
                 <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editMatchModal-{{this.id}}">
-          Editar
-        </button>
+  Editar
+</button>
+
                 <form action="/dashboard/admin/partidos/{{this.id}}/eliminar" method="POST" class="d-inline">
                   <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                 </form>
@@ -69,49 +71,44 @@
             </tr>
 
             <!-- Modal para Editar Partido -->
-    <div class="modal fade" id="editMatchModal-{{this.id}}" tabindex="-1" aria-labelledby="editMatchModalLabel-{{this.id}}" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="editMatchModalLabel-{{this.id}}">Editar Partido - {{this.homeTeam.name}} vs {{this.awayTeam.name}}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <h6>Estadísticas de Jugadores</h6>
-            <div class="row">
-              <div class="col-md-6">
-                <h6>{{this.homeTeam.name}}</h6>
-                {{#each this.homeTeam.players}}
-                  <div class="d-flex align-items-center mb-2">
-                    <img src="{{this.image}}" alt="{{this.name}}" class="rounded-circle me-2" width="30" height="30">
-                    <span class="flex-grow-1">{{this.name}}</span>
-                    <button type="button" class="btn btn-sm btn-success ms-2 update-score" data-player-id="{{this.id}}" data-match-id="{{../id}}" data-action="increment">+</button>
-                    <span id="player-score-{{this.id}}" class="mx-2">{{this.goals}}</span>
-                    <button type="button" class="btn btn-sm btn-danger update-score" data-player-id="{{this.id}}" data-match-id="{{../id}}" data-action="decrement">-</button>
-                  </div>
-                {{/each}}
-              </div>
-              <div class="col-md-6">
-                <h6>{{this.awayTeam.name}}</h6>
-                {{#each this.awayTeam.players}}
-                  <div class="d-flex align-items-center mb-2">
-                    <img src="{{this.image}}" alt="{{this.name}}" class="rounded-circle me-2" width="30" height="30">
-                    <span class="flex-grow-1">{{this.name}}</span>
-                    <button type="button" class="btn btn-sm btn-success ms-2 update-score" data-player-id="{{this.id}}" data-match-id="{{../id}}" data-action="increment">+</button>
-                    <span id="player-score-{{this.id}}" class="mx-2">{{this.goals}}</span>
-                    <button type="button" class="btn btn-sm btn-danger update-score" data-player-id="{{this.id}}" data-match-id="{{../id}}" data-action="decrement">-</button>
-                  </div>
-                {{/each}}
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-primary save-match-changes" data-match-id="{{this.id}}">Guardar Cambios</button>
-          </div>
+<div class="modal fade" id="editMatchModal-{{this.id}}" tabindex="-1" aria-labelledby="editMatchModalLabel-{{this.id}}" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editMatchModalLabel-{{this.id}}">Editar Partido</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Goles del Equipo Local -->
+        <h6>{{this.homeTeam.name}}</h6>
+        {{#each this.homeTeam.players}}
+        <div class="d-flex align-items-center mb-2">
+          <img src="{{this.image}}" alt="{{this.name}}" class="rounded-circle me-2" width="30" height="30">
+          <span class="flex-grow-1">{{this.name}}</span>
+          <input type="number" class="form-control player-goals" data-player-id="{{this.id}}" data-team-type="home" placeholder="Goles" style="width: 100px;">
         </div>
+        {{/each}}
+
+        <!-- Goles del Equipo Visitante -->
+        <h6>{{this.awayTeam.name}}</h6>
+        {{#each this.awayTeam.players}}
+        <div class="d-flex align-items-center mb-2">
+          <img src="{{this.image}}" alt="{{this.name}}" class="rounded-circle me-2" width="30" height="30">
+          <span class="flex-grow-1">{{this.name}}</span>
+          <input type="number" class="form-control player-goals" data-player-id="{{this.id}}" data-team-type="away" placeholder="Goles" style="width: 100px;">
+        </div>
+        {{/each}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary save-match-changes" data-match-id="{{this.id}}">Guardar Cambios</button>
       </div>
     </div>
+  </div>
+</div>
+
+
+
             {{/each}}
           </tbody>
         </table>
@@ -242,54 +239,43 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const updateButtons = document.querySelectorAll(".update-score");
-    const saveButtons = document.querySelectorAll(".save-match-changes");
+  document.querySelectorAll(".save-match-changes").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const matchId = button.dataset.matchId;
+      const playerUpdates = [];
 
-    updateButtons.forEach(button => {
-      button.addEventListener("click", (e) => {
-        const playerId = button.dataset.playerId;
-        const action = button.dataset.action;
-        const scoreElement = document.getElementById(`player-score-${playerId}`);
+      // Recolectar los goles de los jugadores
+      document.querySelectorAll(`#editMatchModal-${matchId} .player-goals`).forEach((input) => {
+        const playerId = input.dataset.playerId;
+        const teamType = input.dataset.teamType;
+        const goals = parseInt(input.value, 10) || 0;
 
-        let currentScore = parseInt(scoreElement.textContent, 10);
-        if (action === "increment") currentScore++;
-        if (action === "decrement" && currentScore > 0) currentScore--;
-
-        scoreElement.textContent = currentScore;
-      });
-    });
-
-    saveButtons.forEach(button => {
-      button.addEventListener("click", async () => {
-        const matchId = button.dataset.matchId;
-        const scoreElements = document.querySelectorAll(`[id^="player-score-"]`);
-        const playerUpdates = [];
-
-        scoreElements.forEach(el => {
-          const playerId = el.id.split("-")[2];
-          const goals = parseInt(el.textContent, 10);
-          playerUpdates.push({ playerId, goals });
-        });
-
-        try {
-          const response = await fetch(`/dashboard/admin/partidos/${matchId}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ playerUpdates }),
-          });
-
-          if (response.ok) {
-            alert("Partido actualizado correctamente.");
-            window.location.reload();
-          } else {
-            alert("Error al actualizar el partido.");
-          }
-        } catch (error) {
-          console.error("Error en la solicitud:", error);
-          alert("Error al actualizar el partido.");
+        if (goals > 0) {
+          playerUpdates.push({ playerId, goals, teamType });
         }
       });
+
+      try {
+        const response = await fetch(`/dashboard/admin/partidos/${matchId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ playerUpdates }),
+        });
+
+        if (response.ok) {
+          alert("Partido actualizado correctamente.");
+          window.location.reload();
+        } else {
+          alert("Error al actualizar el partido.");
+        }
+      } catch (error) {
+        console.error("Error al enviar los datos:", error);
+        alert("Error al actualizar el partido.");
+      }
     });
   });
+});
+
 </script>
+
 

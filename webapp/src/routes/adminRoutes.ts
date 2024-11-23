@@ -1066,18 +1066,73 @@ router.post("/partidos", async (req, res) => {
 });
 
 
-router.post("/partidos/:id", async (req, res) => {
+
+router.get("/partidos/:id/editar", async (req, res) => {
   const { id } = req.params;
-  const { playerUpdates, homeScore, awayScore } = req.body; // Datos enviados desde el frontend
 
   try {
-    // Actualizar los goles de los jugadores
+    const match = await Match.findByPk(id, {
+      include: [
+        {
+          model: Team,
+          as: "homeTeam",
+          include: [{ model: Player, as: "players" }],
+        },
+        {
+          model: Team,
+          as: "awayTeam",
+          include: [{ model: Player, as: "players" }],
+        },
+      ],
+    });
+
+    if (!match) {
+      return res.status(404).send("Partido no encontrado.");
+    }
+
+    res.render("editMatch", {
+      match,
+      layout: false, // Evitar que use un layout principal si no es necesario
+    });
+  } catch (error) {
+    console.error("Error al cargar partido:", error);
+    res.status(500).send("Error al cargar los datos del partido.");
+  }
+});
+
+
+// Extiende el modelo Player con los campos que necesitas tipar
+interface PlayerWithGoals extends Player {
+  goals: number;
+}
+
+router.post("/partidos/:id", async (req, res) => {
+  const { id } = req.params;
+  const { playerUpdates } = req.body;
+
+  try {
+    let homeScore = 0;
+    let awayScore = 0;
+
     for (const update of playerUpdates) {
-      const { playerId, goals } = update;
-      await Player.update(
-        { goals },
-        { where: { id: playerId } }
-      );
+      const { playerId, goals, teamType } = update;
+
+      // Recuperar al jugador y verificar si existe
+      const player = await Player.findByPk(playerId, {
+        attributes: ["id", "goals"], // Asegúrate de incluir el campo "goals"
+      });
+
+      if (player) {
+        const currentGoals = player.getDataValue("goals") || 0; // Obtener los goles actuales del jugador
+        await player.update({ goals: currentGoals + goals }); // Actualizar los goles acumulados
+
+        // Sumar los goles al marcador del equipo correspondiente
+        if (teamType === "home") {
+          homeScore += goals;
+        } else if (teamType === "away") {
+          awayScore += goals;
+        }
+      }
     }
 
     // Actualizar el marcador del partido
