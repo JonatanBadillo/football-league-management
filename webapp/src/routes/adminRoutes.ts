@@ -1113,33 +1113,37 @@ router.post("/partidos/:id", async (req, res) => {
   try {
     let homeScore = 0;
     let awayScore = 0;
-    let homeTeamId: number | null = null;
-    let awayTeamId: number | null = null;
 
+    // Recuperar el partido actual para obtener los IDs de los equipos
+    const match = await Match.findByPk(id, {
+      attributes: ["homeTeamId", "awayTeamId"],
+    });
+
+    if (!match) {
+      return res.status(404).json({ error: "Partido no encontrado." });
+    }
+
+    const homeTeamId = match.getDataValue("homeTeamId");
+    const awayTeamId = match.getDataValue("awayTeamId");
+
+    // Procesar actualizaciones de jugadores
     for (const update of playerUpdates) {
-      const { playerId, goals, yellowCards, redCards, matchesPlayed, teamType } = update;
+      const { playerId, goals, teamType } = update;
 
-      // Recuperar al jugador y verificar si existe
       const player = await Player.findByPk(playerId, {
-        attributes: ["id", "goals", "yellowCards", "redCards", "matchesPlayed"],
+        attributes: ["id", "goals"],
       });
 
       if (player) {
-        // Actualizar estadísticas del jugador
         await player.update({
           goals: (player.getDataValue("goals") || 0) + goals,
-          yellowCards: (player.getDataValue("yellowCards") || 0) + yellowCards,
-          redCards: (player.getDataValue("redCards") || 0) + redCards,
-          matchesPlayed: matchesPlayed ? (player.getDataValue("matchesPlayed") || 0) + 1 : player.getDataValue("matchesPlayed"),
         });
 
         // Sumar goles al marcador del equipo correspondiente
         if (teamType === "home") {
           homeScore += goals;
-          homeTeamId = update.teamId;
         } else if (teamType === "away") {
           awayScore += goals;
-          awayTeamId = update.teamId;
         }
       }
     }
@@ -1150,47 +1154,43 @@ router.post("/partidos/:id", async (req, res) => {
       { where: { id } }
     );
 
-    // Actualizar estadísticas de los equipos
-    if (homeTeamId && awayTeamId) {
-      const homeTeam = await Team.findByPk(homeTeamId, {
-        attributes: ["id", "goalsFor", "goalsAgainst", "victories", "draws", "defeats", "points", "matchesPlayed"],
-      });
+    // Recuperar equipos
+    const homeTeam = await Team.findByPk(homeTeamId);
+    const awayTeam = await Team.findByPk(awayTeamId);
 
-      const awayTeam = await Team.findByPk(awayTeamId, {
-        attributes: ["id", "goalsFor", "goalsAgainst", "victories", "draws", "defeats", "points", "matchesPlayed"],
-      });
-
-      if (homeTeam && awayTeam) {
-        // Actualizar estadísticas del equipo local
-        await homeTeam.update({
-          goalsFor: homeTeam.getDataValue("goalsFor") + homeScore,
-          goalsAgainst: homeTeam.getDataValue("goalsAgainst") + awayScore,
-          victories: homeScore > awayScore ? homeTeam.getDataValue("victories") + 1 : homeTeam.getDataValue("victories"),
-          draws: homeScore === awayScore ? homeTeam.getDataValue("draws") + 1 : homeTeam.getDataValue("draws"),
-          defeats: homeScore < awayScore ? homeTeam.getDataValue("defeats") + 1 : homeTeam.getDataValue("defeats"),
-          points: homeTeam.getDataValue("points") + (homeScore > awayScore ? 3 : homeScore === awayScore ? 1 : 0),
-          matchesPlayed: homeTeam.getDataValue("matchesPlayed") + 1,
-        });
-
-        // Actualizar estadísticas del equipo visitante
-        await awayTeam.update({
-          goalsFor: awayTeam.getDataValue("goalsFor") + awayScore,
-          goalsAgainst: awayTeam.getDataValue("goalsAgainst") + homeScore,
-          victories: awayScore > homeScore ? awayTeam.getDataValue("victories") + 1 : awayTeam.getDataValue("victories"),
-          draws: homeScore === awayScore ? awayTeam.getDataValue("draws") + 1 : awayTeam.getDataValue("draws"),
-          defeats: awayScore < homeScore ? awayTeam.getDataValue("defeats") + 1 : awayTeam.getDataValue("defeats"),
-          points: awayTeam.getDataValue("points") + (awayScore > homeScore ? 3 : homeScore === awayScore ? 1 : 0),
-          matchesPlayed: awayTeam.getDataValue("matchesPlayed") + 1,
-        });
-      }
+    if (!homeTeam || !awayTeam) {
+      return res.status(404).json({ error: "Equipos no encontrados." });
     }
 
-    res.status(200).json({ message: "Partido actualizado correctamente." });
+    // Calcular estadísticas del equipo local
+    await homeTeam.update({
+      goalsFor: homeTeam.getDataValue("goalsFor") + homeScore,
+      goalsAgainst: homeTeam.getDataValue("goalsAgainst") + awayScore,
+      victories: homeScore > awayScore ? homeTeam.getDataValue("victories") + 1 : homeTeam.getDataValue("victories"),
+      defeats: homeScore < awayScore ? homeTeam.getDataValue("defeats") + 1 : homeTeam.getDataValue("defeats"),
+      draws: homeScore === awayScore ? homeTeam.getDataValue("draws") + 1 : homeTeam.getDataValue("draws"),
+      points: homeTeam.getDataValue("points") + (homeScore > awayScore ? 3 : homeScore === awayScore ? 1 : 0),
+      matchesPlayed: homeTeam.getDataValue("matchesPlayed") + 1,
+    });
+
+    // Calcular estadísticas del equipo visitante
+    await awayTeam.update({
+      goalsFor: awayTeam.getDataValue("goalsFor") + awayScore,
+      goalsAgainst: awayTeam.getDataValue("goalsAgainst") + homeScore,
+      victories: awayScore > homeScore ? awayTeam.getDataValue("victories") + 1 : awayTeam.getDataValue("victories"),
+      defeats: awayScore < homeScore ? awayTeam.getDataValue("defeats") + 1 : awayTeam.getDataValue("defeats"),
+      draws: awayScore === homeScore ? awayTeam.getDataValue("draws") + 1 : awayTeam.getDataValue("draws"),
+      points: awayTeam.getDataValue("points") + (awayScore > homeScore ? 3 : awayScore === homeScore ? 1 : 0),
+      matchesPlayed: awayTeam.getDataValue("matchesPlayed") + 1,
+    });
+
+    res.status(200).json({ message: "Partido y estadísticas de equipos actualizados correctamente." });
   } catch (error) {
-    console.error("Error al actualizar el partido:", error);
-    res.status(500).json({ error: "Error al actualizar el partido." });
+    console.error("Error al actualizar el partido y equipos:", error);
+    res.status(500).json({ error: "Error al actualizar el partido y equipos." });
   }
 });
+
 
 
 
