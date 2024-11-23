@@ -52,12 +52,16 @@
               <td>{{this.awayTeam.name}}</td>
               <td>{{this.time}}</td>
               <td>
-  {{#if (or (not this.scoreHome) (not this.scoreAway))}}
-    Pendiente
-  {{else}}
+  {{#if (and (not (eq this.scoreHome null)) (not (eq this.scoreAway null)))}}
     {{this.scoreHome}} - {{this.scoreAway}}
+  {{else}}
+    Pendiente
   {{/if}}
 </td>
+
+
+
+
 
               <td>
                 <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editMatchModal-{{this.id}}">
@@ -65,8 +69,16 @@
 </button>
 
                 <form action="/dashboard/admin/partidos/{{this.id}}/eliminar" method="POST" class="d-inline">
-                  <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                </form>
+  <input type="hidden" name="leagueId" value="{{../selectedLeagueId}}">
+  <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+</form>
+{{#if errorMessage}}
+<div class="alert alert-danger" role="alert">
+  {{errorMessage}}
+</div>
+{{/if}}
+
+
               </td>
             </tr>
 
@@ -279,6 +291,7 @@
 
         if (response.ok) {
           alert("Partido actualizado correctamente.");
+          // Forzar recarga para reflejar los cambios
           window.location.reload();
         } else {
           alert("Error al actualizar el partido.");
@@ -290,6 +303,7 @@
     });
   });
 });
+
 
 </script>
 

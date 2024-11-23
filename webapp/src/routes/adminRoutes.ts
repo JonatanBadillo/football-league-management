@@ -994,6 +994,8 @@ router.get("/partidos", async (req, res) => {
       order: [["date", "ASC"]],
     });
 
+    console.log("Jornadas con partidos actualizados:", JSON.stringify(jornadas, null, 2));
+
     const teams = await Team.findAll({
       where: { leagueId: selectedLeagueId },
       attributes: ["id", "name"],
@@ -1019,8 +1021,45 @@ router.post("/partidos", async (req, res) => {
   const { jornadaId, homeTeamId, awayTeamId, time, leagueId } = req.body;
 
   try {
+    // Validar que los equipos no sean iguales
     if (homeTeamId === awayTeamId) {
-      return res.status(400).send("Un equipo no puede jugar contra sí mismo.");
+      const errorMessage = "Un equipo no puede jugar contra sí mismo.";
+      const leagues = await League.findAll();
+      const jornadas = await Jornada.findAll({ where: { leagueId } });
+      const teams = await Team.findAll({ where: { leagueId } });
+      return res.render("admin", {
+        title: "Gestión de Partidos",
+        section: "partidos",
+        leagues,
+        jornadas,
+        teams,
+        selectedLeagueId: leagueId,
+        errorMessage,
+        layout: false,
+      });
+    }
+
+    // Validar que no haya partidos a la misma hora en la jornada
+    const conflictingMatch = await Match.findOne({
+      where: { jornadaId, time },
+    });
+
+    if (conflictingMatch) {
+      const errorMessage =
+        "Ya hay un partido programado a la misma hora en esta jornada.";
+      const leagues = await League.findAll();
+      const jornadas = await Jornada.findAll({ where: { leagueId } });
+      const teams = await Team.findAll({ where: { leagueId } });
+      return res.render("admin", {
+        title: "Gestión de Partidos",
+        section: "partidos",
+        leagues,
+        jornadas,
+        teams,
+        selectedLeagueId: leagueId,
+        errorMessage,
+        layout: false,
+      });
     }
 
     // Verificar si el partido ya existe
@@ -1035,9 +1074,21 @@ router.post("/partidos", async (req, res) => {
     });
 
     if (existingMatch) {
-      return res
-        .status(400)
-        .send("El partido ya se ha registrado en esta jornada u otra.");
+      const errorMessage =
+        "El partido ya se ha registrado en esta jornada u otra.";
+      const leagues = await League.findAll();
+      const jornadas = await Jornada.findAll({ where: { leagueId } });
+      const teams = await Team.findAll({ where: { leagueId } });
+      return res.render("admin", {
+        title: "Gestión de Partidos",
+        section: "partidos",
+        leagues,
+        jornadas,
+        teams,
+        selectedLeagueId: leagueId,
+        errorMessage,
+        layout: false,
+      });
     }
 
     // Obtener la fecha de la jornada
@@ -1064,6 +1115,7 @@ router.post("/partidos", async (req, res) => {
     res.status(500).send("Error al agregar el partido.");
   }
 });
+
 
 
 
@@ -1153,6 +1205,8 @@ router.post("/partidos/:id", async (req, res) => {
       { scoreHome: homeScore, scoreAway: awayScore },
       { where: { id } }
     );
+    console.log(`Partido ${id} actualizado: HomeScore=${homeScore}, AwayScore=${awayScore}`);
+
 
     // Recuperar equipos
     const homeTeam = await Team.findByPk(homeTeamId);
@@ -1192,6 +1246,26 @@ router.post("/partidos/:id", async (req, res) => {
 });
 
 
+router.post("/partidos/:id/eliminar", async (req, res) => {
+  const { id } = req.params;
+  const { leagueId } = req.body;
+
+  try {
+    // Verificar si el partido existe
+    const match = await Match.findByPk(id);
+    if (!match) {
+      return res.status(404).json({ error: "Partido no encontrado." });
+    }
+
+    // Eliminar el partido
+    await Match.destroy({ where: { id } });
+
+    res.redirect(`/dashboard/admin/partidos?leagueId=${leagueId}`);
+  } catch (error) {
+    console.error("Error al eliminar partido:", error);
+    res.status(500).send("Error al eliminar el partido.");
+  }
+});
 
 
 

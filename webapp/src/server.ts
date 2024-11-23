@@ -41,6 +41,10 @@ app.engine(
         const options = args.pop(); // Quita el objeto de opciones de Handlebars
         return args.some(Boolean); // Retorna true si alguno de los valores es verdadero
       },
+      and: (...args: any[]) => {
+        const options = args.pop(); // Quita el objeto de opciones de Handlebars
+        return args.every(Boolean); // Retorna true si todos los valores son verdaderos
+      },
       toFixed: (value: number, precision: number) => {
         if (typeof value !== "number") return "NaN"; // Valida que el valor sea un número
         return value.toFixed(precision); // Aplica `toFixed`
@@ -48,6 +52,7 @@ app.engine(
     },
   })
 );
+
 
 
 
