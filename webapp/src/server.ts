@@ -19,7 +19,6 @@ import { Jornada } from "./model";
 const app = express();
 const PORT = 3000;
 
-// Configuración de Handlebars con opción para acceder a propiedades
 app.engine(
   "handlebars",
   engine({
@@ -36,22 +35,24 @@ app.engine(
         return onlyDate ? momentDate.format("MMM DD, YYYY") : momentDate.format("MMM DD, h:mm A");
       },
       eq: (a: any, b: any) => a === b,
-      not: (value: any) => !value, // Helper para negación lógica
+      not: (value: any) => !value,
       or: (...args: any[]) => {
-        const options = args.pop(); // Quita el objeto de opciones de Handlebars
-        return args.some(Boolean); // Retorna true si alguno de los valores es verdadero
+        const options = args.pop();
+        return args.some(Boolean);
       },
       and: (...args: any[]) => {
-        const options = args.pop(); // Quita el objeto de opciones de Handlebars
-        return args.every(Boolean); // Retorna true si todos los valores son verdaderos
+        const options = args.pop();
+        return args.every(Boolean);
       },
+      gt: (a: number, b: number) => a > b, // Nuevo helper "gt"
       toFixed: (value: number, precision: number) => {
-        if (typeof value !== "number") return "NaN"; // Valida que el valor sea un número
-        return value.toFixed(precision); // Aplica `toFixed`
+        if (typeof value !== "number") return "NaN";
+        return value.toFixed(precision);
       },
     },
   })
 );
+
 
 
 
@@ -99,13 +100,11 @@ app.post("/upload-player-image", upload.single("image"), (req, res) => {
 // Ruta de la página principal para cargar ligas, equipos y próximos partidos
 app.get("/", async (req, res) => {
   try {
-    // Especifica el tipo explícitamente
-    const leagues: League[] = await League.findAll();
+    const leagues = await League.findAll();
     let leagueId = req.query.leagueId as string | undefined;
 
-    // Verificar que existan ligas en la base de datos
     if (!leagueId && leagues.length > 0) {
-      leagueId = leagues[0].id ? leagues[0].id.toString() : undefined; // Verificar que `id` esté definido
+      leagueId = leagues[0].id ? leagues[0].id.toString() : undefined;
     }
 
     if (!leagueId) {
@@ -114,58 +113,71 @@ app.get("/", async (req, res) => {
 
     const leagueIdNum = parseInt(leagueId, 10);
 
+    // Obtener todas las jornadas
+    const jornadas = await Jornada.findAll({
+      where: { leagueId: leagueIdNum },
+      order: [["date", "ASC"]],
+    });
+
+    const selectedJornadaId = req.query.jornadaId
+      ? parseInt(req.query.jornadaId as string, 10)
+      : jornadas.length > 0
+      ? jornadas[jornadas.length - 1].id
+      : null;
+
+    // Obtener partidos de la jornada seleccionada
+    const matches = await Match.findAll({
+      where: {
+        jornadaId: selectedJornadaId || undefined,
+      },
+      order: [["date", "ASC"]],
+      include: [
+        { model: Team, as: "homeTeam", attributes: ["id", "name", "logo"] },
+        { model: Team, as: "awayTeam", attributes: ["id", "name", "logo"] },
+        { model: Jornada, as: "jornada", attributes: ["id", "name"] },
+      ],
+    });
+
+    // Obtener equipos ordenados
     const teams = await Team.findAll({
       where: { leagueId: leagueIdNum },
       order: [
         ["points", "DESC"],
-        [sequelize.literal("goalsFor - goalsAgainst"), "DESC"],
+        [sequelize.literal("`Team`.`goalsFor` - `Team`.`goalsAgainst`"), "DESC"],
       ],
     });
 
+    // Mejores goleadores
     const topScorers = await Player.findAll({
       where: { leagueId: leagueIdNum },
-      order: [
-        ["goals", "DESC"],
-        [sequelize.literal("player.matchesPlayed"), "ASC"],
-      ],
+      order: [["goals", "DESC"]],
       limit: 5,
-      include: [{ model: Team, as: "team", required: true }],
+      include: [{ model: Team, as: "team", attributes: ["name", "logo"] }],
     });
 
+    // Mejores porteros (equipos con menos goles en contra)
     const bestKeepers = await Team.findAll({
       where: { leagueId: leagueIdNum },
       order: [
         ["goalsAgainst", "ASC"],
-        [sequelize.literal("matchesPlayed"), "DESC"],
+        ["matchesPlayed", "DESC"],
       ],
       limit: 5,
+      attributes: ["id", "name", "logo", "goalsAgainst", "matchesPlayed"],
     });
 
-    const matches = await Match.findAll({
-      where: { leagueId: leagueIdNum },
-      order: [["date", "ASC"]],
-      include: [
-        { model: Team, as: "homeTeam" }, // Alias configurado en las asociaciones
-        { model: Team, as: "awayTeam" }, // Alias configurado en las asociaciones
-        { model: Jornada, as: "jornada" } // Alias configurado en las asociaciones
-      ],
-    });
-    
-    
-
-    const totalGoals = await Player.sum("goals", {
-      where: { leagueId: leagueIdNum },
-    });
+    // Estadísticas generales del torneo
+    const totalGoals = await Player.sum("goals", { where: { leagueId: leagueIdNum } });
     const totalTeams = teams.length;
-    const totalMatches = matches.length;
-    const averageGoalsPerMatch =
-      totalMatches > 0 ? totalGoals / totalMatches : 0;
+    const totalMatches = await Match.count({ where: { leagueId: leagueIdNum } });
+    const averageGoalsPerMatch = totalMatches > 0 ? totalGoals / totalMatches : 0;
 
     res.render("home", {
       title: "Football League Management",
       leagues,
       teams,
       matches,
+      jornadas,
       topScorers,
       bestKeepers,
       totalGoals,
@@ -173,14 +185,16 @@ app.get("/", async (req, res) => {
       totalMatches,
       averageGoalsPerMatch,
       selectedLeagueId: leagueIdNum,
+      selectedJornadaId,
     });
   } catch (error) {
     console.error("Error al obtener datos para la página principal:", error);
-    res.status(500).json({ error: "Error al cargar datos", details: (error as Error).message });
-    
-
+    res.status(500).json({ error: "Error al cargar datos", details: (error as any).message });
   }
 });
+
+
+
 
 app.get("/login", (req, res) => {
   res.render("login", { layout: false, title: "Iniciar Sesión" });
