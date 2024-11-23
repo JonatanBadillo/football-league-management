@@ -1113,24 +1113,33 @@ router.post("/partidos/:id", async (req, res) => {
   try {
     let homeScore = 0;
     let awayScore = 0;
+    let homeTeamId: number | null = null;
+    let awayTeamId: number | null = null;
 
     for (const update of playerUpdates) {
-      const { playerId, goals, teamType } = update;
+      const { playerId, goals, yellowCards, redCards, matchesPlayed, teamType } = update;
 
       // Recuperar al jugador y verificar si existe
       const player = await Player.findByPk(playerId, {
-        attributes: ["id", "goals"], // Asegúrate de incluir el campo "goals"
+        attributes: ["id", "goals", "yellowCards", "redCards", "matchesPlayed"],
       });
 
       if (player) {
-        const currentGoals = player.getDataValue("goals") || 0; // Obtener los goles actuales del jugador
-        await player.update({ goals: currentGoals + goals }); // Actualizar los goles acumulados
+        // Actualizar estadísticas del jugador
+        await player.update({
+          goals: (player.getDataValue("goals") || 0) + goals,
+          yellowCards: (player.getDataValue("yellowCards") || 0) + yellowCards,
+          redCards: (player.getDataValue("redCards") || 0) + redCards,
+          matchesPlayed: matchesPlayed ? (player.getDataValue("matchesPlayed") || 0) + 1 : player.getDataValue("matchesPlayed"),
+        });
 
-        // Sumar los goles al marcador del equipo correspondiente
+        // Sumar goles al marcador del equipo correspondiente
         if (teamType === "home") {
           homeScore += goals;
+          homeTeamId = update.teamId;
         } else if (teamType === "away") {
           awayScore += goals;
+          awayTeamId = update.teamId;
         }
       }
     }
@@ -1140,6 +1149,41 @@ router.post("/partidos/:id", async (req, res) => {
       { scoreHome: homeScore, scoreAway: awayScore },
       { where: { id } }
     );
+
+    // Actualizar estadísticas de los equipos
+    if (homeTeamId && awayTeamId) {
+      const homeTeam = await Team.findByPk(homeTeamId, {
+        attributes: ["id", "goalsFor", "goalsAgainst", "victories", "draws", "defeats", "points", "matchesPlayed"],
+      });
+
+      const awayTeam = await Team.findByPk(awayTeamId, {
+        attributes: ["id", "goalsFor", "goalsAgainst", "victories", "draws", "defeats", "points", "matchesPlayed"],
+      });
+
+      if (homeTeam && awayTeam) {
+        // Actualizar estadísticas del equipo local
+        await homeTeam.update({
+          goalsFor: homeTeam.getDataValue("goalsFor") + homeScore,
+          goalsAgainst: homeTeam.getDataValue("goalsAgainst") + awayScore,
+          victories: homeScore > awayScore ? homeTeam.getDataValue("victories") + 1 : homeTeam.getDataValue("victories"),
+          draws: homeScore === awayScore ? homeTeam.getDataValue("draws") + 1 : homeTeam.getDataValue("draws"),
+          defeats: homeScore < awayScore ? homeTeam.getDataValue("defeats") + 1 : homeTeam.getDataValue("defeats"),
+          points: homeTeam.getDataValue("points") + (homeScore > awayScore ? 3 : homeScore === awayScore ? 1 : 0),
+          matchesPlayed: homeTeam.getDataValue("matchesPlayed") + 1,
+        });
+
+        // Actualizar estadísticas del equipo visitante
+        await awayTeam.update({
+          goalsFor: awayTeam.getDataValue("goalsFor") + awayScore,
+          goalsAgainst: awayTeam.getDataValue("goalsAgainst") + homeScore,
+          victories: awayScore > homeScore ? awayTeam.getDataValue("victories") + 1 : awayTeam.getDataValue("victories"),
+          draws: homeScore === awayScore ? awayTeam.getDataValue("draws") + 1 : awayTeam.getDataValue("draws"),
+          defeats: awayScore < homeScore ? awayTeam.getDataValue("defeats") + 1 : awayTeam.getDataValue("defeats"),
+          points: awayTeam.getDataValue("points") + (awayScore > homeScore ? 3 : homeScore === awayScore ? 1 : 0),
+          matchesPlayed: awayTeam.getDataValue("matchesPlayed") + 1,
+        });
+      }
+    }
 
     res.status(200).json({ message: "Partido actualizado correctamente." });
   } catch (error) {
