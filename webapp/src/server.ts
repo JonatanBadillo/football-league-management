@@ -281,19 +281,16 @@ app.get("/dashboard/admin/equipos", async (req, res) => {
 
 app.get("/dashboard/admin/jugadores", async (req, res) => {
   try {
-      const leagues: League[] = await League.findAll();
-      let leagueId = req.query.leagueId as string | undefined;
+    const leagues: League[] = await League.findAll();
+    let leagueId = req.query.leagueId as string | undefined;
 
-      if (!leagueId && leagues.length > 0) {
-          leagueId = leagues[0].id ? leagues[0].id.toString() : undefined;
-      }
-
-
-
+    if (!leagueId && leagues.length > 0) {
+      leagueId = leagues[0].id ? leagues[0].id.toString() : undefined;
+    }
 
     // Verificar que existan ligas en la base de datos
     if (!leagueId && leagues.length > 0) {
-      leagueId = leagues[0].id ? leagues[0].id.toString() : undefined; // Verificar que `id` esté definido
+      leagueId = leagues[0].id ? leagues[0].id.toString() : undefined;
     }
 
     if (!leagueId) {
@@ -304,34 +301,35 @@ app.get("/dashboard/admin/jugadores", async (req, res) => {
 
     const leagueIdNum = parseInt(leagueId, 10);
 
-      // Filtrar los equipos por el ID de la liga seleccionada
-      const teams = await Team.findAll({
-          where: { leagueId: leagueIdNum },
-          attributes: ["id", "name"],
-          order: [["name", "ASC"]]
-      });
+    // Filtrar los equipos por el ID de la liga seleccionada
+    const teams = await Team.findAll({
+      where: { leagueId: leagueIdNum },
+      attributes: ["id", "name"],
+      order: [["name", "ASC"]],
+    });
 
-      // Obtener los jugadores de la liga seleccionada
-      const players = await Player.findAll({
-          where: { leagueId: leagueIdNum },
-          order: [["name", "ASC"]],
-          include: [{ model: Team, attributes: ["id", "name","logo"] }],
-      });
+    // Obtener los jugadores de la liga seleccionada, ordenados por goles descendentes
+    const players = await Player.findAll({
+      where: { leagueId: leagueIdNum },
+      order: [["goals", "DESC"], ["name", "ASC"]], // Ordenar por goles descendentes y luego alfabéticamente
+      include: [{ model: Team, attributes: ["id", "name", "logo"] }],
+    });
 
-      res.render("admin", {
-          title: "Administrador - Jugadores",
-          leagues,
-          teams, // Solo equipos de la liga seleccionada
-          players,
-          section: 'jugadores',
-          selectedLeagueId: leagueIdNum,
-          layout: false,
-      });
+    res.render("admin", {
+      title: "Administrador - Jugadores",
+      leagues,
+      teams, // Solo equipos de la liga seleccionada
+      players,
+      section: "jugadores",
+      selectedLeagueId: leagueIdNum,
+      layout: false,
+    });
   } catch (error) {
-      console.error("Error al obtener datos de jugadores:", error);
-      res.status(500).json({ error: "Error al cargar datos de jugadores" });
+    console.error("Error al obtener datos de jugadores:", error);
+    res.status(500).json({ error: "Error al cargar datos de jugadores" });
   }
 });
+
 
 
 

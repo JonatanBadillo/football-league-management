@@ -1293,10 +1293,13 @@ router.post("/jornadas", async (req, res) => {
       ? `Jornada ${parseInt(lastJornada.name.split(" ")[1]) + 1}`
       : "Jornada 1";
 
+    // Ajustar la fecha para asegurarnos de que refleje lo seleccionado
+    const jornadaDate = moment(date).startOf("day").utc().toDate();
+
     // Crear jornada
     await Jornada.create({
       name: nextJornadaName,
-      date,
+      date: jornadaDate,
       leagueId,
     });
 
@@ -1306,6 +1309,7 @@ router.post("/jornadas", async (req, res) => {
     res.status(500).send("Error al crear la jornada.");
   }
 });
+
 
 router.post("/jornadas/:id/editar", async (req, res) => {
   const { id } = req.params;
