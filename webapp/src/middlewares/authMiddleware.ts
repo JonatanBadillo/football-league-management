@@ -1,18 +1,17 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
 
-// Define el tipo AuthenticatedRequest para incluir la propiedad 'user'
-interface AuthenticatedRequest extends Request {
-  user?: {
-    role: string;
-  };
-}
+export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect("/login"); // Redirige si no está autenticado
+};
 
-export const authorize = (role: string) => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    if (req.user && req.user.role === role) {
-      next();
-    } else {
-      res.status(403).json({ error: 'No tienes permisos para acceder a esta ruta' });
+export const hasRole = (role: string) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (req.isAuthenticated() && req.user?.role === role) {
+      return next();
     }
+    res.status(403).json({ error: "No tienes permisos para acceder a esta ruta" });
   };
 };

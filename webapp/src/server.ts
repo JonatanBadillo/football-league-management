@@ -14,10 +14,35 @@ import Player from "./model/Player";
 import User from "./model/User";
 import bcrypt from "bcrypt";
 import { Jornada } from "./model";
+import session from "express-session";
+import SequelizeStoreConstructor from "connect-session-sequelize";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
 
 
+const SequelizeStore = SequelizeStoreConstructor(session.Store);
+
+const sessionStore = new SequelizeStore({
+  db: sequelize, // Base de datos configurada en tu archivo `database.ts`
+});
 const app = express();
 const PORT = 3000;
+
+app.use(
+  session({
+    secret: "mySecretKey", // Cambia esto por un secreto más seguro en producción
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore,
+    cookie: {
+      maxAge: 60 * 60 * 1000, // 1 hora
+    },
+  })
+);
+
+sessionStore.sync(); // Sincroniza la tabla de sesiones en la base de datos
+
+
 
 app.engine(
   "handlebars",
@@ -53,8 +78,45 @@ app.engine(
   })
 );
 
+app.use(passport.initialize());
+app.use(passport.session());
 
+// Estrategia de autenticación local
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    try {
+      const user = await User.findOne({ where: { username } });
 
+      if (!user) {
+        return done(null, false, { message: "Usuario no encontrado" });
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return done(null, false, { message: "Contraseña incorrecta" });
+      }
+
+      return done(null, user); // Autenticación exitosa
+    } catch (error) {
+      return done(error);
+    }
+  })
+);
+
+// Serializar y deserializar usuario para sesiones
+passport.serializeUser((user: any, done) => {
+  done(null, user.id); // Guarda el ID del usuario en la sesión
+});
+
+passport.deserializeUser(async (id: number | string, done) => {
+  try {
+    const userId = typeof id === "string" ? parseInt(id, 10) : id; // Convierte a número si es necesario
+    const user = await User.findByPk(userId);
+    done(null, user); // Recupera el usuario desde la base de datos
+  } catch (error) {
+    done(error, null);
+  }
+});
 
 
 app.set("view engine", "handlebars");
@@ -200,49 +262,44 @@ app.get("/login", (req, res) => {
   res.render("login", { layout: false, title: "Iniciar Sesión" });
 });
 
-app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
 
-  // Imprime req.body para verificar el contenido
-  console.log("Datos recibidos en el login:", req.body);
 
-  try {
-    const user = await User.findOne({ where: { username } });
-
-    // Verifica si el usuario existe
-    if (!user) {
-      return res.status(401).render("login", {
-        layout: false,
-        title: "Iniciar Sesión",
-        errorMessage: "Usuario y/o contraseña incorrecta",
-      });
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    failureRedirect: "/login", // Redirige en caso de error
+    failureFlash: false, // Activa si deseas mensajes de error en la sesión
+  }),
+  (req, res) => {
+    // Redirige según el rol del usuario después del login exitoso
+    const user = req.user as User; // Cast explícito para que TypeScript reconozca el tipo
+    switch (user.role) {
+      case "admin":
+        res.redirect("/dashboard/admin");
+        break;
+      case "captain":
+        res.redirect("/dashboard/captain");
+        break;
+      case "referee":
+        res.redirect("/dashboard/referee");
+        break;
+      default:
+        res.status(403).send("Rol no autorizado");
+        break;
     }
-
-    // Verifica la contraseña usando bcrypt.compare
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).render("login", {
-        layout: false,
-        title: "Iniciar Sesión",
-        errorMessage: "Usuario y/o contraseña incorrecta",
-      });
-    }
-
-    // Redirige según el rol del usuario
-    if (user.role === "admin") {
-      return res.redirect("/dashboard/admin");
-    } else if (user.role === "captain") {
-      return res.redirect("/dashboard/captain");
-    } else if (user.role === "referee") {
-      return res.redirect("/dashboard/referee");
-    } else {
-      return res.status(403).send("Rol no autorizado");
-    }
-  } catch (error) {
-    console.error("Error en el inicio de sesión:", error);
-    res.status(500).send("Error en el servidor");
   }
+);
+
+
+app.get("/logout", (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).send("Error al cerrar sesión");
+    }
+    res.redirect("/");
+  });
 });
+
 
 
 app.get('/dashboard/admin', (req, res) => {

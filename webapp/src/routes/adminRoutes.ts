@@ -13,6 +13,7 @@ import { Op, QueryTypes, Transaction } from "sequelize";
 import sequelize from "../config/database";
 import bcrypt from "bcrypt";
 import moment from "moment";
+import { isAuthenticated, hasRole } from "../middlewares/authMiddleware";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -44,6 +45,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 const router = express.Router();
+
+// Proteger rutas de admin con middleware
+router.use(isAuthenticated); // Verifica si está autenticado
+router.use(hasRole("admin")); // Verifica si tiene rol de admin
 
 /////////////////////////////////  VIEWS  /////////////////////////////////
 
