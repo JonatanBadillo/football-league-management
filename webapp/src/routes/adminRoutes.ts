@@ -187,6 +187,22 @@ router.post("/equipos", upload.single("logo"), async (req, res) => {
 router.post("/equipos/:id/eliminar", async (req, res) => {
   const { id } = req.params;
   try {
+    // Obtener el equipo para acceder al capitán
+    const team = await Team.findByPk(id);
+
+    if (!team) {
+      return res.status(404).render("admin", {
+        title: "Administrador - Equipos",
+        section: "equipos",
+        errorMessage: "Equipo no encontrado.",
+        leagues: await League.findAll(),
+        teams: await Team.findAll(),
+      });
+    }
+
+    // Acceder al captainId de forma explícita
+    const captainId = (team as any).captainId;
+
     // Eliminar los partidos en los que el equipo sea local o visitante
     await Match.destroy({
       where: {
@@ -196,6 +212,11 @@ router.post("/equipos/:id/eliminar", async (req, res) => {
 
     // Eliminar el equipo
     await Team.destroy({ where: { id } });
+
+    // Eliminar el capitán asociado al equipo
+    if (captainId) {
+      await User.destroy({ where: { id: captainId } });
+    }
 
     res.redirect("/dashboard/admin/equipos");
   } catch (error) {
@@ -210,6 +231,8 @@ router.post("/equipos/:id/eliminar", async (req, res) => {
     });
   }
 });
+
+
 
 
 router.post("/equipos/:id/editar", upload.single("logo"), async (req, res) => {
