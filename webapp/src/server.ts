@@ -18,6 +18,9 @@ import session from "express-session";
 import SequelizeStoreConstructor from "connect-session-sequelize";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
+import captainRoutes from "./routes/captainRoutes";
+import refereeRoutes from "./routes/refereeRoutes";
+
 
 
 const SequelizeStore = SequelizeStoreConstructor(session.Store);
@@ -129,12 +132,16 @@ app.use(express.static(path.join(__dirname, "../src/public")));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 
-//
+
+
 app.use(express.urlencoded({ extended: true }));
 
 // Cargar las rutas de administración sin autorización
-// app.use("/admin", adminRoutes);
 app.use('/dashboard/admin', adminRoutes);
+// Rutas de Captain
+app.use("/dashboard/captain", captainRoutes);
+// Rutas de Referee
+app.use("/dashboard/referee", refereeRoutes);
 
 
 // Configuración de Multer para la carga de archivos
@@ -259,20 +266,21 @@ app.get("/", async (req, res) => {
 
 
 app.get("/login", (req, res) => {
-  res.render("login", { layout: false, title: "Iniciar Sesión" });
+  const errorMessage = req.query.error ? "Usuario y/o contraseña incorrectos." : null;
+  res.render("login", { layout: false, title: "Iniciar Sesión", errorMessage });
 });
+
 
 
 
 app.post(
   "/login",
   passport.authenticate("local", {
-    failureRedirect: "/login", // Redirige en caso de error
-    failureFlash: false, // Activa si deseas mensajes de error en la sesión
+    failureRedirect: "/login?error=true", // Redirige con un parámetro de error
+    failureFlash: false, // No usamos flash, manejamos errores manualmente
   }),
   (req, res) => {
-    // Redirige según el rol del usuario después del login exitoso
-    const user = req.user as User; // Cast explícito para que TypeScript reconozca el tipo
+    const user = req.user as User;
     switch (user.role) {
       case "admin":
         res.redirect("/dashboard/admin");
@@ -285,10 +293,10 @@ app.post(
         break;
       default:
         res.status(403).send("Rol no autorizado");
-        break;
     }
   }
 );
+
 
 
 app.get("/logout", (req, res) => {
