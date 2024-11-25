@@ -2,7 +2,9 @@ import express from "express";
 import multer from "multer";
 import Player from "../model/Player";
 import Team from "../model/Team";
+import League from "../model/League";
 import { isAuthenticated, hasRole } from "../middlewares/authMiddleware";
+import User from "../model/User";
 
 const router = express.Router();
 
@@ -59,30 +61,35 @@ router.get("/jugadores", async (req, res) => {
 // Ruta para agregar un nuevo jugador
 router.post("/jugadores", upload.single("image"), async (req, res) => {
   try {
-    const user = req.user;
+    const user = req.user as User & { id: number }; // Aseguramos el tipo de `user`
     if (!user) {
       return res.status(401).send("Usuario no autenticado.");
     }
 
     const { name, position } = req.body;
 
-    // Buscar el equipo del capitán
-    const team = await Team.findOne({ where: { captainId: user.id } }) as Team & { id: number };
+    // Buscar el equipo del capitán y asociarlo con la liga
+    const team = await Team.findOne({
+      where: { captainId: user.id },
+      include: [{ association: "league", attributes: ["id"] }], // Usar el alias correcto de la relación
+    }) as Team & { id: number; league: { id: number } }; // Ajustamos el tipo para incluir `id` y `league`
 
     if (!team) {
       return res.status(403).send("No tienes un equipo asignado.");
     }
 
-    // Contar jugadores del equipo
+    // Verificar el límite de jugadores
     const playerCount = await Player.count({ where: { teamId: team.id } });
     if (playerCount >= 15) {
       return res.status(400).send("No puedes agregar más de 15 jugadores.");
     }
 
+    // Crear el jugador con el leagueId obtenido del equipo
     await Player.create({
       name,
       position,
       teamId: team.id,
+      leagueId: team.league.id, // Extraer leagueId desde la relación
       image: req.file ? `/uploads/${req.file.filename}` : "/images/player_noimage.png",
     });
 
@@ -92,6 +99,9 @@ router.post("/jugadores", upload.single("image"), async (req, res) => {
     res.status(500).send("Error al agregar jugador.");
   }
 });
+
+
+
 
 // Ruta para editar un jugador
 router.post("/jugadores/:id/editar", upload.single("image"), async (req, res) => {
