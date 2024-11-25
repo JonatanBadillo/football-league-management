@@ -28,16 +28,23 @@ router.get("/jugadores", async (req, res) => {
     // Buscar el equipo del capitán
     const team = await Team.findOne({
       where: { captainId: user.id },
-      include: Player, // Incluir jugadores del equipo
-    }) as Team & { id: number; Players: Player[] }; // Aseguramos los tipos manualmente
+      include: [
+        {
+          model: Player,
+          as: "players", // Alias correcto definido en la relación por defecto
+        },
+      ],
+    }) as Team & { players: Player[] }; // Aseguramos los tipos manualmente
 
     if (!team) {
       return res.status(403).send("No tienes un equipo asignado.");
     }
 
+
+
     res.render("captain", {
       team,
-      players: team.Players || [],
+      players: team.players || [], // Acceso garantizado a 'players'
       layout: false,
     });
   } catch (error) {
@@ -45,6 +52,9 @@ router.get("/jugadores", async (req, res) => {
     res.status(500).send("Error al cargar la página.");
   }
 });
+
+
+
 
 // Ruta para agregar un nuevo jugador
 router.post("/jugadores", upload.single("image"), async (req, res) => {

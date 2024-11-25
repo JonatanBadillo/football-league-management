@@ -6,13 +6,13 @@
   <div class="mb-4">
     <h5 class="text-primary"><i class="bi bi-people-fill"></i> Equipo: {{team.name}}</h5>
     <p>
-      <strong>Capitán:</strong> {{team.captain.username}}<br>
       <strong>Partidos Jugados:</strong> {{team.matchesPlayed}}<br>
       <strong>Victorias:</strong> {{team.victories}}<br>
       <strong>Derrotas:</strong> {{team.defeats}}<br>
       <strong>Empates:</strong> {{team.draws}}<br>
       <strong>Goles a Favor:</strong> {{team.goalsFor}}<br>
-      <strong>Goles en Contra:</strong> {{team.goalsAgainst}}
+      <strong>Goles en Contra:</strong> {{team.goalsAgainst}}<br>
+      <strong>Deuda: $</strong> {{team.balance}}
     </p>
   </div>
 
@@ -69,6 +69,8 @@
           <th scope="col">Foto</th>
           <th scope="col">Nombre</th>
           <th scope="col">Posición</th>
+          <th scope="col">Partidos Jugados</th>
+          <th scope="col">Goles</th>
           <th scope="col">Acciones</th>
         </tr>
       </thead>
@@ -80,6 +82,8 @@
           </td>
           <td class="fw-bold text-center">{{this.name}}</td>
           <td class="text-center">{{this.position}}</td>
+          <td class="text-center">{{this.matchesPlayed}}</td>
+          <td class="text-center">{{this.goals}}</td>
           <td class="text-center">
             <!-- Botón para editar -->
             <a href="#" class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#editPlayerModal-{{this.id}}">
