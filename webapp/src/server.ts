@@ -324,7 +324,7 @@ app.get('/dashboard/captain', (req, res) => {
 });
 
 app.get('/dashboard/referee', (req, res) => {
-  res.redirect('/dashboard/referee/jugadores');
+res.redirect('/dashboard/referee/partidos');
 });
 
 
