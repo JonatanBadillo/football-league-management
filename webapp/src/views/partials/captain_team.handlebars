@@ -62,107 +62,102 @@
   </div>
 
   <!-- Tabla de jugadores -->
-  <div class="table-responsive">
-    <table class="table table-hover align-middle">
-      <thead class="table-dark text-center">
-        <tr>
-          <th scope="col">Foto</th>
-          <th scope="col">Nombre</th>
-          <th scope="col">Posición</th>
-          <th scope="col">Partidos Jugados</th>
-          <th scope="col">Goles</th>
-          <th scope="col">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each players}}
-        <tr>
-          <td class="text-center">
-            <img src="{{this.image}}" alt="Foto de {{this.name}}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
-          </td>
-          <td class="fw-bold text-center">{{this.name}}</td>
-          <td class="text-center">{{this.position}}</td>
-          <td class="text-center">{{this.matchesPlayed}}</td>
-          <td class="text-center">{{this.goals}}</td>
-          <td class="text-center">
-            <!-- Botón para editar -->
-            <a href="#" class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#editPlayerModal-{{this.id}}">
-              <i class="bi bi-pencil-fill"></i>
-            </a>
-            <!-- Botón para eliminar -->
-            <a href="#" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deletePlayerModal-{{this.id}}">
-              <i class="bi bi-trash-fill"></i>
-            </a>
-          </td>
-        </tr>
-
-        <!-- Modal para editar jugador -->
-        <div class="modal fade" id="editPlayerModal-{{this.id}}" tabindex="-1" aria-labelledby="editPlayerModalLabel-{{this.id}}" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="editPlayerModalLabel-{{this.id}}">Editar Jugador</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <form action="/dashboard/captain/jugadores/{{this.id}}/editar" method="POST" enctype="multipart/form-data">
-                <div class="modal-body">
-                  <div class="mb-3">
-                    <label for="playerName-{{this.id}}" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" id="playerName-{{this.id}}" name="name" value="{{this.name}}" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="playerPosition-{{this.id}}" class="form-label">Posición</label>
-                    <select id="playerPosition-{{this.id}}" name="position" class="form-select" required>
-                      <option value="Portero" {{#if (eq this.position "Portero")}}selected{{/if}}>Portero</option>
-                      <option value="Defensa" {{#if (eq this.position "Defensa")}}selected{{/if}}>Defensa</option>
-                      <option value="Medio" {{#if (eq this.position "Medio")}}selected{{/if}}>Medio</option>
-                      <option value="Delantero" {{#if (eq this.position "Delantero")}}selected{{/if}}>Delantero</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label for="playerImage-{{this.id}}" class="form-label">Imagen</label>
-                    <input type="file" class="form-control" id="playerImage-{{this.id}}" name="image" accept="image/*">
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                  <button type="submit" class="btn btn-warning">Guardar</button>
-                </div>
-              </form>
-            </div>
-          </div>
+  <!-- Contenedor de tarjetas -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  {{#each players}}
+  <div class="col">
+    <div class="card shadow-sm">
+      <div class="card-header text-center">
+        <img src="{{this.image}}" alt="Foto de {{this.name}}" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+      </div>
+      <div class="card-body text-center">
+        <h5 class="card-title fw-bold">{{this.name}}</h5>
+        <p class="card-text">
+          <i class="bi bi-person-badge-fill text-primary"></i> {{this.position}}<br>
+          <i class="bi bi-clipboard-check text-success"></i> Partidos Jugados: {{this.matchesPlayed}}<br>
+          <i class="bi bi-trophy-fill text-warning"></i> Goles: {{this.goals}}
+        </p>
+        <div class="d-flex justify-content-center gap-2">
+          <!-- Botón para editar -->
+          <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPlayerModal-{{this.id}}">
+            <i class="bi bi-pencil-fill"></i> Editar
+          </button>
+          <!-- Botón para eliminar -->
+          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletePlayerModal-{{this.id}}">
+            <i class="bi bi-trash-fill"></i> Eliminar
+          </button>
         </div>
-
-        <!-- Modal para confirmar eliminación -->
-        <div class="modal fade" id="deletePlayerModal-{{this.id}}" tabindex="-1" aria-labelledby="deletePlayerModalLabel-{{this.id}}" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="deletePlayerModalLabel-{{this.id}}">Eliminar Jugador</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                ¿Estás seguro de que deseas eliminar al jugador <strong>{{this.name}}</strong>?
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form action="/dashboard/captain/jugadores/{{this.id}}/eliminar" method="POST">
-                  <button type="submit" class="btn btn-danger">Eliminar</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-        {{/each}}
-
-        {{#unless players.length}}
-        <tr>
-          <td colspan="4" class="text-center text-muted py-3">
-            <i class="bi bi-exclamation-triangle-fill text-warning"></i> No hay jugadores en tu equipo.
-          </td>
-        </tr>
-        {{/unless}}
-      </tbody>
-    </table>
+      </div>
+    </div>
   </div>
+
+  <!-- Modal para editar jugador -->
+  <div class="modal fade" id="editPlayerModal-{{this.id}}" tabindex="-1" aria-labelledby="editPlayerModalLabel-{{this.id}}" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editPlayerModalLabel-{{this.id}}">Editar Jugador</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="/dashboard/captain/jugadores/{{this.id}}/editar" method="POST" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="playerName-{{this.id}}" class="form-label">Nombre</label>
+              <input type="text" class="form-control" id="playerName-{{this.id}}" name="name" value="{{this.name}}" required>
+            </div>
+            <div class="mb-3">
+              <label for="playerPosition-{{this.id}}" class="form-label">Posición</label>
+              <select id="playerPosition-{{this.id}}" name="position" class="form-select" required>
+                <option value="Portero" {{#if (eq this.position "Portero")}}selected{{/if}}>Portero</option>
+                <option value="Defensa" {{#if (eq this.position "Defensa")}}selected{{/if}}>Defensa</option>
+                <option value="Medio" {{#if (eq this.position "Medio")}}selected{{/if}}>Medio</option>
+                <option value="Delantero" {{#if (eq this.position "Delantero")}}selected{{/if}}>Delantero</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="playerImage-{{this.id}}" class="form-label">Imagen</label>
+              <input type="file" class="form-control" id="playerImage-{{this.id}}" name="image" accept="image/*">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-warning">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para confirmar eliminación -->
+  <div class="modal fade" id="deletePlayerModal-{{this.id}}" tabindex="-1" aria-labelledby="deletePlayerModalLabel-{{this.id}}" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deletePlayerModalLabel-{{this.id}}">Eliminar Jugador</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de que deseas eliminar al jugador <strong>{{this.name}}</strong>?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <form action="/dashboard/captain/jugadores/{{this.id}}/eliminar" method="POST">
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{/each}}
+
+  <!-- Si no hay jugadores -->
+  {{#unless players.length}}
+  <div class="col text-center">
+    <div class="alert alert-warning">
+      <i class="bi bi-exclamation-triangle-fill"></i> No hay jugadores en tu equipo.
+    </div>
+  </div>
+  {{/unless}}
+</div>
+
 </div>
