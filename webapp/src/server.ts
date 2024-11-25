@@ -323,6 +323,10 @@ app.get('/dashboard/captain', (req, res) => {
   res.redirect('/dashboard/captain/jugadores');
 });
 
+app.get('/dashboard/referee', (req, res) => {
+  res.redirect('/dashboard/referee/jugadores');
+});
+
 
 
 
