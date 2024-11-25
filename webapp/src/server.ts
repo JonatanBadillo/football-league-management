@@ -72,14 +72,19 @@ app.engine(
         const options = args.pop();
         return args.every(Boolean);
       },
-      gt: (a: number, b: number) => a > b, // Nuevo helper "gt"
+      gt: (a: number, b: number) => a > b,
       toFixed: (value: number, precision: number) => {
         if (typeof value !== "number") return "NaN";
         return value.toFixed(precision);
       },
+      formatPercentage: (value: number, total: number) => {
+        if (total === 0) return "0";
+        return ((value / total) * 100).toFixed(2);
+      },
     },
   })
 );
+
 
 app.use(passport.initialize());
 app.use(passport.session());
