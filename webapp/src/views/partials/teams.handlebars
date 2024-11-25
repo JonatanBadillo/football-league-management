@@ -1,22 +1,22 @@
 <div class="container mt-4">
   <div class="card">
     <div class="card-body">
-      <h5 class="card-title fw-bold"><img src="/images/team.svg" alt="Trofeo" width="24" height="24" class="me-2"> Equipos del Torneo</h5>
+      <h5 class="card-title fw-bold">
+        <img src="/images/team.svg" alt="Trofeo" width="24" height="24" class="me-2"> Equipos del Torneo
+      </h5>
       <div class="row">
-        <!-- Equipo 1 -->
         {{#each teams}}
         <div class="col-md-3 col-sm-6 mb-4">
-          <div class="card">
-            <img src="{{this.logo}}" alt="{{this.name}}" style="height: 150px; object-fit: contain; padding: 15px;">
-            <div class="card-body">
-              <h5 class="card-title text-center">{{this.name}}</h5>
+          <a href="/teams/{{this.id}}" class="text-decoration-none">
+            <div class="card">
+              <img src="{{this.logo}}" alt="{{this.name}}" style="height: 150px; object-fit: contain; padding: 15px;">
+              <div class="card-body text-center">
+                <h5 class="card-title text-center">{{this.name}}</h5>
+              </div>
             </div>
-          </div>
+          </a>
         </div>
         {{/each}}
-        
-        
-
       </div>
     </div>
   </div>

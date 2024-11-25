@@ -268,6 +268,43 @@ app.get("/", async (req, res) => {
 });
 
 
+interface TeamWithPlayers {
+  id: number;
+  name: string;
+  logo: string; // Otras propiedades 
+  players: Player[]; // Relación con jugadores
+}
+
+app.get("/teams/:id", async (req, res) => {
+  try {
+    const teamId = parseInt(req.params.id, 10);
+
+    // Buscar el equipo e incluir a los jugadores
+    const team = await Team.findByPk(teamId, {
+      include: [
+        {
+          model: Player,
+          as: "players", // Alias correcto definido en la relación del modelo
+        },
+      ],
+    }) as unknown as TeamWithPlayers; // Usar la interfaz extendida
+
+    if (!team) {
+      return res.status(404).send("Equipo no encontrado.");
+    }
+
+    res.render("team", {
+      title: `Equipo: ${team.name}`, // Acceso a `name`
+      team,
+      players: team.players || [], // Aseguramos que `players` esté definido
+    });
+  } catch (error) {
+    console.error("Error al cargar información del equipo:", error);
+    res.status(500).send("Error al cargar la información del equipo.");
+  }
+});
+
+
 
 
 app.get("/login", (req, res) => {
