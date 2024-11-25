@@ -314,6 +314,9 @@ app.get('/dashboard/admin', (req, res) => {
   res.redirect('/dashboard/admin/ligas');
 });
 
+app.get('/dashboard/captain', (req, res) => {
+  res.redirect('/dashboard/captain/jugadores');
+});
 
 
 
