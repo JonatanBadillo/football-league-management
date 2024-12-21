@@ -1,0 +1,98 @@
+<div class="container mt-4 mb-5">
+  <h1 class="text-center fw-bold mb-4">Liga de Futbol "Tiki Taka"</h1>
+
+  <!-- Selector de Liga -->
+  <div class="d-flex justify-content-start mb-4">
+    <select id="ligaSelect" class="form-select w-auto"
+      onchange="fetchLigaData()">
+      {{#each leagues}}
+      <option value="{{this.id}}" {{#if (eq ../selectedLeagueId
+        this.id)}}selected{{/if}}>{{this.name}}</option>
+      {{/each}}
+    </select>
+
+  </div>
+
+  <!-- Sección de tablas -->
+  <div class="row gy-4">
+    <!-- Tabla de Posiciones -->
+    <div class="col-md-8">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title"><i class="bi bi-trophy"></i> Tabla de
+              Posiciones</h5>
+
+          </div>
+
+          <!-- Tabla Completa -->
+          <table id="fullTable" class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Pos</th>
+                <th scope="col">Equipo</th>
+                <th scope="col">PJ</th>
+                <th scope="col">Pts</th>
+                <th scope="col">GF</th>
+                <th scope="col">GC</th>
+                <th scope="col">DG</th>
+              </tr>
+            </thead>
+            <tbody id="fullTableBody">
+              {{#each teams}}
+              <tr>
+                <td>{{increment @index}}</td>
+                <!-- Usar el helper incrementado en 1 -->
+                <td>
+                  <img src="{{this.logo}}" alt="{{this.id}}"
+                    style="width: 35px; height: 35px; object-fit: cover;">
+                  {{this.name}}
+                </td>
+                <td>{{this.matchesPlayed}}</td>
+                <td>{{this.points}}</td>
+                <td>{{this.goalsFor}}</td>
+                <td>{{this.goalsAgainst}}</td>
+                <td>{{subtract this.goalsFor this.goalsAgainst}}</td>
+              </tr>
+              {{else}}
+              <tr><td colspan="7" class="text-center">No hay equipos para
+                  mostrar</td></tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Incluir Parcial de Próximos Partidos -->
+    <div class="col-md-4">
+      {{> next_matches}}
+    </div>
+
+    <!-- Incluir Parcial de Goleadores y Porteros -->
+    <div class="col-md-6">
+      {{> scorers}}
+    </div>
+    <div class="col-md-6">
+      {{> goalkeepers}}
+    </div>
+
+    {{> teams}}
+
+    <!-- Sección de Estadísticas y Gestión de Equipos -->
+    <div class="col-md-6">
+      {{> stats}}
+    </div>
+    <div class="col-md-6">
+      {{> manager}}
+    </div>
+  </div>
+</div>
+
+<script>
+  function fetchLigaData() {
+  const leagueId = document.getElementById("ligaSelect").value;
+  window.location.href = `/?leagueId=${leagueId}`; // Redirige con el parámetro de liga
+}
+
+</script>

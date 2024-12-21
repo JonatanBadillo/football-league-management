@@ -1,0 +1,246 @@
+<div class="card p-4 mb-4 shadow" style="min-height: 80vh;">
+  <h2 class="fw-bold">Administradores Registrados</h2>
+  <p class="text-muted">Gestión de administradores del sistema</p>
+  {{#if errorMessage}}
+<div class="alert alert-danger">
+  {{{errorMessage}}}
+</div>
+{{/if}}
+
+
+  <!-- Botón para agregar administrador -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <button
+      class="btn btn-dark"
+      data-bs-toggle="modal"
+      data-bs-target="#addAdminModal"
+    >
+    
+      <i class="bi bi-plus-circle me-2"></i>Agregar Administrador
+    </button>
+  </div>
+  
+
+  <!-- Tabla responsiva -->
+<div class="table-responsive">
+  <table class="table table-hover table-bordered align-middle text-center">
+    <thead class="table-dark">
+      <tr>
+        <th scope="col"><i class="bi bi-person-fill"></i> Usuario</th>
+        <th scope="col"><i class="bi bi-award-fill"></i> Rol</th>
+        <th scope="col"><i class="bi bi-tools"></i> Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each admins}}
+      <tr>
+        <td>
+          <i class="bi bi-person-circle text-primary"></i> {{this.username}}
+        </td>
+        <td>
+          {{#if (eq this.role "admin")}}
+          <i class="bi bi-shield-lock-fill text-success"></i> Administrador
+          {{else}}
+          <i class="bi bi-person-badge-fill text-info"></i> {{this.role}}
+          {{/if}}
+        </td>
+        <td>
+          <!-- Botón Editar -->
+          <button 
+            class="btn btn-warning btn-sm me-2" 
+            data-bs-toggle="modal" 
+            data-bs-target="#editAdminModal-{{this.id}}">
+            <i class="bi bi-pencil-fill"></i> Editar
+          </button>
+          <!-- Botón Eliminar -->
+          <button 
+            class="btn btn-danger btn-sm" 
+            data-bs-toggle="modal" 
+            data-bs-target="#deleteAdminModal-{{this.id}}">
+            <i class="bi bi-trash-fill"></i> Eliminar
+          </button>
+        </td>
+      </tr>
+      {{/each}}
+
+      {{#unless admins.length}}
+      <tr>
+        <td colspan="3" class="text-center text-muted">
+          <i class="bi bi-exclamation-circle-fill text-warning"></i>
+          No hay administradores registrados
+        </td>
+      </tr>
+      {{/unless}}
+    </tbody>
+  </table>
+</div>
+
+</div>
+
+<!-- Modal para agregar administrador -->
+<div
+  class="modal fade"
+  id="addAdminModal"
+  tabindex="-1"
+  aria-labelledby="addAdminModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="addAdminModalLabel">Agregar Administrador</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/dashboard/admin/usuarios/administradores/agregar" method="POST">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="username" class="form-label">Usuario</label>
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              name="username"
+              required
+            />
+            <small class="text-muted">
+              El nombre de usuario debe tener al menos 6 caracteres, incluyendo letras y números.
+            </small>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              required
+            />
+            <small class="text-muted">
+              La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula, un número y un carácter especial.
+            </small>
+          </div>
+          <input type="hidden" name="role" value="admin" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-dark">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modales dinámicos para editar y eliminar -->
+{{#each admins}}
+  <!-- Modal para editar administrador -->
+  <div
+    class="modal fade"
+    id="editAdminModal-{{this.id}}"
+    tabindex="-1"
+    aria-labelledby="editAdminModalLabel-{{this.id}}"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5
+            class="modal-title fw-bold"
+            id="editAdminModalLabel-{{this.id}}"
+          >Editar Administrador</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <form
+          action="/dashboard/admin/usuarios/administradores/editar/{{this.id}}"
+          method="POST"
+        >
+          <div class="modal-body">
+            <div class="mb-3">
+              <label
+                for="username-{{this.id}}"
+                class="form-label"
+              >Usuario</label>
+              <input
+                type="text"
+                class="form-control"
+                id="username-{{this.id}}"
+                name="username"
+                value="{{this.username}}"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label
+                for="password-{{this.id}}"
+                class="form-label"
+              >Contraseña</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password-{{this.id}}"
+                name="password"
+                required
+              />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >Cancelar</button>
+            <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para eliminar administrador -->
+  <div
+    class="modal fade"
+    id="deleteAdminModal-{{this.id}}"
+    tabindex="-1"
+    aria-labelledby="deleteAdminModalLabel-{{this.id}}"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5
+            class="modal-title fw-bold"
+            id="deleteAdminModalLabel-{{this.id}}"
+          >Eliminar Administrador</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <form
+          action="/dashboard/admin/usuarios/administradores/eliminar/{{this.id}}"
+          method="POST"
+        >
+          <div class="modal-body">
+            <p>¿Estás seguro de que deseas eliminar al administrador
+              <strong>{{this.username}}</strong>?</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >Cancelar</button>
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{{/each}}

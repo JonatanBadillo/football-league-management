@@ -1,0 +1,29 @@
+<div class="card h-100">
+  <div class="card-body">
+    <h5 class="card-title fw-bold">
+      <img
+        src="/images/goalkeeper.svg"
+        alt="Trofeo"
+        width="30"
+        height="30"
+        class="me-2"
+      />
+      Mejores Porteros
+    </h5>
+    <ul class="list-group list-group-flush">
+      {{#each bestKeepers }}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <span class="me-3 fw-bold">{{increment @index}}</span>
+            <img src="{{this.logo}}" alt="Foto de {{this.name}}" class="me-3" style="width: 40px; height: 40px; object-fit: cover;">
+          <div>
+            <div class="fw-semibold">{{this.name}}</div>
+            <small class="text-muted">Partidos Jugados: {{this.matchesPlayed}}</small>
+          </div>
+        </div>
+        <span class="fw-bold">{{this.goalsAgainst}}</span>
+      </li>
+      {{/each}}
+    </ul>
+  </div>
+</div>

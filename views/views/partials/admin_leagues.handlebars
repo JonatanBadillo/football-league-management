@@ -1,0 +1,112 @@
+<div class="card p-4 mb-4">
+      <h2 class="fw-bold"><i class="bi bi-list-ul me-2"></i>Ligas</h2>
+      <p class="text-muted">Gestión de ligas registradas</p>
+
+      <!-- Mostrar mensaje si no hay ligas -->
+      {{#if leagues.length}}
+      <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+        {{#each leagues}}
+        <div class="col">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+              <i class="bi bi-trophy-fill text-warning fs-1 mb-3"></i>
+              <h5 class="card-title fw-bold">{{this.name}}</h5>
+             
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+              <!-- Botón para editar -->
+              <button class="btn btn-outline-primary btn-sm me-2" data-bs-toggle="modal"
+                data-bs-target="#editLeagueModal-{{this.id}}">
+                <i class="bi bi-pencil me-1"></i>Editar
+              </button>
+
+              <!-- Botón para eliminar con modal -->
+              <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                data-bs-target="#confirmDeleteModal-{{this.id}}">
+                <i class="bi bi-trash me-1"></i> Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal de confirmación para eliminar -->
+        <div class="modal fade" id="confirmDeleteModal-{{this.id}}" tabindex="-1"
+          aria-labelledby="confirmDeleteModalLabel-{{this.id}}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel-{{this.id}}">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar la liga <strong>{{this.name}}</strong>? Esto eliminará todos los
+                datos asociados.
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form action="/dashboard/admin/ligas/{{this.id}}/eliminar" method="POST" style="display: inline;">
+                  <button type="submit" class="btn btn-dark text-light">Eliminar Liga</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal para editar liga -->
+        <div class="modal fade" id="editLeagueModal-{{this.id}}" tabindex="-1" aria-labelledby="editLeagueModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Editar Liga</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form action="/dashboard/admin/ligas/{{this.id}}/editar" method="POST">
+                <div class="modal-body">
+                  <label for="leagueName" class="form-label">Nombre de la Liga</label>
+                  <input type="text" class="form-control" id="leagueName" name="name" value="{{this.name}}" required>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn btn-dark text-light">Guardar Cambios</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{else}}
+      <p class="text-center text-muted">No hay ligas registradas.</p>
+      {{/if}}
+
+      <!-- Botón para agregar una nueva liga -->
+      <button class="btn btn-dark mt-3" data-bs-toggle="modal" data-bs-target="#addLeagueModal">
+        <i class="bi bi-plus-lg me-1"></i> Agregar Nueva Liga
+      </button>
+
+      <!-- Modal para agregar nueva liga -->
+      <div class="modal fade" id="addLeagueModal" tabindex="-1" aria-labelledby="addLeagueModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Agregar Nueva Liga</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/dashboard/admin/ligas" method="POST">
+              <div class="modal-body">
+                <label for="newLeagueName" class="form-label">Nombre de la Liga</label>
+                <input type="text" class="form-control" id="newLeagueName" name="name" required>
+                <div id="newLeagueNameError" class="text-danger" style="display: none;">El nombre debe tener al menos 3
+                  caracteres.</div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar Liga</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>

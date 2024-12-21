@@ -1,0 +1,12 @@
+<div class="d-flex align-items-center mb-4">
+  <label for="ligaSelect" class="me-2 fw-bold text-secondary">
+    <i class="bi bi-trophy-fill text-warning"></i> Seleccionar Liga:
+  </label>
+  <select id="ligaSelect" class="form-select w-auto" onchange="fetchLigaData()" style="min-width: 250px;">
+    {{#each leagues}}
+    <option value="{{this.id}}" {{#if (eq ../selectedLeagueId this.id)}}selected{{/if}}>
+      <i class="bi bi-shield-fill"></i> {{this.name}}
+    </option>
+    {{/each}}
+  </select>
+</div>
