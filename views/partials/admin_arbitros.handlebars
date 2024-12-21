@@ -1,0 +1,152 @@
+<div class="card p-4 mb-4 shadow" style="min-height: 80vh;">
+  <h2 class="fw-bold">Árbitros Registrados</h2>
+  <p class="text-muted">Gestión de árbitros del sistema</p>
+
+  <!-- Mensajes de error -->
+  {{#if errorMessage}}
+  <div class="alert alert-danger">
+    {{{errorMessage}}}
+  </div>
+  {{/if}}
+
+  <!-- Botón para agregar árbitro -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addRefereeModal">
+      <i class="bi bi-plus-circle me-2"></i>Agregar Árbitro
+    </button>
+  </div>
+
+  <!-- Tabla responsiva -->
+<div class="table-responsive">
+  <table class="table table-hover table-bordered align-middle text-center">
+    <thead class="table-dark">
+      <tr>
+        <th scope="col"><i class="bi bi-person-fill"></i> Usuario</th>
+        <th scope="col"><i class="bi bi-award-fill"></i> Rol</th>
+        <th scope="col"><i class="bi bi-tools"></i> Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each referees}}
+      <tr>
+        <td>
+          <i class="bi bi-person-circle text-primary"></i> {{this.username}}
+        </td>
+        <td>
+          <i class="bi bi-shield-fill-check text-success"></i> Árbitro
+        </td>
+        <td>
+          <!-- Botón Editar -->
+          <button 
+            class="btn btn-warning btn-sm me-2" 
+            data-bs-toggle="modal" 
+            data-bs-target="#editRefereeModal-{{this.id}}">
+            <i class="bi bi-pencil-fill"></i> Editar
+          </button>
+          <!-- Botón Eliminar -->
+          <button 
+            class="btn btn-danger btn-sm" 
+            data-bs-toggle="modal" 
+            data-bs-target="#deleteRefereeModal-{{this.id}}">
+            <i class="bi bi-trash-fill"></i> Eliminar
+          </button>
+        </td>
+      </tr>
+      {{/each}}
+
+      {{#unless referees.length}}
+      <tr>
+        <td colspan="3" class="text-center text-muted">
+          <i class="bi bi-exclamation-circle-fill text-warning"></i> No hay árbitros registrados
+        </td>
+      </tr>
+      {{/unless}}
+    </tbody>
+  </table>
+</div>
+
+</div>
+
+<!-- Modal para agregar árbitro -->
+<div class="modal fade" id="addRefereeModal" tabindex="-1" aria-labelledby="addRefereeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="addRefereeModalLabel">Agregar Árbitro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/dashboard/admin/usuarios/arbitros/agregar" method="POST">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="username" class="form-label">Usuario</label>
+            <input type="text" class="form-control" id="username" name="username" required />
+            <small class="text-muted">Debe tener al menos 6 caracteres, incluyendo letras y números.</small>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="password" name="password" required />
+            <small class="text-muted">Debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales.</small>
+          </div>
+          <input type="hidden" name="role" value="referee" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-dark">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modales dinámicos para editar y eliminar -->
+{{#each referees}}
+<!-- Modal para editar árbitro -->
+<div class="modal fade" id="editRefereeModal-{{this.id}}" tabindex="-1" aria-labelledby="editRefereeModalLabel-{{this.id}}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="editRefereeModalLabel-{{this.id}}">Editar Árbitro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/dashboard/admin/usuarios/arbitros/editar/{{this.id}}" method="POST">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="username-{{this.id}}" class="form-label">Usuario</label>
+            <input type="text" class="form-control" id="username-{{this.id}}" name="username" value="{{this.username}}" required />
+          </div>
+          <div class="mb-3">
+            <label for="password-{{this.id}}" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="password-{{this.id}}" name="password" />
+            <small class="text-muted">Dejar en blanco para no cambiar la contraseña.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para eliminar árbitro -->
+<div class="modal fade" id="deleteRefereeModal-{{this.id}}" tabindex="-1" aria-labelledby="deleteRefereeModalLabel-{{this.id}}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="deleteRefereeModalLabel-{{this.id}}">Eliminar Árbitro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/dashboard/admin/usuarios/arbitros/eliminar/{{this.id}}" method="POST">
+        <div class="modal-body">
+          <p>¿Estás seguro de que deseas eliminar al árbitro <strong>{{this.username}}</strong>?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Eliminar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{{/each}}

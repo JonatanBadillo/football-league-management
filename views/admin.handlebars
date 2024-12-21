@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+  <link rel="icon" href="/images/logo.png" type="image/png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function fetchLigaData() {
+      const leagueId = document.getElementById("ligaSelect").value;
+      const section = "{{section}}"; // Obtiene la sección activa ('equipos' o 'jugadores' o 'partidos')
+      window.location.href = `/dashboard/admin/${section}?leagueId=${leagueId}`;
+    }
+
+    // Función de búsqueda en las tarjetas de equipos
+    function filterTeams() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const cards = document.querySelectorAll(".col-md-6.col-lg-4");
+
+      cards.forEach(card => {
+        const teamName = card.querySelector(".card-header h5").textContent.toLowerCase();
+        if (teamName.includes(input)) {
+          card.style.display = ""; // Muestra la tarjeta si coincide con la búsqueda
+        } else {
+          card.style.display = "none"; // Oculta la tarjeta si no coincide
+        }
+      });
+    }
+
+    // Función de búsqueda en la tabla de jugadores
+    function filterPlayers() {
+      const input = document.getElementById("searchPlayerInput").value.toLowerCase();
+      const rows = document.querySelectorAll("#playersTable tbody tr");
+
+      rows.forEach(row => {
+        const playerName = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
+
+        if (playerName.includes(input)) {
+          row.style.display = ""; // Muestra la fila si coincide con la búsqueda
+        } else {
+          row.style.display = "none"; // Oculta la fila si no coincide
+        }
+      });
+    }
+
+    function filterPlayersByTeam() {
+      const selectedTeamId = document.getElementById("teamFilterSelect").value;
+      const rows = document.querySelectorAll("#playersTable tbody tr");
+
+      rows.forEach(row => {
+        const rowTeamId = row.getAttribute("data-team-id");
+        if (selectedTeamId === "all" || rowTeamId === selectedTeamId) {
+          row.style.display = ""; // Muestra la fila si coincide el equipo o está en "Todos"
+        } else {
+          row.style.display = "none"; // Oculta la fila si no coincide
+        }
+      });
+    }
+
+    function toggleCaptainFields() {
+      const isChecked = document.getElementById("newCaptainCheckbox").checked;
+      document.getElementById("existingCaptainSelect").style.display = isChecked ? "none" : "block";
+      document.getElementById("newCaptainFields").style.display = isChecked ? "block" : "none";
+    }
+
+    function validateForm() {
+      let isValid = true;
+
+      // Validar Nombre del Equipo
+      const teamName = document.getElementById('teamName').value.trim();
+      if (!teamName || teamName.length < 3) {
+        document.getElementById('teamNameError').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('teamNameError').style.display = 'none';
+      }
+
+      // Validar Nombre de Usuario del Capitán
+      const username = document.getElementById('newCaptainUsername').value.trim();
+      if (!username || username.length < 3) {
+        document.getElementById('newCaptainUsernameError').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('newCaptainUsernameError').style.display = 'none';
+      }
+
+      // Validar Contraseña del Capitán
+      const password = document.getElementById('newCaptainPassword').value.trim();
+      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+ // Al menos 8 caracteres, una mayúscula y un número
+      if (!passwordPattern.test(password)) {
+        document.getElementById('newCaptainPasswordError').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('newCaptainPasswordError').style.display = 'none';
+      }
+
+      return isValid;
+    }
+
+
+    function submitTeamForm(event) {
+      event.preventDefault(); // Evita que el formulario se envíe automáticamente
+
+      const formData = new FormData(event.target);
+
+      fetch('/dashboard/admin/equipos', {
+        method: 'POST',
+        body: formData,
+      })
+        .then(response => response.json())
+        .then(data => {
+          const errorMessage = document.getElementById('error-message');
+          if (data.error) {
+            errorMessage.textContent = data.error;  // Muestra el mensaje de error
+            errorMessage.style.display = 'block';    // Muestra el contenedor de error
+          } else {
+            // Si no hay error, redirige o realiza alguna acción
+            window.location.href = '/dashboard/admin/equipos';
+          }
+        })
+        .catch(error => {
+          console.error('Error al registrar el equipo:', error);
+          const errorMessage = document.getElementById('error-message');
+          errorMessage.textContent = 'Hubo un error al registrar el equipo. Por favor, inténtelo de nuevo.'; // Error genérico
+          errorMessage.style.display = 'block'; // Muestra el contenedor de error
+        });
+    }
+
+    function filterCaptains() {
+    const input = document.getElementById("searchCaptainInput").value.toLowerCase();
+    const rows = document.querySelectorAll("#captainsTableBody tr");
+
+    rows.forEach((row) => {
+      const username = row.querySelector("td:first-child").textContent.toLowerCase();
+
+      if (username.includes(input)) {
+        row.style.display = ""; // Muestra la fila si coincide con la búsqueda
+      } else {
+        row.style.display = "none"; // Oculta la fila si no coincide
+      }
+    });
+  }
+
+  function filterAwayTeams() {
+  const homeTeamId = document.getElementById("homeTeam").value;
+  const awayTeamSelect = document.getElementById("awayTeam");
+
+  [...awayTeamSelect.options].forEach(option => {
+    option.disabled = option.value === homeTeamId;
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const confirmDeleteModal = document.getElementById("confirmDeleteModal");
+    const deleteJornadaForm = document.getElementById("deleteJornadaForm");
+
+    confirmDeleteModal.addEventListener("show.bs.modal", (event) => {
+      const button = event.relatedTarget;
+      const jornadaId = button.getAttribute("data-jornada-id");
+      const leagueId = button.getAttribute("data-league-id");
+
+      // Actualizar la acción del formulario
+      deleteJornadaForm.action = `/dashboard/admin/jornadas/${jornadaId}/eliminar`;
+      deleteJornadaForm.innerHTML += `<input type="hidden" name="leagueId" value="${leagueId}">`;
+    });
+  });
+document.getElementById("homeTeam").addEventListener("change", filterAwayTeams);
+
+
+    document.getElementById('addTeamForm').addEventListener('submit', submitTeamForm);
+
+
+    document.getElementById('addLeagueModal').addEventListener('submit', function (event) {
+      const leagueName = document.getElementById('newLeagueName').value.trim();
+      if (leagueName.length < 3) {
+        event.preventDefault();
+        document.getElementById('newLeagueNameError').style.display = 'block';
+      } else {
+        document.getElementById('newLeagueNameError').style.display = 'none';
+      }
+    });
+
+
+  </script>
+
+</head>
+
+<body>
+  {{> navbaradmin}}
+
+  <div class="container mt-4 " style="min-height: 80vh;">
+    <h1 class="fw-bold">Panel de Administración</h1>
+
+    {{#if (eq section 'ligas')}}
+    {{> admin_leagues}}
+    {{/if}}
+
+
+    {{#if (eq section 'equipos')}}
+    {{> select_admin}}
+    {{> admin_teams}}
+    {{/if}}
+
+
+    {{#if (eq section 'jugadores')}}
+    {{> select_admin}}
+    {{> admin_players}}
+    {{/if}}
+
+
+    {{#if (eq section 'usuarios')}}
+    {{> admin_admins}}
+    {{/if}}
+
+
+    {{#if (eq section 'arbitros')}}
+    {{> admin_arbitros}}
+    {{/if}}
+
+
+    {{#if (eq section 'capitanes')}}
+    {{> admin_capitanes}}
+    {{/if}}
+
+
+    {{#if (eq section 'partidos')}}
+    {{> select_admin}}
+    {{> admin_matches}}
+    {{/if}}
+
+
+
+
+  </div>
+
+</body>
+{{> footer}}
+
+</html>

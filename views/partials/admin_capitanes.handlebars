@@ -1,0 +1,217 @@
+<div class="card p-4 mb-4 shadow" style="min-height: 80vh;">
+  <h2 class="fw-bold">Capitanes Registrados</h2>
+  <p class="text-muted">Gestión de los capitanes del sistema</p>
+  
+  {{#if errorMessage}}
+  <div class="alert alert-danger">
+    {{{errorMessage}}}
+  </div>
+  {{/if}}
+
+  <!-- Barra de búsqueda por nombre de usuario -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <input
+    type="text"
+    id="searchCaptainInput"
+    class="form-control"
+    placeholder="Buscar capitán por nombre de usuario..."
+    aria-label="Buscar capitán"
+    style="max-width: 500px;"
+    oninput="filterCaptains()"
+  />
+</div>
+
+  <!-- Tabla responsiva -->
+<div class="table-responsive">
+  <table class="table table-hover table-bordered align-middle text-center">
+    <thead class="table-dark">
+      <tr>
+        <th scope="col"><i class="bi bi-person-fill"></i> Usuario</th>
+        <th scope="col"><i class="bi bi-trophy-fill"></i> Equipo</th>
+        <th scope="col"><i class="bi bi-shield-fill"></i> Liga</th>
+        <th scope="col"><i class="bi bi-tools"></i> Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="captainsTableBody">
+      {{#each captains}}
+      <tr>
+        <td>
+          <i class="bi bi-person-circle text-primary"></i> {{this.username}}
+        </td>
+        <td>
+          <i class="bi bi-flag-fill text-success"></i> {{this.teamName}}
+        </td>
+        <td>
+          <i class="bi bi-award-fill text-warning"></i> {{this.leagueName}}
+        </td>
+        <td>
+          <!-- Botón Editar -->
+          <button 
+            class="btn btn-warning btn-sm me-2" 
+            data-bs-toggle="modal" 
+            data-bs-target="#editCaptainModal-{{this.id}}">
+            <i class="bi bi-pencil-fill"></i> Editar
+          </button>
+          <!-- Botón Eliminar -->
+          <button 
+            class="btn btn-danger btn-sm" 
+            data-bs-toggle="modal" 
+            data-bs-target="#deleteCaptainModal-{{this.id}}">
+            <i class="bi bi-trash-fill"></i> Eliminar
+          </button>
+        </td>
+      </tr>
+      {{/each}}
+
+      {{#unless captains.length}}
+      <tr>
+        <td colspan="4" class="text-center text-muted">
+          <i class="bi bi-exclamation-circle-fill text-warning"></i>
+          No hay capitanes registrados.
+        </td>
+      </tr>
+      {{/unless}}
+    </tbody>
+  </table>
+</div>
+
+
+</div>
+
+<!-- Modal para agregar capitán -->
+<div
+  class="modal fade"
+  id="addCaptainModal"
+  tabindex="-1"
+  aria-labelledby="addCaptainModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="addCaptainModalLabel">Agregar Capitán</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/dashboard/admin/usuarios/capitanes/agregar" method="POST">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="username" class="form-label">Usuario</label>
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              name="username"
+              required
+            />
+            <small class="text-muted">
+              El nombre de usuario debe tener al menos 6 caracteres, incluyendo letras y números.
+            </small>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              required
+            />
+            <small class="text-muted">
+              La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una minúscula, un número y un carácter especial.
+            </small>
+          </div>
+          <div class="mb-3">
+            <label for="team" class="form-label">Equipo</label>
+            <select name="teamId" id="team" class="form-select" required>
+              {{#each teams}}
+                <option value="{{this.id}}">{{this.name}}</option>
+              {{/each}}
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-dark">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modales dinámicos para editar y eliminar -->
+{{#each captains}}
+  <!-- Modal para editar capitán -->
+  <div
+    class="modal fade"
+    id="editCaptainModal-{{this.id}}"
+    tabindex="-1"
+    aria-labelledby="editCaptainModalLabel-{{this.id}}"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="editCaptainModalLabel-{{this.id}}">Editar Capitán</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="/dashboard/admin/usuarios/capitanes/editar/{{this.id}}" method="POST">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="username-{{this.id}}" class="form-label">Usuario</label>
+              <input
+                type="text"
+                class="form-control"
+                id="username-{{this.id}}"
+                name="username"
+                value="{{this.username}}"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="password-{{this.id}}" class="form-label">Contraseña</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password-{{this.id}}"
+                name="password"
+              />
+              <small class="text-muted">Dejar en blanco para no cambiar la contraseña.</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para eliminar capitán -->
+  <div
+    class="modal fade"
+    id="deleteCaptainModal-{{this.id}}"
+    tabindex="-1"
+    aria-labelledby="deleteCaptainModalLabel-{{this.id}}"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="deleteCaptainModalLabel-{{this.id}}">Eliminar Capitán</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="/dashboard/admin/usuarios/capitanes/eliminar/{{this.id}}" method="POST">
+          <div class="modal-body">
+            <p>¿Estás seguro de que deseas eliminar al capitán <strong>{{this.username}}</strong> y su equipo asociado?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{{/each}}
+

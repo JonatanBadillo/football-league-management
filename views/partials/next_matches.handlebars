@@ -1,0 +1,56 @@
+<div class="card h-100">
+  <div class="card-body">
+    <h5 class="card-title"><i class="bi bi-calendar-event"></i> Próximos Partidos</h5>
+
+    <!-- Selector de Jornada -->
+    <div class="mb-3">
+      <label for="jornadaSelect" class="form-label">Selecciona una jornada</label>
+      <select id="jornadaSelect" class="form-select w-auto" onchange="fetchJornadaData()">
+        {{#each jornadas}}
+          <option value="{{this.id}}" {{#if (eq ../selectedJornadaId this.id)}}selected{{/if}}>{{this.name}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    <!-- Lista de Partidos -->
+    <ul id="proximosPartidosList" class="list-unstyled">
+      {{#each matches}}
+        <li class="mb-4">
+          <!-- Fecha, Hora y Jornada -->
+          <div class="text-center text-muted" style="font-size: 0.90em;">
+            {{formatDate this.date}} - {{this.time}} | Jornada: {{this.jornada.name}}
+          </div>
+
+          <!-- Equipos, Logos y Marcador -->
+          <div class="d-flex align-items-center justify-content-center mt-2">
+            <div class="d-flex align-items-center">
+              <img src="{{this.homeTeam.logo}}" alt="{{this.homeTeam.name}}" style="width: 40px; height: 40px; object-fit: cover;">
+              <span class="fw-bold">{{this.homeTeam.name}}</span>
+            </div>
+            <span class="mx-2">
+              {{#if (or (gt this.scoreHome 0) (gt this.scoreAway 0))}}
+                {{this.scoreHome}} - {{this.scoreAway}}
+              {{else}}
+                vs
+              {{/if}}
+            </span>
+            <div class="d-flex align-items-center">
+              <img src="{{this.awayTeam.logo}}" alt="{{this.awayTeam.name}}" style="width: 40px; height: 40px; object-fit: cover;">
+              <span class="fw-bold">{{this.awayTeam.name}}</span>
+            </div>
+          </div>
+        </li>
+      {{else}}
+        <li class="text-center">No hay partidos disponibles para esta jornada</li>
+      {{/each}}
+    </ul>
+  </div>
+</div>
+
+<script>
+  function fetchJornadaData() {
+    const jornadaId = document.getElementById("jornadaSelect").value;
+    const leagueId = document.querySelector("#ligaSelect")?.value || ""; // Selector para la liga (si existe)
+    window.location.href = `/?leagueId=${leagueId}&jornadaId=${jornadaId}`;
+  }
+</script>
