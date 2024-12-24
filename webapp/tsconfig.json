@@ -3,7 +3,9 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "types": ["node"]
+    "types": ["node"],
+    "esModuleInterop": true,  // Agrega esta línea
+    "allowSyntheticDefaultImports": true 
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules"]
