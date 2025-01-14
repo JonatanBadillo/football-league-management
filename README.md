@@ -1,10 +1,9 @@
-# **Football League Management**
+# **Soccer League Management**
 
-![Project Logo](#) <!-- Placeholder for project logo -->
 
 ## **Table of Contents**
 
-- [**Football League Management**](#football-league-management)
+- [**Soccer League Management**](#soccer-league-management)
   - [**Table of Contents**](#table-of-contents)
   - [**Project Description**](#project-description)
   - [**Key Features**](#key-features)
@@ -25,11 +24,17 @@
     - [**Administrator**](#administrator)
     - [**Captain**](#captain)
     - [**Referee**](#referee)
+  - [**Detailed Features**](#detailed-features)
+    - [**Dynamic Home Page**](#dynamic-home-page)
+    - [**Admin Panel**](#admin-panel)
+    - [**Captain Dashboard**](#captain-dashboard)
+    - [**Referee Tools**](#referee-tools)
   - [**Screenshots**](#screenshots)
     - [**Login Page**](#login-page)
     - [**Admin Dashboard**](#admin-dashboard)
     - [**Team Management**](#team-management)
     - [**Match Management**](#match-management)
+  - [**Future Enhancements**](#future-enhancements)
   - [**Contributions**](#contributions)
   - [**License**](#license)
 
@@ -37,21 +42,21 @@
 
 ## **Project Description**
 
-**Football League Management** is a web application designed to manage football leagues. This system allows administrators, captains, and referees to collaborate efficiently in organizing and managing leagues, teams, players, and matches. The platform includes user authentication and custom roles to ensure an optimized and secure experience.
+**Soccer League Management** is a comprehensive web application tailored for managing soccer leagues. It streamlines operations for administrators, team captains, and referees by providing tools to organize leagues, oversee teams, manage players, and schedule matches. Enhanced with role-based authentication, it ensures a secure and efficient user experience.
 
 ---
 
 ## **Key Features**
 
 - **League Management**: Create, edit, and delete leagues.
-- **Team Management**: Associate teams with leagues, assign captains, and maintain statistics.
-- **Player Management**: Add, edit, and delete players with a team limit.
-- **Match Management**: Schedule, edit, and delete matches.
-- **Statistics**:
-  - Top scorers.
-  - Best defenses (teams with the fewest goals conceded).
-  - Average goals per match.
-- **Roles and Permissions**: Role-based security (admin, captain, referee).
+- **Team Management**: Manage teams, assign captains, and maintain performance statistics.
+- **Player Management**: Add, edit, and remove players with team-based limits.
+- **Match Scheduling**: Organize, edit, and delete matches across different jornadas.
+- **Dynamic Statistics**:
+  - Identify top scorers.
+  - Highlight best defensive teams.
+  - Calculate average goals per match.
+- **Role-Based Access**: Tailored functionalities for admins, captains, and referees.
 
 ---
 
@@ -64,14 +69,14 @@
   - SQLite
 - **Frontend**:
   - Handlebars.js (templating engine)
-  - Bootstrap (for design)
+  - Bootstrap (responsive design)
 - **Authentication and Security**:
   - Passport.js
   - express-session
   - connect-session-sequelize
-- **Others**:
-  - Multer (for file uploads)
-  - Moment.js (for date handling)
+- **Additional Tools**:
+  - Multer (file uploads)
+  - Moment.js (date manipulation)
   - TypeScript
   - HTTPS with SSL certificates.
 
@@ -81,7 +86,7 @@
 
 1. Node.js (version 16 or higher).
 2. npm (included with Node.js).
-3. SQLite for the database.
+3. SQLite for database management.
 4. SSL Certificates (`key.pem`, `cert.pem`).
 
 ---
@@ -91,7 +96,7 @@
 1. Clone the repository:
    ```bash
    git clone <REPOSITORY_URL>
-   cd football-league-management/webapp
+   cd soccer-league-management/webapp
    ```
 
 2. Install dependencies:
@@ -119,7 +124,7 @@
 ## **Project Structure**
 
 ```plaintext
-football-league-management/
+soccer-league-management/
 ├── webapp/
 │   ├── src/
 │   │   ├── routes/
@@ -143,14 +148,14 @@ football-league-management/
 ## **Authentication and Roles**
 
 ### **Available Roles**
-1. **Administrator (admin)**: Full access to leagues, teams, players, and matches.
+1. **Administrator (admin)**: Comprehensive control over leagues, teams, players, and matches.
 2. **Captain (captain)**: Manages their team and assigned players.
-3. **Referee (referee)**: Manages matches and records statistics.
+3. **Referee (referee)**: Oversees match management and records performance statistics.
 
 ### **Security**
-- Uses `passport.js` for local authentication.
-- Middleware `isAuthenticated` and `hasRole` to protect routes.
-- Session management with `express-session` and SQLite storage.
+- Implements `passport.js` for local authentication.
+- Utilizes middleware (`isAuthenticated`, `hasRole`) to secure routes.
+- Manages sessions with `express-session` and SQLite storage.
 
 ---
 
@@ -158,56 +163,99 @@ football-league-management/
 
 ### **League**
 - **Fields**: `id`, `name`, `totalGoalsFor`, `matchesPlayed`.
-- **Relationships**: Has teams, players, jornadas, and matches.
+- **Relationships**: Associated with teams, players, jornadas, and matches.
 
 ### **Team**
 - **Fields**: `id`, `name`, `leagueId`, `captainId`, `logo`, `balance`, `goalsFor`, `goalsAgainst`, `points`.
-- **Relationships**: Belongs to a league, has players and matches.
+- **Relationships**: Belongs to a league, includes players, and participates in matches.
 
 ### **Player**
 - **Fields**: `id`, `name`, `position`, `teamId`, `leagueId`, `goals`, `yellowCards`, `redCards`.
-- **Relationships**: Belongs to a team and a league.
+- **Relationships**: Member of a team and a league.
 
 ### **Match**
 - **Fields**: `id`, `jornadaId`, `homeTeamId`, `awayTeamId`, `date`, `scoreHome`, `scoreAway`.
-- **Relationships**: Belongs to a jornada, has teams.
+- **Relationships**: Linked to a jornada, involves home and away teams.
 
 ---
 
 ## **Main Routes**
 
 ### **General**
-- `/`: Main page with general statistics.
-- `/login`: Log in.
-- `/logout`: Log out.
+- `/`: Main page displaying league-wide statistics.
+- `/login`: User login.
+- `/logout`: User logout.
 
 ### **Administrator**
-- `/dashboard/admin/ligas`: Manage leagues.
-- `/dashboard/admin/equipos`: Manage teams.
-- `/dashboard/admin/jugadores`: Manage players.
-- `/dashboard/admin/partidos`: Manage matches.
+- `/dashboard/admin/ligas`: League management.
+- `/dashboard/admin/equipos`: Team management.
+- `/dashboard/admin/jugadores`: Player management.
+- `/dashboard/admin/partidos`: Match management.
 
 ### **Captain**
 - `/dashboard/captain/jugadores`: Manage team players.
 
 ### **Referee**
-- `/dashboard/referee/partidos`: View and edit matches.
+- `/dashboard/referee/partidos`: View and manage matches.
+
+---
+
+## **Detailed Features**
+
+### **Dynamic Home Page**
+- Displays aggregated league statistics.
+- Highlights top scorers and best defensive teams.
+- Lists upcoming matches by jornada.
+
+### **Admin Panel**
+- **League Overview**: Create, edit, and archive leagues.
+- **Team Insights**: Assign captains, view performance data, and handle team transfers.
+- **Player Roster**: Manage player statistics and ensure fair play compliance.
+
+### **Captain Dashboard**
+- View and manage the team roster.
+- Upload player images and maintain uniform branding.
+- Monitor team performance metrics.
+
+### **Referee Tools**
+- Oversee match scheduling.
+- Record match outcomes, player statistics, and disciplinary actions.
 
 ---
 
 ## **Screenshots**
 
+
 ### **Login Page**
-![Login Page](#)
+![Login Page](login_page.png)
+
+![Login Page](login_page1.png)
+![Login Page](login_page2.png)
+![Login Page](login_page3.png)
+![Login Page](login_page4.png)
+![Login Page](login_page5.png)
+![Login Page](login_page6.png)
+![Login Page](login_page7.png)
+![Login Page](login_page8.png)
+
 
 ### **Admin Dashboard**
-![Admin Dashboard](#)
+![Admin Dashboard](admin_dashboard.png)
 
 ### **Team Management**
-![Team Management](#)
+![Team Management](team_management.png)
 
 ### **Match Management**
-![Match Management](#)
+![Match Management](match_management.png)
+
+---
+
+## **Future Enhancements**
+
+
+1. **User Notifications**: Email or in-app alerts for match updates and deadlines.
+2. **Advanced Analytics**: Graphical insights on team and player performance.
+3. **Integration with External APIs**: Fetch live soccer data for added realism.
 
 ---
 
@@ -229,4 +277,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ---
 
-**Thank you for using Football League Management!**
+**Thank you for using soccer League Management!**
