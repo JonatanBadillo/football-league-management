@@ -33,7 +33,7 @@
     - [**Login Page**](#login-page)
     - [**Admin Dashboard**](#admin-dashboard)
     - [**Team Management**](#team-management)
-    - [**Match Management**](#match-management)
+    - [**Referee Management**](#referee-management)
   - [**Future Enhancements**](#future-enhancements)
   - [**Contributions**](#contributions)
   - [**License**](#license)
@@ -229,23 +229,32 @@ soccer-league-management/
 ### **Login Page**
 ![Login Page](login_page.png)
 
-![Login Page](login_page1.png)
-![Login Page](login_page2.png)
-![Login Page](login_page3.png)
-![Login Page](login_page4.png)
-![Login Page](login_page5.png)
-![Login Page](login_page6.png)
-![Login Page](login_page7.png)
-![Login Page](login_page8.png)
+
 
 
 ### **Admin Dashboard**
-![Admin Dashboard](admin_dashboard.png)
+![Login Page](login_page1.png)
+
+![Login Page](login_page2.png)
+
+![Login Page](login_page3.png)
+
+![Login Page](login_page4.png)
+
+![Login Page](login_page5.png)
+
+![Login Page](login_page6.png)
+
+![Login Page](login_page7.png)
+
+![Login Page](login_page8.png)
 
 ### **Team Management**
 ![Team Management](team_management.png)
 
-### **Match Management**
+![Match Management](team_management1.png)
+
+### **Referee Management**
 ![Match Management](match_management.png)
 
 ---
