@@ -36,7 +36,6 @@
     - [**Referee Management**](#referee-management)
   - [**Future Enhancements**](#future-enhancements)
   - [**Contributions**](#contributions)
-  - [**License**](#license)
 
 ---
 
@@ -257,6 +256,8 @@ soccer-league-management/
 ### **Referee Management**
 ![Match Management](match_management.png)
 
+![Match Management](match_management1.png)
+
 ---
 
 ## **Future Enhancements**
@@ -278,12 +279,3 @@ Contributions are welcome! Please follow these steps:
 4. Push your changes: `git push origin feature/new-feature`.
 5. Open a Pull Request.
 
----
-
-## **License**
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
----
-
-**Thank you for using soccer League Management!**
